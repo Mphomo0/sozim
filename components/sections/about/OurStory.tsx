@@ -34,8 +34,8 @@ export default function OurStory() {
               Today, Sozim continues to innovate and expand, introducing new
               programs, embracing technology, and adapting to the changing needs
               of students and employers. Our success is measured not just in
-              numbers, but in the lives we've transformed and the careers we've
-              launched.
+              numbers, but in the lives we&lsquo;ve transformed and the careers
+              we&lsquo;ve launched.
             </p>
           </div>
         </div>

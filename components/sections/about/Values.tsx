@@ -7,7 +7,6 @@ import {
   Target,
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
-import { de } from 'zod/locales'
 
 const values = [
   {
