@@ -21,12 +21,12 @@ export default function OurStory() {
               development, recognized the critical need for practical,
               industry-relevant training programs. They understood that
               traditional education often failed to equip students with the
-              skills needed in today's rapidly evolving job market.
+              skills needed in today&lsquo;s rapidly evolving job market.
             </p>
             <p>
-              Over the years, we've developed strong partnerships with leading
-              businesses and industry experts to ensure our curriculum remains
-              current and our graduates are job-ready. Our commitment to
+              Over the years, we&lsquo;ve developed strong partnerships with
+              leading businesses and industry experts to ensure our curriculum
+              remains current and our graduates are job-ready. Our commitment to
               excellence has earned us recognition as one of the premier private
               education providers in South Africa.
             </p>
