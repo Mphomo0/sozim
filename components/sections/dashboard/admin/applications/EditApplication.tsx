@@ -95,7 +95,7 @@ export default function EditApplication() {
         // Users (only role USER)
         if (userRes.ok) {
           const userData = await userRes.json()
-          let loadedUsers: any[] = []
+          let loadedUsers: User[] = []
 
           if (Array.isArray(userData)) loadedUsers = userData
           else if (Array.isArray(userData.users)) loadedUsers = userData.users
@@ -166,7 +166,7 @@ export default function EditApplication() {
     try {
       setIsUploading(true)
 
-      let finalDocuments = [...data.documents]
+      const finalDocuments = [...data.documents]
 
       if (newFiles && newFiles.length > 0) {
         for (const file of newFiles) {
