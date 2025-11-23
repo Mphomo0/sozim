@@ -10,7 +10,7 @@ export async function GET() {
     const courses = await Course.find().populate('categoryId', 'name')
 
     return NextResponse.json(courses)
-  } catch (error) {
+  } catch (error: unknown) {
     return NextResponse.json(
       { error: 'Failed to fetch courses' },
       { status: 500 }

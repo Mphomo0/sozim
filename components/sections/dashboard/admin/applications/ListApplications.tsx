@@ -1,12 +1,17 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import { toast } from 'react-toastify'
 import { Edit, Trash2, FileText, Plus } from 'lucide-react'
 import { Pagination } from '@/components/global/Pagination'
 
-type Application = {
+interface DocumentsFile {
+  fileId: string
+  url: string
+}
+
+interface Application {
   _id: string
   applicantId:
     | {
@@ -25,9 +30,16 @@ type Application = {
   createdAt: string
 }
 
-interface DocumentsFile {
-  fileId: string
-  url: string
+interface ApplicationsResponse {
+  data: Application[]
+  pagination: {
+    totalPages: number
+    page: number
+    limit: number
+    total: number
+    hasNextPage: boolean
+    hasPrevPage: boolean
+  }
 }
 
 export default function ListApplications() {
@@ -37,44 +49,42 @@ export default function ListApplications() {
   const [limit, setLimit] = useState(10)
   const [totalPages, setTotalPages] = useState(1)
 
-  // Fetch Data
-  const fetchApplications = async () => {
+  // --- Fetch Data ---
+  const fetchApplications = useCallback(async () => {
+    setIsLoading(true)
     try {
       const res = await fetch(
         `/api/applications?page=${currentPage}&limit=${limit}`
       )
-      if (!res.ok) throw new Error('Failed to fetch')
+      if (!res.ok) throw new Error('Failed to fetch applications')
 
-      const data = await res.json()
-
+      const data: ApplicationsResponse = await res.json()
       setApplications(data.data)
       setTotalPages(data.pagination.totalPages)
-    } catch (error) {
-      toast.error('Failed to load applications')
+    } catch (error: unknown) {
+      console.error(error)
+      const message =
+        error instanceof Error ? error.message : 'Failed to load applications'
+      toast.error(message)
     } finally {
       setIsLoading(false)
     }
-  }
-
-  // Re-fetch when page or limit change
-  useEffect(() => {
-    fetchApplications()
   }, [currentPage, limit])
 
-  // Delete Functionality
+  useEffect(() => {
+    fetchApplications()
+  }, [fetchApplications])
+
+  // --- Delete Functionality ---
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this application?')) return
 
     try {
-      const res = await fetch(`/api/applications/${id}`, {
-        method: 'DELETE',
-      })
-
-      const data = await res.json()
-
+      const res = await fetch(`/api/applications/${id}`, { method: 'DELETE' })
       if (!res.ok) throw new Error('Failed to delete application')
 
-      const fileIds = data.documents?.map((doc: any) => doc.fileId) || []
+      const data: Application = await res.json()
+      const fileIds = data.documents?.map((doc) => doc.fileId) || []
 
       if (fileIds.length > 0) {
         const delRes = await fetch('/api/images/delete-files', {
@@ -82,19 +92,20 @@ export default function ListApplications() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ fileIds }),
         })
-
         if (!delRes.ok) throw new Error('Failed to delete files from ImageKit')
       }
 
       toast.success('Application and files deleted successfully')
-
-      // Refresh list
       fetchApplications()
-    } catch (error) {
-      toast.error('Error deleting application')
+    } catch (error: unknown) {
+      console.error(error)
+      const message =
+        error instanceof Error ? error.message : 'Error deleting application'
+      toast.error(message)
     }
   }
 
+  // --- Helpers ---
   const getApplicantName = (app: Application) => {
     if (typeof app.applicantId === 'object') {
       return `${app.applicantId.firstName} ${app.applicantId.lastName}`
@@ -107,6 +118,7 @@ export default function ListApplications() {
     return app.courseId
   }
 
+  // --- Render ---
   if (isLoading) return <div className="p-8">Loading applications...</div>
 
   return (
@@ -132,7 +144,6 @@ export default function ListApplications() {
               <th className="p-4 font-medium text-right">Actions</th>
             </tr>
           </thead>
-
           <tbody>
             {applications.length > 0 ? (
               applications.map((app) => (
@@ -165,7 +176,6 @@ export default function ListApplications() {
                     >
                       <Edit size={18} />
                     </Link>
-
                     <button
                       onClick={() => handleDelete(app._id)}
                       className="inline-flex items-center justify-center p-2 text-red-600 hover:bg-red-50 rounded"
@@ -185,7 +195,7 @@ export default function ListApplications() {
           </tbody>
         </table>
 
-        {/* PAGINATION */}
+        {/* Pagination */}
         <div className="py-8">
           <Pagination
             currentPage={currentPage}

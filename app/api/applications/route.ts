@@ -43,12 +43,12 @@ export const GET = auth(async function (req) {
       },
       { status: 200 }
     )
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('GET /applications error:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch applications' },
-      { status: 500 }
-    )
+    const message =
+      error instanceof Error ? error.message : 'Failed to fetch applications'
+
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 })
 
@@ -67,11 +67,11 @@ export const POST = auth(async function (req) {
     const saved = await newApplication.save()
 
     return Response.json(saved, { status: 201 })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('POST /applications error:', error)
-    return NextResponse.json(
-      { error: error.message || 'Internal server error' },
-      { status: 500 }
-    )
+    const message =
+      error instanceof Error ? error.message : 'Internal server error'
+
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 })

@@ -32,10 +32,23 @@ const applicationSchema = z.object({
 
 type ApplicationFormData = z.infer<typeof applicationSchema>
 
+interface User {
+  _id: string
+  firstName: string
+  lastName: string
+  email: string
+  role: 'USER' | 'ADMIN' | string
+}
+
+interface Course {
+  _id: string
+  name: string
+}
+
 export default function EditApplication() {
   const [isLoadingData, setIsLoadingData] = useState(true)
-  const [courses, setCourses] = useState<any[]>([])
-  const [users, setUsers] = useState<any[]>([])
+  const [courses, setCourses] = useState<Course[]>([])
+  const [users, setUsers] = useState<User[]>([])
   const [newFiles, setNewFiles] = useState<File[] | null>(null)
   const [isUploading, setIsUploading] = useState(false)
 
@@ -115,7 +128,7 @@ export default function EditApplication() {
         } else {
           toast.error('Application not found')
         }
-      } catch (error) {
+      } catch (error: unknown) {
         console.error(error)
         toast.error('Failed to load data')
       } finally {
