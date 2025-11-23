@@ -1,10 +1,4 @@
-interface NewApplicationCardProps {
-  studentId: string
-}
-
-export default function NewApplicationCard({
-  studentId,
-}: NewApplicationCardProps) {
+export default function NewApplicationCard() {
   return (
     <div className="bg-white p-6 rounded-xl shadow-md">
       <h2 className="text-lg font-semibold mb-4">Apply for a New Program</h2>

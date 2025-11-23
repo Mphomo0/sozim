@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { BookOpen, ClipboardList, User2Icon, CircleUser } from 'lucide-react'
+import { BookOpen, ClipboardList, CircleUser } from 'lucide-react'
 import { NavMain } from '@/components/sections/dashboard/nav-main'
 import { NavUser } from '@/components/sections/dashboard/nav-user'
 import {
