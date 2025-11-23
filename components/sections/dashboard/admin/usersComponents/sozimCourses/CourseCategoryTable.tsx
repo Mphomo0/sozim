@@ -21,6 +21,7 @@ export default function CourseCategoryTable() {
       if (!res.ok) throw new Error('Failed to load categories')
       setCategories(await res.json())
     } catch (error: any) {
+      console.error('Failed to load categories', error)
       toast.error(error.message || 'Network error')
     } finally {
       setLoading(false)
@@ -29,7 +30,7 @@ export default function CourseCategoryTable() {
 
   useEffect(() => {
     fetchCategories()
-  }, [])
+  }, [fetchCategories])
 
   const handleCreate = async (data: CourseCategoryInput) => {
     const payload = {

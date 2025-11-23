@@ -51,8 +51,8 @@ export default function CourseComponent() {
       // --- End Defensive Parsing Logic ---
 
       setCourses(coursesArray)
-    } catch (_error: unknown) {
-      // Show the parsed error message in the toast
+    } catch (error: unknown) {
+      console.error('Error fetching courses:', error)
       toast.error('Network error')
     } finally {
       setLoading(false)
