@@ -63,7 +63,7 @@ export function EditCourseModal({
       await onEdit(data)
       toast.success('Course updated successfully')
       onClose()
-    } catch (err: unknown) {
+    } catch (error: unknown) {
       toast.error('Failed to update course')
     }
   }

@@ -20,9 +20,9 @@ export default function CourseCategoryTable() {
       const res = await fetch('/api/categories')
       if (!res.ok) throw new Error('Failed to load categories')
       setCategories(await res.json())
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load categories', error)
-      toast.error(error.message || 'Network error')
+      toast.error('Network error')
     } finally {
       setLoading(false)
     }

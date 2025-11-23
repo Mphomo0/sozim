@@ -90,8 +90,8 @@ export default function CourseComponent() {
       setCourses((prev) => [...prev, newCourse])
       toast.success('Course created successfully')
       setShowCreateModal(false)
-    } catch (error: any) {
-      toast.error(error.message)
+    } catch (error: unknown) {
+      toast.error('failed to create course')
     }
   }
 
@@ -130,8 +130,8 @@ export default function CourseComponent() {
       // Removed redundant fetchCourses() call here, mapping the state is faster
       setSelectedCourse(null)
       setShowEditModal(false)
-    } catch (error: any) {
-      toast.error(error.message)
+    } catch (error: unknown) {
+      toast.error('Failed to update course')
     }
   }
 
@@ -146,8 +146,8 @@ export default function CourseComponent() {
       }
       setCourses((prev) => prev.filter((c) => c._id !== id))
       toast.success('Course deleted')
-    } catch (error: any) {
-      toast.error(error.message)
+    } catch (error: unknown) {
+      toast.error('failed to delete course')
     }
   }
 

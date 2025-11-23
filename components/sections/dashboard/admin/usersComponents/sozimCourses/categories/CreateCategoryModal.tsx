@@ -1,7 +1,7 @@
 import React from 'react'
 import { Modal } from './Modal'
 import { CategoryForm } from './CategoryForm'
-import { useForm, SubmitHandler } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { courseCategorySchema, CourseCategoryInput } from './types'
 
@@ -41,7 +41,7 @@ export function CreateCategoryModal({
       footer={
         <button
           className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg"
-          onClick={handleSubmit(handleCreate as any)}
+          onClick={handleSubmit(handleCreate)}
         >
           Create
         </button>
