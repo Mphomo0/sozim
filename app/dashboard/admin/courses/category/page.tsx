@@ -7,18 +7,51 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
-import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar'
+import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import CourseCategoryTable from '@/components/sections/dashboard/admin/usersComponents/sozimCourses/CourseCategoryTable'
 import { auth } from '@/auth'
+import { redirect } from 'next/navigation'
 
-export default function CourseCategoryPage() {
+export default async function CourseCategoryPage() {
+  let session
+
+  try {
+    session = await auth()
+  } catch (error) {
+    console.error('Authentication error:', error)
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 px-4">
+        <p className="text-xl text-red-600">
+          Authentication error. Please try again.
+        </p>
+      </div>
+    )
+  }
+
+  if (!session) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 px-4">
+        <p className="text-xl text-gray-700">You are not authenticated.</p>
+        <Link href="/login" passHref>
+          <Button className="mt-4 bg-black text-white hover:bg-gray-800 transition duration-200">
+            Login
+          </Button>
+        </Link>
+      </div>
+    )
+  }
+
+  if (session.user?.role !== 'ADMIN') {
+    redirect('/student')
+  }
+
   return (
     <SidebarProvider>
       <AppSidebar />

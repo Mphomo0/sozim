@@ -15,9 +15,43 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar'
+import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import CourseComponent from '@/components/sections/dashboard/admin/usersComponents/sozimCourses/CourseComponent'
 
-export default function CoursesPage() {
+export default async function CoursesPage() {
+  let session
+
+  try {
+    session = await auth()
+  } catch (error) {
+    console.error('Authentication error:', error)
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 px-4">
+        <p className="text-xl text-red-600">
+          Authentication error. Please try again.
+        </p>
+      </div>
+    )
+  }
+
+  if (!session) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 px-4">
+        <p className="text-xl text-gray-700">You are not authenticated.</p>
+        <Link href="/login" passHref>
+          <Button className="mt-4 bg-black text-white hover:bg-gray-800 transition duration-200">
+            Login
+          </Button>
+        </Link>
+      </div>
+    )
+  }
+
+  if (session.user?.role !== 'ADMIN') {
+    redirect('/student')
+  }
+
   return (
     <SidebarProvider>
       <AppSidebar />
