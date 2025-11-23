@@ -31,7 +31,7 @@ export default function CourseComponent() {
         }
       }
 
-      let rawData = await res.json()
+      const rawData = await res.json()
       let coursesArray: Course[] = []
 
       // --- Defensive Parsing Logic ---
@@ -51,9 +51,9 @@ export default function CourseComponent() {
       // --- End Defensive Parsing Logic ---
 
       setCourses(coursesArray)
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Show the parsed error message in the toast
-      toast.error(error.message || 'Network error')
+      toast.error('Network error')
     } finally {
       setLoading(false)
     }

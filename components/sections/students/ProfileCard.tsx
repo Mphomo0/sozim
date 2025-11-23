@@ -58,11 +58,21 @@ const ProfileSchema = z
 
 type ProfileForm = z.infer<typeof ProfileSchema>
 
+interface UserProfile {
+  _id: string
+  firstName: string
+  lastName: string
+  email: string
+  phone?: string
+  dob?: string
+  address?: string
+}
+
 export default function ProfileCard() {
   const { data: session } = useSession()
   const userId = session?.user?.id
 
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<UserProfile | null>(null)
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
 

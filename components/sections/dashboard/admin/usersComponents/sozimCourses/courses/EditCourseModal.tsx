@@ -39,6 +39,7 @@ export function EditCourseModal({
   })
 
   // Populate form when course changes
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (course) {
       reset({
@@ -62,8 +63,8 @@ export function EditCourseModal({
       await onEdit(data)
       toast.success('Course updated successfully')
       onClose()
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to update course')
+    } catch (err: unknown) {
+      toast.error('Failed to update course')
     }
   }
 
