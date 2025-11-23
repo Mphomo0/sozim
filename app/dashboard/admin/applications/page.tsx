@@ -16,9 +16,7 @@ import {
 } from '@/components/ui/sidebar'
 import Link from 'next/link'
 import { auth } from '@/auth'
-
 import { redirect } from 'next/navigation'
-import CreateApplication from '@/components/sections/dashboard/admin/applications/CreateApplication'
 import ListApplications from '@/components/sections/dashboard/admin/applications/ListApplications'
 
 export default async function ApplicationAdminPage() {

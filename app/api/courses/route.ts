@@ -58,11 +58,14 @@ export const POST = auth(async function (req) {
 
     const saved = await newCourse.save()
     return NextResponse.json(saved, { status: 201 })
-  } catch (error: any) {
-    console.error('POST /categories error:', error)
-    return NextResponse.json(
-      { error: error.message || 'Internal server error' },
-      { status: 500 }
-    )
+  } catch (error: unknown) {
+    // FIXED: Changed 'any' to 'unknown'
+    console.error('POST /courses error:', error)
+
+    // Type narrowing to safely extract the message
+    const errorMessage =
+      error instanceof Error ? error.message : 'Internal server error'
+
+    return NextResponse.json({ error: errorMessage }, { status: 500 })
   }
 })

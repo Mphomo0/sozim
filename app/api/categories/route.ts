@@ -45,11 +45,22 @@ export async function POST(req: NextRequest) {
 
     const saved = await newCategory.save()
     return NextResponse.json(saved, { status: 201 })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('POST /categories error:', error)
-    return NextResponse.json(
-      { error: error.message || 'Internal server error' },
-      { status: 500 }
-    )
+
+    // Type narrowing is required when using 'unknown'
+    let errorMessage = 'Internal server error'
+    if (error instanceof Error) {
+      errorMessage = error.message
+    } else if (
+      typeof error === 'object' &&
+      error !== null &&
+      'message' in error
+    ) {
+      // Fallback for non-standard error objects from Mongoose/MongoDB
+      errorMessage = (error as { message: string }).message
+    }
+
+    return NextResponse.json({ error: errorMessage }, { status: 500 })
   }
 }
