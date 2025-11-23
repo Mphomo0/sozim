@@ -1,30 +1,30 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
+import { useSession } from 'next-auth/react'
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const [searchActive, setSearchActive] = useState(false)
-
-  // NEW STATE: State to manage the visibility of the Academic Schools dropdown on desktop
   const [isDesktopDropdownOpen, setIsDesktopDropdownOpen] = useState(false)
-
-  // We keep the old openDropdowns for the mobile multi-level menu
   const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>(
     {}
   )
 
+  const { data: session } = useSession()
+
   const topMenuItems = [
-    'Apply Now',
-    'Call Me Back',
-    'International Students',
-    'Contact Us',
+    { label: 'Apply Now', href: '/apply' },
+    { label: 'Call Me Back', href: '/callback' },
+    { label: 'International Students', href: '/international' },
+    { label: 'Contact Us', href: '/contact' },
   ]
 
   const mainMenuItems = [
-    { label: 'Home', href: '#' },
-    { label: 'About Us', href: '#' },
+    { label: 'Home', href: '/' },
+    { label: 'About Us', href: '/about' },
     {
       label: 'Academic Schools',
       dropdown: [
@@ -78,45 +78,59 @@ export default function Navbar() {
 
   return (
     <header className="relative z-50 bg-white border-b border-gray-300 tracking-wide">
-      {/* Top Section (No changes here) */}
+      {/* Top Section */}
       <section className="flex flex-wrap items-center gap-4 py-2 px-4 sm:px-10 min-h-[70px] border-b border-gray-300">
         {/* Logo */}
-        <a href="#" className="max-sm:hidden">
+        <Link href="/" className="max-sm:hidden">
           <Image
-            src="https://readymadeui.com/readymadeui.svg"
+            src="/images/logo/sozimLogo.webp"
             alt="logo"
-            width={136}
-            height={30}
+            width={250}
+            height={80}
+            className="w-auto h-auto"
           />
-        </a>
-        <a href="#" className="hidden max-sm:block">
+        </Link>
+        <Link href="/" className="hidden max-sm:block">
           <Image
-            src="https://readymadeui.com/readymadeui-short.svg"
+            src="/images/logo/sozimLogo.webp"
             alt="logo"
-            width={36}
-            height={36}
+            width={180}
+            height={70}
+            className="w-auto h-auto"
           />
-        </a>
+        </Link>
 
         {/* Top Menu */}
         <ul className="flex space-x-8 max-lg:hidden lg:absolute lg:top-1/2 lg:left-1/2 lg:-translate-x-1/2 lg:-translate-y-1/2">
           {topMenuItems.map((item) => (
-            <li key={item}>
-              <a
-                href="#"
+            <li key={item.label}>
+              <Link
+                href={item.href}
                 className="text-[15px] font-medium text-slate-900 hover:text-blue-900"
               >
-                {item}
-              </a>
+                {item.label}
+              </Link>
             </li>
           ))}
         </ul>
 
         {/* Right Section: Login + Search */}
         <div className="flex items-center ml-auto space-x-4 lg:absolute lg:right-10">
-          <button className="px-4 py-2 text-[15px] font-medium text-white bg-blue-900 rounded-sm hover:bg-blue-700">
-            Current Student Login
-          </button>
+          {session ? (
+            <Link
+              href="/dashboard"
+              className="px-4 py-2 text-[15px] font-medium text-white bg-blue-900 rounded-full hover:bg-blue-700"
+            >
+              Dashboard
+            </Link>
+          ) : (
+            <Link
+              href="/login"
+              className="px-4 py-2 text-[15px] font-medium text-white bg-blue-900 rounded-full hover:bg-blue-700"
+            >
+              Current Student Login
+            </Link>
+          )}
 
           {/* Expandable Search */}
           <div
@@ -125,6 +139,7 @@ export default function Navbar() {
             }`}
           >
             <input
+              id="search"
               type="text"
               placeholder="Search..."
               className={`absolute left-0 top-0 h-10 w-full py-1.5 pl-10 pr-3 text-[14px] rounded-full border border-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-900 transition-all duration-300 ${
@@ -158,7 +173,6 @@ export default function Navbar() {
 
       {/* Main Navigation */}
       <div className="flex flex-wrap items-start gap-4 px-10 py-3 relative">
-        {/* Overlay and Slide-out Menu (No core changes here) */}
         {isOpen && (
           <div
             className="fixed inset-0 bg-black opacity-50 z-40"
@@ -184,21 +198,21 @@ export default function Navbar() {
           <ul className="lg:flex lg:justify-center gap-x-8 max-lg:space-y-3">
             <li className="mb-6 hidden max-lg:block">
               <Image
-                src="https://readymadeui.com/readymadeui.svg"
+                src="/images/logo/sozimLogo.webp"
                 alt="logo"
                 width={144}
                 height={30}
+                className="w-auto h-auto"
               />
             </li>
 
             {mainMenuItems.map((item) =>
               item.dropdown ? (
-                // Changed from 'group relative' to 'relative' because we don't need group-hover anymore
                 <li
                   key={item.label}
                   className="relative max-lg:border-b border-blue-200 max-lg:py-3"
                 >
-                  {/* Desktop Dropdown (NOW CONDITIONAL) */}
+                  {/* Desktop Dropdown */}
                   {isDesktopDropdownOpen &&
                     item.label === 'Academic Schools' && (
                       <ul className="lg:absolute lg:left-1/2 lg:-translate-x-1/2 lg:top-full lg:mt-0 lg:min-w-[300px] lg:bg-white lg:border lg:border-gray-200 lg:shadow-xl lg:rounded lg:p-4 lg:space-y-2 lg:transition-all lg:duration-200 lg:z-50">
@@ -207,25 +221,23 @@ export default function Navbar() {
                             key={index}
                             className="pb-2 border-b border-gray-100 last:border-b-0"
                           >
-                            {/* Main Dropdown Title/Link */}
-                            <a
+                            <Link
                               href={sub.href || '#'}
                               className="block text-[14px] font-bold text-blue-900 hover:text-blue-700"
                             >
                               {sub.title}
-                            </a>
+                            </Link>
 
-                            {/* Nested Sub-Links */}
                             {sub.links && (
                               <ul className="pl-3 mt-1 space-y-1">
                                 {sub.links.map((link, i) => (
                                   <li key={i}>
-                                    <a
+                                    <Link
                                       href={link.href}
                                       className="block text-[13px] text-slate-500 hover:text-blue-700 transition"
                                     >
                                       {link.label}
-                                    </a>
+                                    </Link>
                                   </li>
                                 ))}
                               </ul>
@@ -235,7 +247,7 @@ export default function Navbar() {
                       </ul>
                     )}
 
-                  {/* Mobile/Tablet Dropdown Toggle (Keep original click logic) */}
+                  {/* Mobile Dropdown */}
                   <button
                     onClick={() => toggleDropdown(item.label)}
                     className="flex lg:hidden items-center justify-between w-full text-[15px] font-medium text-slate-500 hover:text-blue-600"
@@ -257,82 +269,25 @@ export default function Navbar() {
                       />
                     </svg>
                   </button>
-
-                  {/* Desktop label (NOW A BUTTON FOR CLICKING) */}
-                  <button
-                    onClick={() =>
-                      setIsDesktopDropdownOpen(!isDesktopDropdownOpen)
-                    }
-                    // Use hidden/lg:block to ensure this only applies on desktop
-                    className="hidden lg:flex items-center text-[15px] font-medium text-slate-500 hover:text-blue-600 cursor-pointer"
-                  >
-                    {item.label}
-                    <svg
-                      className={`w-4 h-4 ml-2 transition-transform ${
-                        isDesktopDropdownOpen ? 'rotate-180' : ''
-                      }`}
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  </button>
-
-                  {/* Mobile Dropdown Menu (No changes here) */}
-                  {isDropdownOpen(item.label) && (
-                    <ul className="lg:hidden mt-2 pl-4 space-y-2">
-                      {item.dropdown.map((sub, index) => (
-                        <li key={index}>
-                          <a
-                            href={sub.href || '#'}
-                            className="block text-[14px] font-semibold text-blue-900 hover:underline"
-                          >
-                            {sub.title}
-                          </a>
-
-                          {sub.links && (
-                            <ul className="mt-1 pl-4 space-y-1">
-                              {sub.links.map((link, i) => (
-                                <li key={i}>
-                                  <a
-                                    href={link.href}
-                                    className="block text-[13px] text-slate-500 hover:text-blue-700"
-                                  >
-                                    {link.label}
-                                  </a>
-                                </li>
-                              ))}
-                            </ul>
-                          )}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
                 </li>
               ) : (
                 <li
                   key={item.label}
                   className="max-lg:border-b border-blue-200 max-lg:py-3"
                 >
-                  <a
+                  <Link
                     href={item.href}
                     className="block text-[15px] font-medium text-slate-500 hover:text-blue-600"
                   >
                     {item.label}
-                  </a>
+                  </Link>
                 </li>
               )
             )}
           </ul>
         </nav>
 
-        {/* Hamburger Button */}
+        {/* Hamburger */}
         <div className="flex ml-auto lg:hidden">
           <button
             aria-label="Open Menu"

@@ -9,11 +9,12 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <Image
-              src="/images/logo/WhiteLogo.png"
+              src="/images/logo/sozimLogoWhite.webp"
               alt="Logo"
               width={150}
               height={150}
               className="object-contain w-full h-auto"
+              priority
             />
             <p className="text-sm text-stone-50">
               Sozim Trading and Consultancy stands for quality, excellent
