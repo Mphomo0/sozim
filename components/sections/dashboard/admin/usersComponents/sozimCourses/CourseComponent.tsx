@@ -51,7 +51,7 @@ export default function CourseComponent() {
       // --- End Defensive Parsing Logic ---
 
       setCourses(coursesArray)
-    } catch (error: unknown) {
+    } catch (_error: unknown) {
       // Show the parsed error message in the toast
       toast.error('Network error')
     } finally {

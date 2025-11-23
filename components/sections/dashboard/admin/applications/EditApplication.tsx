@@ -61,7 +61,7 @@ export default function EditApplication() {
     setValue,
     watch,
     reset,
-    formState: { errors, isSubmitting },
+    formState: { errors: _errors, isSubmitting },
   } = useForm<ApplicationFormData>({
     resolver: zodResolver(applicationSchema),
     defaultValues: {

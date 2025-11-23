@@ -11,6 +11,7 @@ export async function GET() {
 
     return NextResponse.json(courses)
   } catch (error: unknown) {
+    console.error('GET /courses error:', error) // <-- log it
     return NextResponse.json(
       { error: 'Failed to fetch courses' },
       { status: 500 }
