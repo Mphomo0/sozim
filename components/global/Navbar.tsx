@@ -16,7 +16,7 @@ export default function Navbar() {
   const { data: session } = useSession()
 
   const topMenuItems = [
-    { label: 'Apply Now', href: '/apply' },
+    { label: 'Apply Now', href: '/student' },
     { label: 'Call Me Back', href: '/callback' },
     { label: 'International Students', href: '/international' },
     { label: 'Contact Us', href: '/contact' },
@@ -88,6 +88,7 @@ export default function Navbar() {
             width={250}
             height={80}
             className="w-auto h-auto"
+            priority
           />
         </Link>
         <Link href="/" className="hidden max-sm:block">
@@ -97,11 +98,12 @@ export default function Navbar() {
             width={180}
             height={70}
             className="w-auto h-auto"
+            priority
           />
         </Link>
 
         {/* Top Menu */}
-        <ul className="flex space-x-8 max-lg:hidden lg:absolute lg:top-1/2 lg:left-1/2 lg:-translate-x-1/2 lg:-translate-y-1/2">
+        <ul className="flex space-x-8 max-lg:hidden lg:absolute lg:top-1/2 lg:left-1/2 lg:-translate-x-1/2 lg:-translate-y-1/2 space-y-10">
           {topMenuItems.map((item) => (
             <li key={item.label}>
               <Link

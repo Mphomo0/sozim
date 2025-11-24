@@ -19,6 +19,7 @@ import { auth } from '@/auth'
 
 import { redirect } from 'next/navigation'
 import CreateApplication from '@/components/sections/dashboard/admin/applications/CreateApplication'
+export const dynamic = 'force-dynamic'
 
 export default async function NewApplicationPage() {
   let session

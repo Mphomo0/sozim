@@ -18,7 +18,7 @@ import {
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import CourseComponent from '@/components/sections/dashboard/admin/usersComponents/sozimCourses/CourseComponent'
-
+export const dynamic = 'force-dynamic'
 export default async function CoursesPage() {
   let session
 

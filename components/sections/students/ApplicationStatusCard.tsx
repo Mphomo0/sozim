@@ -8,6 +8,11 @@ interface Application {
   status: string
   createdAt: string
   applicantId: string
+  courseId:
+    | {
+        name: string
+      }
+    | string
 }
 
 export default function ApplicationStatusCard() {
@@ -59,6 +64,9 @@ export default function ApplicationStatusCard() {
                 <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
                   ID
                 </th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">
+                  Course
+                </th>
                 <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
                   Status
                 </th>
@@ -71,6 +79,9 @@ export default function ApplicationStatusCard() {
               {applications.map((app) => (
                 <tr key={app._id}>
                   <td className="px-4 py-2">{app._id}</td>
+                  <td className="px-4 py-2">
+                    {(app.courseId as { name: string }).name}
+                  </td>
                   <td className="px-4 py-2">{app.status}</td>
                   <td className="px-4 py-2">
                     {new Date(app.createdAt).toLocaleDateString()}

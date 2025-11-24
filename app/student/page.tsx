@@ -5,7 +5,7 @@ import Application from '@/models/Application'
 import dbConnect from '@/lib/mongodb'
 import ProfileCard from '@/components/sections/students/ProfileCard'
 import ApplicationStatusCard from '@/components/sections/students/ApplicationStatusCard'
-// import NewApplicationCard from '@/components/sections/students/NewApplicationCard'
+import NewApplicationCard from '@/components/sections/students/NewApplicationCard'
 
 export default async function StudentPage() {
   // Authenticate user
@@ -45,12 +45,11 @@ export default async function StudentPage() {
         {/* Profile Section */}
         <ProfileCard />
 
-        {/* Applications Status Section */}
-        <ApplicationStatusCard />
+        {/* New Application Section */}
+        <NewApplicationCard />
       </div>
-
-      {/* New Application Section */}
-      {/* <NewApplicationCard studentId={session.user.id} /> */}
+      {/* Applications Status Section */}
+      <ApplicationStatusCard />
     </div>
   )
 }

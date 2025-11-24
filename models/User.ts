@@ -1,5 +1,6 @@
 import mongoose, { Schema, Document, Model } from 'mongoose'
 import bcrypt from 'bcryptjs'
+// import './Application'
 
 // TypeScript interface
 export interface IUser extends Document {

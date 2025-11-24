@@ -9,11 +9,17 @@ export async function GET() {
     await dbConnect()
     const courses = await Course.find().populate('categoryId', 'name')
 
-    return NextResponse.json(courses)
+    return NextResponse.json({ success: true, data: courses })
   } catch (error: unknown) {
     console.error('GET /courses error:', error) // <-- log it
     return NextResponse.json(
-      { error: 'Failed to fetch courses' },
+      {
+        success: false,
+        error:
+          process.env.NODE_ENV === 'development'
+            ? error || 'Unknown error'
+            : 'Failed to fetch courses',
+      },
       { status: 500 }
     )
   }

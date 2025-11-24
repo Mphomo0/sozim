@@ -68,7 +68,7 @@ export default function Login() {
     <div className="bg-gray-50">
       <div className="min-h-screen flex flex-col items-center justify-center py-6 px-4">
         <div className="max-w-[480px] w-full">
-          <Link href="#">
+          <Link href="/">
             <Image
               src="/images/logo/SozimLogo.webp"
               alt="Sozim Logo"

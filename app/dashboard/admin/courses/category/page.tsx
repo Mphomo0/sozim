@@ -18,6 +18,7 @@ import Link from 'next/link'
 import CourseCategoryTable from '@/components/sections/dashboard/admin/usersComponents/sozimCourses/CourseCategoryTable'
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
+export const dynamic = 'force-dynamic'
 
 export default async function CourseCategoryPage() {
   let session

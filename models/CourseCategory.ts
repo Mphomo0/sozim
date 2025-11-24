@@ -1,4 +1,5 @@
-import mongoose, { Schema } from 'mongoose'
+import mongoose, { Schema, model, models } from 'mongoose'
+import './Course'
 
 const courseCategorySchema = new Schema(
   {
@@ -11,5 +12,9 @@ const courseCategorySchema = new Schema(
   { timestamps: true }
 )
 
-export default mongoose.models.CourseCategory ||
+// Use the exported variable name as the model name convention
+const CourseCategory =
+  mongoose.models.CourseCategory ||
   mongoose.model('CourseCategory', courseCategorySchema)
+
+export default CourseCategory // Export the actual model instance

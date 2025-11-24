@@ -8,14 +8,16 @@ export default function Footer() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <Image
-              src="/images/logo/sozimLogoWhite.webp"
-              alt="Logo"
-              width={150}
-              height={150}
-              className="object-contain w-full h-auto"
-              priority
-            />
+            <Link href="/">
+              <Image
+                src="/images/logo/sozimLogoWhite.webp"
+                alt="Logo"
+                width={150}
+                height={150}
+                className="object-contain w-auto h-auto"
+                priority
+              />
+            </Link>
             <p className="text-sm text-stone-50">
               Sozim Trading and Consultancy stands for quality, excellent
               products, highly efficient processes and outstanding results.

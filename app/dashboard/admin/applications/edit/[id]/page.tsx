@@ -19,6 +19,7 @@ import { auth } from '@/auth'
 
 import { redirect } from 'next/navigation'
 import EditApplication from '@/components/sections/dashboard/admin/applications/EditApplication'
+export const dynamic = 'force-dynamic'
 
 export default async function ApplicationAdminEditPage() {
   let session

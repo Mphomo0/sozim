@@ -1,4 +1,6 @@
 import mongoose, { Schema } from 'mongoose'
+// import './Course'
+// import './User'
 
 const applicationSchema = new Schema(
   {

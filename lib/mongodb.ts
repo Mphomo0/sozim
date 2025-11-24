@@ -29,12 +29,24 @@ export default async function dbConnect(): Promise<Mongoose> {
 
   if (!cached.promise) {
     cached.promise = mongoose
-      .connect(MONGODB_URI as string)
+      .connect(MONGODB_URI as string, { bufferCommands: false })
       .then((mongooseInstance) => {
+        console.log('MongoDB connected')
         return mongooseInstance
+      })
+      .catch((err) => {
+        console.error('MongoDB connection error:', err)
+        cached.promise = null // ❗ allow retry next time
+        throw err
       })
   }
 
-  cached.conn = await cached.promise
-  return cached.conn
+  try {
+    cached.conn = await cached.promise
+    return cached.conn
+  } catch (err) {
+    // If the awaited promise failed
+    cached.promise = null
+    throw err
+  }
 }

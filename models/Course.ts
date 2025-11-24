@@ -1,4 +1,5 @@
 import mongoose, { Schema } from 'mongoose'
+import './CourseCategory'
 
 const courseSchema = new Schema(
   {
@@ -23,4 +24,6 @@ const courseSchema = new Schema(
   { timestamps: true }
 )
 
-export default mongoose.models.Course || mongoose.model('Course', courseSchema)
+const Course = mongoose.models.Course || mongoose.model('Course', courseSchema)
+
+export default Course // Export the actual model instance

@@ -18,6 +18,7 @@ import Link from 'next/link'
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import ListApplications from '@/components/sections/dashboard/admin/applications/ListApplications'
+export const dynamic = 'force-dynamic'
 
 export default async function ApplicationAdminPage() {
   let session
