@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Trash2, Pencil, Eye } from 'lucide-react'
+import { Trash2, Pencil } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { toast } from 'react-toastify'
 import Link from 'next/link'
@@ -48,7 +48,7 @@ export default function AllUsers() {
 
   useEffect(() => {
     loadUsers()
-  }, [currentPage, limit])
+  }, [currentPage, limit, loadUsers])
 
   async function handleDeleteUser(_id: string) {
     if (!confirm('Are you sure you want to delete this user?')) return
@@ -87,7 +87,7 @@ export default function AllUsers() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {users.map((user, key) => (
+            {users.map((user) => (
               <TableRow key={user._id}>
                 <TableCell>{user._id}</TableCell>
                 <TableCell>{user.firstName}</TableCell>

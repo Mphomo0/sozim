@@ -21,14 +21,7 @@ import Link from 'next/link'
 import EditUserComp from '@/components/sections/dashboard/admin/usersComponents/EditUserComp'
 export const dynamic = 'force-dynamic'
 
-// Define the type for the component props, specifically the dynamic parameters
-interface Props {
-  params: {
-    id: string // Assuming the dynamic route segment is named [id]
-  }
-}
-
-export default async function EditUserPage({ params }: Props) {
+export default async function EditUserPage() {
   let session
 
   try {

@@ -24,7 +24,7 @@ interface Props {
 }
 
 export default function ApplicationStatusChart({ data }: Props) {
-  const { pending = 0, approved = 0, rejected = 0 } = data[0] || {}
+  // const { pending = 0, approved = 0, rejected = 0 } = data[0] || {}
 
   // Transform for Recharts
   const chartData = [

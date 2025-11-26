@@ -8,6 +8,7 @@ import { useSession } from 'next-auth/react'
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const [searchActive, setSearchActive] = useState(false)
+  // This state is now used by the onMouseEnter/onMouseLeave handlers below
   const [isDesktopDropdownOpen, setIsDesktopDropdownOpen] = useState(false)
   const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>(
     {}
@@ -18,7 +19,7 @@ export default function Navbar() {
   const topMenuItems = [
     { label: 'Apply Now', href: '/student' },
     { label: 'Call Me Back', href: '/callback' },
-    { label: 'International Students', href: '/international' },
+    { label: 'Student Portal', href: '/portal' },
     { label: 'Contact Us', href: '/contact' },
   ]
 
@@ -63,7 +64,7 @@ export default function Navbar() {
     { label: 'Library', href: '#' },
     { label: 'Contact Learning', href: '#' },
     { label: 'Campus', href: '#' },
-    { label: 'Career Pathways', href: '#' },
+    { label: 'Career Pathways', href: '/career-pathway' },
     { label: 'Sozim Store', href: '#' },
   ]
 
@@ -130,7 +131,7 @@ export default function Navbar() {
               href="/login"
               className="px-4 py-2 text-[15px] font-medium text-white bg-blue-900 rounded-full hover:bg-blue-700"
             >
-              Current Student Login
+              Student Login
             </Link>
           )}
 
@@ -213,6 +214,17 @@ export default function Navbar() {
                 <li
                   key={item.label}
                   className="relative max-lg:border-b border-blue-200 max-lg:py-3"
+                  // FIX: Use the state setter to open dropdown on hover for desktop
+                  onMouseEnter={() => {
+                    if (item.label === 'Academic Schools') {
+                      setIsDesktopDropdownOpen(true)
+                    }
+                  }}
+                  onMouseLeave={() => {
+                    if (item.label === 'Academic Schools') {
+                      setIsDesktopDropdownOpen(false)
+                    }
+                  }}
                 >
                   {/* Desktop Dropdown */}
                   {isDesktopDropdownOpen &&
@@ -249,7 +261,15 @@ export default function Navbar() {
                       </ul>
                     )}
 
-                  {/* Mobile Dropdown */}
+                  {/* Desktop/Mobile Link */}
+                  <Link
+                    href={'#'} // Use '#' or the first link in the dropdown as the main link
+                    className="hidden lg:block text-[15px] font-medium text-slate-500 hover:text-blue-600"
+                  >
+                    {item.label}
+                  </Link>
+
+                  {/* Mobile Dropdown Button */}
                   <button
                     onClick={() => toggleDropdown(item.label)}
                     className="flex lg:hidden items-center justify-between w-full text-[15px] font-medium text-slate-500 hover:text-blue-600"
@@ -271,6 +291,40 @@ export default function Navbar() {
                       />
                     </svg>
                   </button>
+
+                  {/* Mobile Dropdown Content */}
+                  {isDropdownOpen(item.label) && (
+                    <ul className="lg:hidden mt-3 ml-3 p-2 bg-blue-50 rounded-lg space-y-2">
+                      {item.dropdown.map((sub, index) => (
+                        <li
+                          key={index}
+                          className="border-b border-blue-100 last:border-b-0"
+                        >
+                          <Link
+                            href={sub.href || '#'}
+                            className="block text-[14px] font-bold text-blue-800 hover:text-blue-600 py-1"
+                          >
+                            {sub.title}
+                          </Link>
+
+                          {sub.links && (
+                            <ul className="pl-3 mt-1 space-y-1 pb-1">
+                              {sub.links.map((link, i) => (
+                                <li key={i}>
+                                  <Link
+                                    href={link.href}
+                                    className="block text-[13px] text-slate-500 hover:text-blue-700 transition"
+                                  >
+                                    {link.label}
+                                  </Link>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </li>
               ) : (
                 <li

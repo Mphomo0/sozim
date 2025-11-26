@@ -49,7 +49,7 @@ export const POST = async (req: NextRequest) => {
     })
 
     const userObj = user.toObject()
-    const { password: _, ...safeUser } = userObj
+    const { password: _password, ...safeUser } = userObj
 
     return NextResponse.json(safeUser, { status: 201 })
   } catch (error) {

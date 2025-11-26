@@ -25,10 +25,6 @@ interface FormValues {
   address?: string
 }
 
-interface EditUserCompProps {
-  _id: string
-}
-
 export default function EditUserComp() {
   const [loading, setLoading] = useState(true)
   const [showPassword, setShowPassword] = useState(false)
@@ -72,7 +68,7 @@ export default function EditUserComp() {
     if (_id) {
       loadUser()
     }
-  }, [_id])
+  }, [_id, loadUser])
 
   // Submit handler
   async function onSubmit(form: FormValues) {

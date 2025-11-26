@@ -80,7 +80,8 @@ export const PATCH = auth(async function (
     }
 
     // Optional: Omit sensitive fields like password before sending the response
-    const { password: _, ...userWithoutPassword } = updatedUser.toObject()
+    const { password: _password, ...userWithoutPassword } =
+      updatedUser.toObject()
 
     return NextResponse.json(userWithoutPassword, { status: 200 })
   } catch (error) {
