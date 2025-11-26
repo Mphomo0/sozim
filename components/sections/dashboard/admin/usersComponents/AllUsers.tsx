@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import {
   Table,
   TableBody,
@@ -30,7 +30,7 @@ export default function AllUsers() {
   const [limit, setLimit] = useState(10)
   const [totalPages, setTotalPages] = useState(1)
 
-  async function loadUsers() {
+  const loadUsers = useCallback(async () => {
     try {
       const res = await fetch(`/api/users?page=${currentPage}&limit=${limit}`)
       if (!res.ok) throw new Error('Failed to fetch users')
@@ -44,7 +44,11 @@ export default function AllUsers() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [currentPage, limit]) // 3. Dependencies for useCallback
+
+  useEffect(() => {
+    loadUsers()
+  }, [currentPage, limit, loadUsers]) // The dependency array is now correct!
 
   useEffect(() => {
     loadUsers()

@@ -80,6 +80,7 @@ export const PATCH = auth(async function (
     }
 
     // Optional: Omit sensitive fields like password before sending the response
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _password, ...userWithoutPassword } =
       updatedUser.toObject()
 

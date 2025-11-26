@@ -31,7 +31,7 @@ export function EditCategoryModal({
 
   useEffect(() => {
     if (category) reset(category)
-  }, [category])
+  }, [category, reset])
 
   return (
     <Modal

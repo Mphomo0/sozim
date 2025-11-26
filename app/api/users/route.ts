@@ -49,6 +49,7 @@ export const POST = async (req: NextRequest) => {
     })
 
     const userObj = user.toObject()
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _password, ...safeUser } = userObj
 
     return NextResponse.json(safeUser, { status: 201 })

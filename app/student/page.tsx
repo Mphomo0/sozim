@@ -1,8 +1,5 @@
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
-import User from '@/models/User'
-import Application from '@/models/Application'
-import dbConnect from '@/lib/mongodb'
 import ProfileCard from '@/components/sections/students/ProfileCard'
 import ApplicationStatusCard from '@/components/sections/students/ApplicationStatusCard'
 import NewApplicationCard from '@/components/sections/students/NewApplicationCard'
