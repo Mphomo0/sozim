@@ -98,7 +98,7 @@ export default function Navbar() {
             alt="logo"
             width={180}
             height={70}
-            className="w-auto h-auto"
+            className="w-auto h-auto object-contain"
             priority
           />
         </Link>

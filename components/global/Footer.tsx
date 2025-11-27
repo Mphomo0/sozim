@@ -16,7 +16,7 @@ export default function Footer() {
                 alt="Logo"
                 width={150}
                 height={150}
-                className="object-contain w-auto h-auto"
+                className="w-auto h-auto object-contain "
                 priority
               />
             </Link>
