@@ -12,12 +12,13 @@ export default function Footer() {
           <div>
             <Link href="/">
               <Image
-                src="/images/logo/sozimLogoWhite.png"
+                src="https://ik.imagekit.io/e2pess7p4/application/SozimLogo.webp?tr=w-150,h-150,q-80"
                 alt="Logo"
                 width={150}
                 height={150}
-                className="w-auto h-auto object-contain "
+                className="w-auto h-auto"
                 priority
+                unoptimized
               />
             </Link>
             <p className="text-sm text-stone-50">

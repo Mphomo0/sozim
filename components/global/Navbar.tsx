@@ -84,22 +84,24 @@ export default function Navbar() {
         {/* Logo */}
         <Link href="/" className="max-sm:hidden">
           <Image
-            src="/images/logo/sozimLogo.png"
+            src="https://ik.imagekit.io/e2pess7p4/application/SozimLogo.webp?tr=w-250,h-80,q-80"
             alt="logo"
             width={250}
             height={80}
-            className="w-auto h-auto"
+            className="w-auto h-auto object-contain "
             priority
+            unoptimized
           />
         </Link>
         <Link href="/" className="hidden max-sm:block">
           <Image
-            src="/images/logo/sozimLogo.webp"
+            src="https://ik.imagekit.io/e2pess7p4/application/SozimLogo.webp?tr=w-1580,h-70,q-80"
             alt="logo"
             width={180}
             height={70}
             className="w-auto h-auto object-contain"
             priority
+            unoptimized
           />
         </Link>
 
