@@ -85,6 +85,40 @@ export default function CreateApplication() {
     }
   }
 
+  // --- Data Fetching ---
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const courseRes = await fetch('/api/courses')
+        if (courseRes.ok) {
+          const courseData = await courseRes.json()
+          setCourses(courseData.data)
+        }
+
+        const userRes = await fetch('/api/users')
+        if (userRes.ok) {
+          const userData = await userRes.json()
+
+          let loadedUsers: User[] = []
+
+          // normalize API response
+          if (Array.isArray(userData)) loadedUsers = userData
+          else if (Array.isArray(userData.users)) loadedUsers = userData.users
+          else if (Array.isArray(userData.data)) loadedUsers = userData.data
+
+          // keep only regular users
+          const filtered = loadedUsers.filter((u) => u.role === 'USER')
+
+          setUsers(filtered)
+        }
+      } catch (error) {
+        console.error(error)
+        toast.error('Failed to load form data')
+      }
+    }
+    fetchData()
+  }, [])
+
   // --- Submit Logic ---
   const onSubmit = async (data: ApplicationFormData) => {
     try {
@@ -162,37 +196,6 @@ export default function CreateApplication() {
       setIsUploading(false)
     }
   }
-
-  // --- Data Fetching ---
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const courseRes = await fetch('/api/courses')
-        if (courseRes.ok) setCourses(await courseRes.json())
-
-        const userRes = await fetch('/api/users')
-        if (userRes.ok) {
-          const userData = await userRes.json()
-
-          let loadedUsers: User[] = []
-
-          // normalize API response
-          if (Array.isArray(userData)) loadedUsers = userData
-          else if (Array.isArray(userData.users)) loadedUsers = userData.users
-          else if (Array.isArray(userData.data)) loadedUsers = userData.data
-
-          // keep only regular users
-          const filtered = loadedUsers.filter((u) => u.role === 'USER')
-
-          setUsers(filtered)
-        }
-      } catch (error) {
-        console.error(error)
-        toast.error('Failed to load form data')
-      }
-    }
-    fetchData()
-  }, [])
 
   return (
     <div className="container mx-auto p-4">

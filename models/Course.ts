@@ -18,7 +18,11 @@ const courseSchema = new Schema(
 
     // reverse relation
     applications: [
-      { type: mongoose.Schema.Types.ObjectId, ref: 'Application' },
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Application',
+        required: true,
+      },
     ],
   },
   { timestamps: true }

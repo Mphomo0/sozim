@@ -12,7 +12,7 @@ export default function Footer() {
           <div>
             <Link href="/">
               <Image
-                src="/images/logo/sozimLogoWhite.webp"
+                src="/images/logo/sozimLogoWhite.png"
                 alt="Logo"
                 width={150}
                 height={150}

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useSession } from 'next-auth/react'
+import { useSession, signOut } from 'next-auth/react'
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
@@ -84,7 +84,7 @@ export default function Navbar() {
         {/* Logo */}
         <Link href="/" className="max-sm:hidden">
           <Image
-            src="/images/logo/sozimLogo.webp"
+            src="/images/logo/sozimLogo.png"
             alt="logo"
             width={250}
             height={80}
@@ -120,12 +120,21 @@ export default function Navbar() {
         {/* Right Section: Login + Search */}
         <div className="flex items-center ml-auto space-x-4 lg:absolute lg:right-10">
           {session ? (
-            <Link
-              href="/dashboard"
-              className="px-4 py-2 text-[15px] font-medium text-white bg-blue-900 rounded-full hover:bg-blue-700"
-            >
-              Dashboard
-            </Link>
+            <div className="flex items-center space-x-3">
+              <Link
+                href="/dashboard"
+                className="px-4 py-2 text-[15px] font-medium text-white bg-blue-900 rounded-full hover:bg-blue-700"
+              >
+                Dashboard
+              </Link>
+
+              <button
+                onClick={() => signOut({ callbackUrl: '/login' })}
+                className="px-4 py-2 text-[15px] font-medium text-white bg-red-600 rounded-full hover:bg-red-700"
+              >
+                Logout
+              </button>
+            </div>
           ) : (
             <Link
               href="/login"
