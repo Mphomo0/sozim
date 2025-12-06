@@ -7,17 +7,17 @@ import Link from 'next/link'
 const courses = [
   {
     id: 1,
-    title: 'Business Management',
-    category: 'Business',
-    level: 'Diploma',
+    title: 'Library Assistant',
+    category: 'School of Arts and Humanities',
+    level: 'Occupational Certificate',
     duration: '12 months',
     students: '500+',
     description:
-      'Comprehensive business management program covering strategic planning, operations, and leadership.',
+      'The purpose of this qualification is to prepare a learner to operate as a Library Assistant.',
     modules: [
-      'Strategic Management',
-      'Operations Management',
-      'Business Finance',
+      'Introduction to Libraries and Library Services (LIS), NQF Level 5, 8 Credits.',
+      'Information retrieval and storage, NQF Level 5, 8 Credits',
+      'Marketing, Client Liaison and Supervision, NQF Level 5, 9 Credits',
       'Marketing Management',
       'Human Resource Management',
       'Project Management',
@@ -147,12 +147,9 @@ const courses = [
 
 const categories = [
   'All',
-  'Business',
-  'Finance',
-  'Marketing',
-  'HR',
-  'Management',
-  'Operations',
+  'School of Arts and Humanities',
+  'School of Education',
+  'ETDP SETA Skills Programmes',
 ]
 
 export default function OurPrograms() {
@@ -173,14 +170,17 @@ export default function OurPrograms() {
       {/* Courses Grid */}
       <section className="py-16">
         <div className="container mx-auto px-4">
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          <div
+            className="grid gap-2
+           md:grid-cols-2 lg:grid-cols-3"
+          >
             {courses.map((course) => (
               <Card
                 key={course.id}
                 className="group flex flex-col overflow-hidden transition-all hover:shadow-xl"
               >
                 <CardHeader>
-                  <div className="mb-3 flex items-center justify-between">
+                  <div className="mb-3 flex items-center justify-between text-sm">
                     <Badge variant="secondary">{course.category}</Badge>
                     <Badge variant="outline">{course.level}</Badge>
                   </div>

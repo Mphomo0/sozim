@@ -18,7 +18,7 @@ export default function Navbar() {
 
   const topMenuItems = [
     { label: 'Apply Now', href: '/student' },
-    { label: 'Call Me Back', href: '/callback' },
+    { label: 'Call Me Back', href: '/contact-me' },
     { label: 'Student Portal', href: '/portal' },
     { label: 'Contact Us', href: '/contact' },
   ]
@@ -65,7 +65,7 @@ export default function Navbar() {
     { label: 'Contact Learning', href: '#' },
     { label: 'Campus', href: '#' },
     { label: 'Career Pathways', href: '/career-pathway' },
-    { label: 'Sozim Store', href: '#' },
+    { label: 'Sozim Store', href: '/shop' },
   ]
 
   const toggleDropdown = (label: string) => {
