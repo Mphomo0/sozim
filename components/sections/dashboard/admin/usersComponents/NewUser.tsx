@@ -17,6 +17,7 @@ import {
 import { useRouter } from 'next/navigation'
 import { toast } from 'react-toastify'
 
+// Zod schema with missing fields added
 const newUserSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),
   lastName: z.string().min(1, 'Last name is required'),
@@ -27,18 +28,34 @@ const newUserSchema = z.object({
       /^(\+?\d{1,3}[- ]?)?(\d{9,12})$/,
       'Please enter a valid international or South African phone number'
     ),
+  alternativeNumber: z
+    .string()
+    .optional()
+    .refine(
+      (val) => val === undefined || val.match(/^(\+?\d{1,3}[- ]?)?(\d{9,12})$/),
+      'Please enter a valid alternative number'
+    )
+    .or(z.literal('')), // Allow empty string
   dob: z.string().min(1, 'Date of birth is required'),
   email: z.email('Please enter a valid email'),
   address: z.string().min(1, 'Address is required'),
+  idNumber: z.string().optional(),
+  nationality: z.string().optional(),
   password: z
     .string()
-    .min(8, 'Password must be at least 8 characters long')
-    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
-    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
-    .regex(/[0-9]/, 'Password must contain at least one number')
-    .regex(
-      /[^A-Za-z0-9]/,
-      'Password must contain at least one special character'
+    .optional()
+    .refine(
+      (val) =>
+        !val || // <-- allow empty
+        (val.length >= 8 &&
+          /[A-Z]/.test(val) &&
+          /[a-z]/.test(val) &&
+          /[0-9]/.test(val) &&
+          /[^A-Za-z0-9]/.test(val)),
+      {
+        message:
+          'Password must be at least 8 chars, include upper, lower, number, and special character',
+      }
     ),
 })
 
@@ -69,7 +86,6 @@ export default function NewUser() {
       const result = await res.json()
 
       if (!res.ok) {
-        console.error(result.error)
         alert(result.error || 'Failed to create user')
         return
       }
@@ -83,28 +99,22 @@ export default function NewUser() {
   }
 
   return (
-    <div className="bg-white w-full md:w-[800px] mx-auto mt-4 m-8 py-8 rounded-lg shadow-md px-8">
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="w-full mt-12 space-y-6"
-      >
+    <div className="bg-white w-full md:w-[800px] mx-auto mt-4 py-8 rounded-lg shadow-md px-8">
+      <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-6">
+        {/* Name fields */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* First Name */}
           <div>
-            <label
-              htmlFor="firstName"
-              className="text-slate-900 text-sm font-medium mb-2 block"
-            >
+            <label className="text-slate-900 text-sm font-medium mb-2 block">
               First Name
             </label>
             <div className="relative flex items-center">
               <User className="absolute left-3 text-gray-400 w-4 h-4" />
               <input
-                id="firstName"
                 type="text"
                 placeholder="Enter first name"
                 {...register('firstName')}
-                className="w-full pl-9 pr-3 py-3 border border-slate-300 rounded-md text-sm text-slate-900 outline-blue-600"
+                className="w-full pl-9 pr-3 py-3 border rounded-md"
               />
             </div>
             {errors.firstName && (
@@ -116,20 +126,16 @@ export default function NewUser() {
 
           {/* Last Name */}
           <div>
-            <label
-              htmlFor="lastName"
-              className="text-slate-900 text-sm font-medium mb-2 block"
-            >
+            <label className="text-slate-900 text-sm font-medium mb-2 block">
               Last Name
             </label>
             <div className="relative flex items-center">
               <User className="absolute left-3 text-gray-400 w-4 h-4" />
               <input
-                id="lastName"
                 type="text"
                 placeholder="Enter last name"
                 {...register('lastName')}
-                className="w-full pl-9 pr-3 py-3 border border-slate-300 rounded-md text-sm text-slate-900 outline-blue-600"
+                className="w-full pl-9 pr-3 py-3 border rounded-md"
               />
             </div>
             {errors.lastName && (
@@ -142,20 +148,16 @@ export default function NewUser() {
 
         {/* Email */}
         <div>
-          <label
-            htmlFor="email"
-            className="text-slate-900 text-sm font-medium mb-2 block"
-          >
+          <label className="text-slate-900 text-sm font-medium mb-2 block">
             Email
           </label>
           <div className="relative flex items-center">
             <Mail className="absolute left-3 text-gray-400 w-4 h-4" />
             <input
-              id="email"
               type="email"
               placeholder="Enter email address"
               {...register('email')}
-              className="w-full pl-9 pr-3 py-3 border border-slate-300 rounded-md text-sm text-slate-900 outline-blue-600"
+              className="w-full pl-9 pr-3 py-3 border rounded-md"
             />
           </div>
           {errors.email && (
@@ -163,23 +165,20 @@ export default function NewUser() {
           )}
         </div>
 
+        {/* Phone + Alt Phone + DOB */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Phone */}
           <div>
-            <label
-              htmlFor="phone"
-              className="text-slate-900 text-sm font-medium mb-2 block"
-            >
+            <label className="text-slate-900 text-sm font-medium mb-2 block">
               Phone Number
             </label>
             <div className="relative flex items-center">
               <Phone className="absolute left-3 text-gray-400 w-4 h-4" />
               <input
-                id="phone"
                 type="tel"
                 placeholder="e.g. +27821234567"
                 {...register('phone')}
-                className="w-full pl-9 pr-3 py-3 border border-slate-300 rounded-md text-sm text-slate-900 outline-blue-600"
+                className="w-full pl-9 pr-3 py-3 border rounded-md"
               />
             </div>
             {errors.phone && (
@@ -189,80 +188,118 @@ export default function NewUser() {
             )}
           </div>
 
-          {/* Date of Birth */}
+          {/* Alternative Number */}
           <div>
-            <label
-              htmlFor="dob"
-              className="text-slate-900 text-sm font-medium mb-2 block"
-            >
+            <label className="text-slate-900 text-sm font-medium mb-2 block">
+              Alternative Number (optional)
+            </label>
+            <div className="relative flex items-center">
+              <Phone className="absolute left-3 text-gray-400 w-4 h-4" />
+              <input
+                type="tel"
+                placeholder="Optional alternative number"
+                {...register('alternativeNumber')}
+                className="w-full pl-9 pr-3 py-3 border rounded-md"
+              />
+            </div>
+            {errors.alternativeNumber && (
+              <p className="text-red-500 text-xs mt-1">
+                {errors.alternativeNumber.message}
+              </p>
+            )}
+          </div>
+
+          {/* DOB */}
+          <div>
+            <label className="text-slate-900 text-sm font-medium mb-2 block">
               Date of Birth
             </label>
             <div className="relative flex items-center">
               <Calendar className="absolute left-3 text-gray-400 w-4 h-4" />
               <input
-                id="dob"
                 type="date"
                 {...register('dob')}
-                className="w-full pl-9 pr-3 py-3 border border-slate-300 rounded-md text-sm text-slate-900 outline-blue-600"
+                className="w-full pl-9 pr-3 py-3 border rounded-md"
               />
             </div>
             {errors.dob && (
               <p className="text-red-500 text-xs mt-1">{errors.dob.message}</p>
             )}
           </div>
+        </div>
 
-          {/* Password */}
+        {/* ID Number + Nationality */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* ID Number */}
           <div>
-            <label
-              htmlFor="password"
-              className="text-slate-900 text-sm font-medium mb-2 block"
-            >
-              Password
+            <label className="text-slate-900 text-sm font-medium mb-2 block">
+              ID Number (optional)
             </label>
-            <div className="relative flex items-center">
-              <Lock className="absolute left-3 text-gray-400 w-4 h-4" />
-              <input
-                id="password"
-                type={showPassword ? 'text' : 'password'}
-                placeholder="Enter password"
-                {...register('password')}
-                className="w-full pl-9 pr-9 py-3 border border-slate-300 rounded-md text-sm text-slate-900 outline-blue-600"
+            <input
+              type="text"
+              placeholder="Enter ID number"
+              {...register('idNumber')}
+              className="w-full pl-3 pr-3 py-3 border rounded-md"
+            />
+          </div>
+
+          {/* Nationality */}
+          <div>
+            <label className="text-slate-900 text-sm font-medium mb-2 block">
+              Nationality (optional)
+            </label>
+            <input
+              type="text"
+              placeholder="Enter nationality"
+              {...register('nationality')}
+              className="w-full pl-3 pr-3 py-3 border rounded-md"
+            />
+          </div>
+        </div>
+
+        {/* Password */}
+        <div>
+          <label className="text-slate-900 text-sm font-medium mb-2 block">
+            Password
+          </label>
+          <div className="relative flex items-center">
+            <Lock className="absolute left-3 text-gray-400 w-4 h-4" />
+            <input
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Enter password"
+              {...register('password')}
+              className="w-full pl-9 pr-9 py-3 border rounded-md"
+            />
+            {showPassword ? (
+              <EyeOff
+                className="absolute right-3 text-gray-400 w-4 h-4 cursor-pointer"
+                onClick={() => setShowPassword(false)}
               />
-              {showPassword ? (
-                <EyeOff
-                  className="absolute right-3 text-gray-400 w-4 h-4 cursor-pointer"
-                  onClick={() => setShowPassword(false)}
-                />
-              ) : (
-                <Eye
-                  className="absolute right-3 text-gray-400 w-4 h-4 cursor-pointer"
-                  onClick={() => setShowPassword(true)}
-                />
-              )}
-            </div>
-            {errors.password && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.password.message}
-              </p>
+            ) : (
+              <Eye
+                className="absolute right-3 text-gray-400 w-4 h-4 cursor-pointer"
+                onClick={() => setShowPassword(true)}
+              />
             )}
           </div>
+          {errors.password && (
+            <p className="text-red-500 text-xs mt-1">
+              {errors.password.message}
+            </p>
+          )}
         </div>
 
         {/* Address */}
         <div>
-          <label
-            htmlFor="address"
-            className="text-slate-900 text-sm font-medium mb-2 block"
-          >
+          <label className="text-slate-900 text-sm font-medium mb-2 block">
             Address
           </label>
           <div className="relative flex items-start">
             <MapPin className="absolute left-3 top-3 text-gray-400 w-4 h-4" />
             <textarea
-              id="address"
               placeholder="Enter your address"
               {...register('address')}
-              className="w-full pl-9 pr-3 py-3 border border-slate-300 rounded-md text-sm text-slate-900 outline-blue-600 min-h-[120px]"
+              className="w-full pl-9 pr-3 py-3 border rounded-md min-h-[120px]"
             />
           </div>
           {errors.address && (
@@ -272,14 +309,14 @@ export default function NewUser() {
           )}
         </div>
 
-        {/* Submit button */}
+        {/* Submit */}
         <div className="!mt-12">
           <button
             type="submit"
-            className="w-full py-2 px-4 text-[15px] font-medium tracking-wide rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-2 px-4 text-[15px] font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
             disabled={isSubmitting}
           >
-            {isSubmitting ? 'Creating account...' : 'Create Account'}
+            {isSubmitting ? 'Creating user...' : 'Create User'}
           </button>
         </div>
       </form>

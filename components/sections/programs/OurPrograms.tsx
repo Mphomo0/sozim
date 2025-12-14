@@ -1,266 +1,239 @@
+'use client'
+
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Clock, Users, CheckCircle, BookOpen, Award } from 'lucide-react'
 import Link from 'next/link'
 
-const courses = [
-  {
-    id: 1,
-    title: 'Library Assistant',
-    category: 'School of Arts and Humanities',
-    level: 'Occupational Certificate',
-    duration: '12 months',
-    students: '500+',
-    description:
-      'The purpose of this qualification is to prepare a learner to operate as a Library Assistant.',
-    modules: [
-      'Introduction to Libraries and Library Services (LIS), NQF Level 5, 8 Credits.',
-      'Information retrieval and storage, NQF Level 5, 8 Credits',
-      'Marketing, Client Liaison and Supervision, NQF Level 5, 9 Credits',
-      'Marketing Management',
-      'Human Resource Management',
-      'Project Management',
-    ],
-    requirements: [
-      'Grade 12 certificate or equivalent',
-      'Basic computer literacy',
-      'English proficiency',
-    ],
-  },
-  {
-    id: 2,
-    title: 'Financial Management',
-    category: 'Finance',
-    level: 'Diploma',
-    duration: '12 months',
-    students: '400+',
-    description:
-      'Master financial planning, analysis, and strategic financial decision-making for business success.',
-    modules: [
-      'Financial Accounting',
-      'Management Accounting',
-      'Financial Planning',
-      'Investment Analysis',
-      'Risk Management',
-      'Corporate Finance',
-    ],
-    requirements: [
-      'Grade 12 certificate with Mathematics',
-      'Basic accounting knowledge',
-      'Computer literacy',
-    ],
-  },
-  {
-    id: 3,
-    title: 'Marketing Management',
-    category: 'Marketing',
-    level: 'Diploma',
-    duration: '12 months',
-    students: '450+',
-    description:
-      'Learn modern marketing strategies, digital marketing, and brand management techniques.',
-    modules: [
-      'Marketing Principles',
-      'Digital Marketing',
-      'Consumer Behavior',
-      'Brand Management',
-      'Marketing Research',
-      'Social Media Marketing',
-    ],
-    requirements: [
-      'Grade 12 certificate or equivalent',
-      'Creative thinking skills',
-      'Computer and internet proficiency',
-    ],
-  },
-  {
-    id: 4,
-    title: 'Human Resources Management',
-    category: 'HR',
-    level: 'Diploma',
-    duration: '12 months',
-    students: '380+',
-    description:
-      'Develop expertise in people management, recruitment, and organizational development.',
-    modules: [
-      'HR Strategy',
-      'Recruitment & Selection',
-      'Training & Development',
-      'Performance Management',
-      'Employment Law',
-      'Organizational Behavior',
-    ],
-    requirements: [
-      'Grade 12 certificate or equivalent',
-      'Good communication skills',
-      'Interest in people management',
-    ],
-  },
-  {
-    id: 5,
-    title: 'Project Management',
-    category: 'Management',
-    level: 'Certificate',
-    duration: '6 months',
-    students: '300+',
-    description:
-      'Learn essential project management skills and methodologies for successful project delivery.',
-    modules: [
-      'Project Planning',
-      'Risk Management',
-      'Budget Management',
-      'Team Leadership',
-      'Quality Control',
-      'Project Execution',
-    ],
-    requirements: [
-      'Grade 12 certificate or equivalent',
-      'Basic management understanding',
-      'Computer literacy',
-    ],
-  },
-  {
-    id: 6,
-    title: 'Supply Chain Management',
-    category: 'Operations',
-    level: 'Certificate',
-    duration: '6 months',
-    students: '280+',
-    description:
-      'Master logistics, procurement, and supply chain optimization for business efficiency.',
-    modules: [
-      'Supply Chain Fundamentals',
-      'Procurement Management',
-      'Inventory Control',
-      'Logistics Management',
-      'Warehouse Management',
-      'Supply Chain Analytics',
-    ],
-    requirements: [
-      'Grade 12 certificate or equivalent',
-      'Analytical thinking skills',
-      'Basic computer skills',
-    ],
-  },
-]
+interface Category {
+  _id: string
+  name: string
+}
 
-const categories = [
-  'All',
-  'School of Arts and Humanities',
-  'School of Education',
-  'ETDP SETA Skills Programmes',
-]
+interface Course {
+  _id: string
+  name: string
+  code: string
+  description: string
+  duration: string
+  isOpen: boolean
+  categoryId: { name: string }
+  creditTotals: {
+    knowledge: number
+    practical: number
+    workExperience: number
+  }
+  entryRequirements: string[]
+  qualification?: string
+  level?: string
+  modules: {
+    knowledgeModules: { title: string; nqfLevel: number; credits: number }[]
+    practicalSkillModules: {
+      title: string
+      nqfLevel: number
+      credits: number
+    }[]
+    workExperienceModules: {
+      title: string
+      nqfLevel: number
+      credits: number
+    }[]
+  }
+}
 
 export default function OurPrograms() {
+  const [courses, setCourses] = useState<Course[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
+  const [selectedCategory, setSelectedCategory] = useState('All')
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch categories
+        const categoryResponse = await fetch('/api/categories')
+        const categoriesData = await categoryResponse.json()
+        setCategories(categoriesData)
+
+        // Fetch courses
+        const courseResponse = await fetch('/api/courses')
+        const coursesData = await courseResponse.json()
+        setCourses(coursesData.data)
+
+        setLoading(false)
+      } catch (error) {
+        console.error('Error fetching data:', error)
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [])
+
+  const filteredCourses =
+    selectedCategory === 'All'
+      ? courses
+      : courses.filter((course) => course.categoryId?.name === selectedCategory)
+
+  if (loading) return <div className="text-center h-96">Loading...</div>
+
   return (
     <>
+      {/* CATEGORY FILTERS */}
       <section className="border-b bg-card py-6">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-center flex-wrap gap-2">
             {categories.map((category) => (
-              <Button key={category} variant="outline" size="sm">
-                {category}
+              <Button
+                key={category._id}
+                variant="outline"
+                size="sm"
+                onClick={() => setSelectedCategory(category.name)}
+              >
+                {category.name}
               </Button>
             ))}
+
+            {/* ALL BUTTON */}
+            <Button
+              key="All"
+              variant="outline"
+              size="sm"
+              onClick={() => setSelectedCategory('All')}
+            >
+              All
+            </Button>
           </div>
         </div>
       </section>
 
-      {/* Courses Grid */}
+      {/* COURSES GRID */}
       <section className="py-16">
         <div className="container mx-auto px-4">
-          <div
-            className="grid gap-2
-           md:grid-cols-2 lg:grid-cols-3"
-          >
-            {courses.map((course) => (
-              <Card
-                key={course.id}
-                className="group flex flex-col overflow-hidden transition-all hover:shadow-xl"
-              >
-                <CardHeader>
-                  <div className="mb-3 flex items-center justify-between text-sm">
-                    <Badge variant="secondary">{course.category}</Badge>
-                    <Badge variant="outline">{course.level}</Badge>
-                  </div>
-                  <CardTitle className="group-hover:text-primary transition-colors">
-                    {course.title}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="flex-1">
-                  <p className="mb-4 text-sm text-muted-foreground">
-                    {course.description}
-                  </p>
+          <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3">
+            {filteredCourses.map((course) => {
+              // Flatten modules into a preview list of titles
+              const allModules = [
+                ...(course.modules?.knowledgeModules || []),
+                ...(course.modules?.practicalSkillModules || []),
+                ...(course.modules?.workExperienceModules || []),
+              ]
 
-                  <div className="mb-4 flex flex-wrap gap-4 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <Clock className="h-4 w-4" />
-                      <span>{course.duration}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Users className="h-4 w-4" />
-                      <span>{course.students}</span>
-                    </div>
-                  </div>
+              const moduleTitles = allModules.map((m) => m.title)
 
-                  <div className="mb-4">
-                    <h4 className="mb-2 font-semibold text-sm">
-                      Course Modules:
-                    </h4>
-                    <ul className="space-y-1">
-                      {course.modules.slice(0, 3).map((module, index) => (
-                        <li
-                          key={index}
-                          className="flex items-start gap-2 text-sm text-muted-foreground"
-                        >
-                          <CheckCircle className="h-4 w-4 mt-0.5 flex-shrink-0 text-primary" />
-                          <span>{module}</span>
-                        </li>
-                      ))}
-                      {course.modules.length > 3 && (
-                        <li className="text-sm text-primary">
-                          +{course.modules.length - 3} more modules
-                        </li>
+              return (
+                <Card
+                  key={course._id}
+                  className="group flex flex-col overflow-hidden transition-all hover:shadow-xl"
+                >
+                  <CardHeader>
+                    <div className="mb-3 flex items-center justify-between text-sm">
+                      <Badge variant="secondary">
+                        {course.categoryId?.name || 'Uncategorized'}
+                      </Badge>
+                      <Badge variant="outline">
+                        {course.level || 'NQF Level ?'}
+                      </Badge>
+                    </div>
+
+                    <CardTitle className="group-hover:text-primary transition-colors">
+                      {course.name}
+                    </CardTitle>
+                  </CardHeader>
+
+                  <CardContent className="flex-1">
+                    <p className="mb-4 text-sm text-muted-foreground">
+                      {course.description}
+                    </p>
+
+                    <div className="mb-4 flex flex-wrap gap-4 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <Clock className="h-4 w-4" />
+                        <span>{course.duration}</span>
+                      </div>
+                    </div>
+
+                    {/* MODULE PREVIEW */}
+                    <div className="mb-4">
+                      <h4 className="mb-2 font-semibold text-sm">
+                        Course Modules:
+                      </h4>
+
+                      {moduleTitles.length === 0 ? (
+                        <p className="text-sm text-muted-foreground">
+                          No modules added yet.
+                        </p>
+                      ) : (
+                        <ul className="space-y-1">
+                          {moduleTitles.slice(0, 3).map((title, index) => (
+                            <li
+                              key={index}
+                              className="flex items-start gap-2 text-sm text-muted-foreground"
+                            >
+                              <CheckCircle className="h-4 w-4 mt-0.5 flex-shrink-0 text-primary" />
+                              <span>{title}</span>
+                            </li>
+                          ))}
+
+                          {moduleTitles.length > 3 && (
+                            <li className="text-sm text-primary">
+                              +{moduleTitles.length - 3} more modules
+                            </li>
+                          )}
+                        </ul>
                       )}
-                    </ul>
-                  </div>
+                    </div>
 
-                  <div className="mb-4">
-                    <h4 className="mb-2 font-semibold text-sm">
-                      Requirements:
-                    </h4>
-                    <ul className="space-y-1">
-                      {course.requirements.map((req, index) => (
-                        <li
-                          key={index}
-                          className="flex items-start gap-2 text-sm text-muted-foreground"
-                        >
-                          <CheckCircle className="h-4 w-4 mt-0.5 flex-shrink-0 text-secondary" />
-                          <span>{req}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                    {/* ENTRY REQUIREMENTS */}
+                    <div className="mb-4">
+                      <h4 className="mb-2 font-semibold text-sm">
+                        Requirements:
+                      </h4>
 
-                  <div className="mt-6 flex gap-2">
-                    <Link href="/apply" className="flex-1">
-                      <Button className="w-full bg-gradient-to-r from-primary to-secondary">
-                        Apply Now
-                      </Button>
-                    </Link>
-                    <Button variant="outline" size="icon">
-                      <BookOpen className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                      {course.entryRequirements?.length ? (
+                        <ul className="space-y-1">
+                          {course.entryRequirements.map((req, index) => (
+                            <li
+                              key={index}
+                              className="flex items-start gap-2 text-sm text-muted-foreground"
+                            >
+                              <CheckCircle className="h-4 w-4 mt-0.5 flex-shrink-0 text-secondary" />
+                              <span>{req}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="text-sm text-muted-foreground">
+                          No entry requirements.
+                        </p>
+                      )}
+                    </div>
+
+                    {/* ACTION BUTTONS */}
+                    <div className="mt-6 flex gap-2">
+                      <Link href="/apply" className="flex-1">
+                        <Button className="w-full bg-blue-900 text-white">
+                          Apply Now
+                        </Button>
+                      </Link>
+
+                      <Link href={`/courses/${course._id}`}>
+                        <Button variant="outline" size="icon">
+                          <BookOpen className="h-4 w-4" />
+                        </Button>
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
+              )
+            })}
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* CTA FOOTER */}
       <section className="border-t bg-muted/50 py-16">
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-2xl text-center">
@@ -270,13 +243,15 @@ export default function OurPrograms() {
             </h2>
             <p className="mb-8 text-lg text-muted-foreground">
               Our expert advisors are here to help you find the perfect program
-              for your career goals
+              for your career goals.
             </p>
+
             <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
               <Link href="/contact">
                 <Button size="lg">Contact an Advisor</Button>
               </Link>
-              <Link href="/apply">
+
+              <Link href="/student">
                 <Button size="lg" variant="outline">
                   Start Application
                 </Button>

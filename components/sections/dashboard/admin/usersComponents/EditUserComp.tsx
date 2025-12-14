@@ -20,9 +20,13 @@ interface FormValues {
   lastName: string
   email: string
   phone?: string
+  alternativeNumber?: string
   dob?: string
   password?: string
   address?: string
+  idNumber?: string
+  nationality?: string
+  role?: 'USER' | 'ADMIN' | 'MODERATOR'
 }
 
 export default function EditUserComp() {
@@ -31,7 +35,6 @@ export default function EditUserComp() {
 
   const router = useRouter()
   const params = useParams()
-
   const _id = params.id
 
   const {
@@ -52,8 +55,12 @@ export default function EditUserComp() {
         lastName: data.lastName || '',
         email: data.email || '',
         phone: data.phone || '',
+        alternativeNumber: data.alternativeNumber || '',
         dob: data.dob ? new Date(data.dob).toISOString().split('T')[0] : '',
         address: data.address || '',
+        idNumber: data.idNumber || '',
+        nationality: data.nationality || '',
+        role: data.role || 'USER',
       })
     } catch (error) {
       console.error(error)
@@ -64,32 +71,25 @@ export default function EditUserComp() {
   }
 
   useEffect(() => {
-    // Only fetch data if _id is provided
-    if (_id) {
-      loadUser()
-    }
-  }, [_id, loadUser])
+    if (_id) loadUser()
+  }, [_id])
 
   // Submit handler
   async function onSubmit(form: FormValues) {
     try {
       const payload: Partial<FormValues> = {}
 
-      // Only include values that are NOT undefined or an empty string.
-      // This prevents the password field from sending "" and overwriting the hash.
       Object.entries(form).forEach(([key, value]) => {
         if (value !== undefined && value !== '') {
           payload[key as keyof FormValues] = value
         }
       })
 
-      // Check if there's any data to update
       if (Object.keys(payload).length === 0) {
         toast.info('No changes to save.')
         return
       }
 
-      // Use the PATCH route to update the user
       const res = await fetch(`/api/users/${_id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -98,7 +98,7 @@ export default function EditUserComp() {
 
       if (!res.ok) throw new Error('Failed to update user')
 
-      const updatedUser = await res.json()
+      await res.json()
       toast.success('User updated successfully')
       router.push('/dashboard/admin/users')
     } catch (error) {
@@ -107,9 +107,7 @@ export default function EditUserComp() {
     }
   }
 
-  if (loading) {
-    return <p className="p-5 text-center">Loading user...</p>
-  }
+  if (loading) return <p className="p-5 text-center">Loading user...</p>
 
   return (
     <form
@@ -191,7 +189,7 @@ export default function EditUserComp() {
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Phone */}
         <div>
           <label
@@ -210,9 +208,22 @@ export default function EditUserComp() {
               className="w-full pl-9 pr-3 py-3 border border-slate-300 rounded-md text-sm text-slate-900 outline-blue-600"
             />
           </div>
-          {errors.phone && (
-            <p className="text-red-500 text-xs mt-1">{errors.phone.message}</p>
-          )}
+        </div>
+
+        {/* Alternative Number */}
+        <div>
+          <label className="text-slate-900 text-sm font-medium mb-2 block">
+            Alternative Phone Number
+          </label>
+          <div className="relative flex items-center">
+            <Phone className="absolute left-3 text-gray-400 w-4 h-4" />
+            <input
+              type="tel"
+              placeholder="Optional alternative phone"
+              {...register('alternativeNumber')}
+              className="w-full pl-9 pr-3 py-3 border border-slate-300 rounded-md text-sm text-slate-900 outline-blue-600"
+            />
+          </div>
         </div>
 
         {/* Date of Birth */}
@@ -232,9 +243,6 @@ export default function EditUserComp() {
               className="w-full pl-9 pr-3 py-3 border border-slate-300 rounded-md text-sm text-slate-900 outline-blue-600"
             />
           </div>
-          {errors.dob && (
-            <p className="text-red-500 text-xs mt-1">{errors.dob.message}</p>
-          )}
         </div>
 
         {/* Password */}
@@ -252,7 +260,7 @@ export default function EditUserComp() {
               type={showPassword ? 'text' : 'password'}
               placeholder="Enter password"
               {...register('password')}
-              className="w-full pl-9 pr-9 py-3 border border-slate-300 rounded-md text-sm text-slate-900 outline-blue-600"
+              className="w-full pl-9 pr-3 py-3 border border-slate-300 rounded-md text-sm text-slate-900 outline-blue-600"
             />
             {showPassword ? (
               <EyeOff
@@ -266,11 +274,6 @@ export default function EditUserComp() {
               />
             )}
           </div>
-          {errors.password && (
-            <p className="text-red-500 text-xs mt-1">
-              {errors.password.message}
-            </p>
-          )}
         </div>
       </div>
 
@@ -291,9 +294,35 @@ export default function EditUserComp() {
             className="w-full pl-9 pr-3 py-3 border border-slate-300 rounded-md text-sm text-slate-900 outline-blue-600 min-h-[120px]"
           />
         </div>
-        {errors.address && (
-          <p className="text-red-500 text-xs mt-1">{errors.address.message}</p>
-        )}
+      </div>
+
+      {/* ID Number */}
+      <div>
+        <label className="text-slate-900 text-sm font-medium mb-2 block">
+          ID Number
+        </label>
+        <div className="relative flex items-center">
+          <User className="absolute left-3 text-gray-400 w-4 h-4" />
+          <input
+            type="text"
+            placeholder="Enter ID number"
+            {...register('idNumber')}
+            className="w-full pl-9 pr-3 py-3 border border-slate-300 rounded-md text-sm text-slate-900 outline-blue-600"
+          />
+        </div>
+      </div>
+
+      {/* Nationality */}
+      <div>
+        <label className="text-slate-900 text-sm font-medium mb-2 block">
+          Nationality
+        </label>
+        <input
+          type="text"
+          placeholder="Enter nationality"
+          {...register('nationality')}
+          className="w-full px-3 py-3 border border-slate-300 rounded-md text-sm text-slate-900 outline-blue-600"
+        />
       </div>
 
       {/* Submit button */}

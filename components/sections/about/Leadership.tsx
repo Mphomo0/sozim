@@ -2,24 +2,29 @@ import { Card, CardContent } from '@/components/ui/card'
 
 const team = [
   {
-    name: 'Dr. Sarah Johnson',
+    name: 'Dorcas Kasadi Cecily Diseko',
     role: 'Managing Director',
-    image: 'SJ',
+    image: 'DK',
   },
   {
-    name: 'Prof. Michael Chen',
+    name: 'Mahlaga J Molepo',
     role: 'Academic Director',
-    image: 'MC',
+    image: 'MM',
   },
   {
-    name: 'Jane Williams',
+    name: 'Matthews Modiba',
     role: 'Student Affairs Manager',
-    image: 'JW',
+    image: 'MJ',
   },
   {
-    name: 'Robert Brown',
+    name: 'Rorisang Diseko',
+    role: 'Student Affairs Manager',
+    image: 'RD',
+  },
+  {
+    name: 'Ohentse T Diseko',
     role: 'Operations Manager',
-    image: 'RB',
+    image: 'OD',
   },
 ]
 
@@ -35,7 +40,7 @@ export default function Leadership() {
             Meet the dedicated professionals leading Sozim forward
           </p>
         </div>
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-8 md:grid-cols-3 lg:grid-cols-5">
           {team.map((member, index) => (
             <Card
               key={index}

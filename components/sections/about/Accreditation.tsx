@@ -19,9 +19,6 @@ export default function Accreditation() {
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Card className="p-4">
-              <p className="font-medium">DHET Registered</p>
-            </Card>
-            <Card className="p-4">
               <p className="font-medium">QCTO Accredited</p>
             </Card>
             <Card className="p-4">

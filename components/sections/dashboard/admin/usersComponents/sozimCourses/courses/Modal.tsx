@@ -1,48 +1,44 @@
 'use client'
 
-import React, { ReactNode } from 'react'
+import React from 'react'
+import { X } from 'lucide-react'
 
 type ModalProps = {
-  title: string
-  description?: string
   isOpen: boolean
   onClose: () => void
-  children: ReactNode
-  footer?: ReactNode
+  title: string
+  description?: string
+  children: React.ReactNode
+  footer?: React.ReactNode
 }
 
 export function Modal({
-  title,
-  description,
   isOpen,
   onClose,
+  title,
+  description,
   children,
-  footer,
 }: ModalProps) {
   if (!isOpen) return null
 
   return (
-    <div
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40"
-      onClick={onClose} // close when clicking outside
-    >
-      <div
-        className="bg-white p-6 rounded-xl w-full max-w-lg shadow-lg"
-        onClick={(e) => e.stopPropagation()} // prevent closing when clicking inside
-      >
+    <div className="fixed inset-0 bg-black/40 z-[9999] flex items-center justify-center p-4">
+      <div className="bg-white w-full max-w-4xl rounded-lg shadow-lg flex flex-col max-h-[90vh] overflow-hidden">
         {/* Header */}
-        <div className="mb-4">
-          <h3 className="text-xl font-bold">{title}</h3>
-          {description && (
-            <p className="text-sm text-gray-500 mt-1">{description}</p>
-          )}
+        <div className="flex items-center justify-between p-4 border-b">
+          <div>
+            <h2 className="text-xl font-semibold">{title}</h2>
+            {description && (
+              <p className="text-sm text-gray-600">{description}</p>
+            )}
+          </div>
+          <button onClick={onClose}>
+            <X className="w-5 h-5 text-gray-500" />
+          </button>
         </div>
 
         {/* Body */}
-        <div className="mt-2">{children}</div>
-
-        {/* Footer */}
-        {footer && <div className="mt-6 border-t pt-4">{footer}</div>}
+        <div className="flex-1 overflow-y-auto p-6">{children}</div>
       </div>
     </div>
   )

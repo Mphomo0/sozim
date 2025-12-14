@@ -38,7 +38,7 @@ export const GET = auth(async function (
   }
 })
 
-export const PUT = auth(async function (
+export const PATCH = auth(async function (
   req,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -64,7 +64,7 @@ export const PUT = auth(async function (
     const updated = await Application.findByIdAndUpdate(
       id,
       { $set: body },
-      { new: true }
+      { new: true, runValidators: true }
     )
 
     if (!updated) {

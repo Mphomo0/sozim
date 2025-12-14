@@ -21,9 +21,43 @@ const courseSchema = new Schema(
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Application',
-        required: true,
       },
     ],
+
+    modules: {
+      knowledgeModules: [
+        {
+          title: String,
+          nqfLevel: Number,
+          credits: Number,
+        },
+      ],
+      practicalSkillModules: [
+        {
+          title: String,
+          nqfLevel: Number,
+          credits: Number,
+        },
+      ],
+      workExperienceModules: [
+        {
+          title: String,
+          nqfLevel: Number,
+          credits: Number,
+        },
+      ],
+    },
+
+    creditTotals: {
+      knowledge: Number,
+      practical: Number,
+      workExperience: Number,
+      total: Number,
+    },
+    // Entry Requirements
+    entryRequirements: [{ type: String }],
+    qualification: { type: String, required: false }, // Make sure it's here
+    level: { type: String, required: false },
   },
   { timestamps: true }
 )

@@ -9,17 +9,31 @@ export const POST = async (req: NextRequest) => {
   try {
     await dbConnect()
     const body = await req.json()
-    const { firstName, lastName, phone, dob, email, address, password, role } =
-      body
+
+    const {
+      firstName,
+      lastName,
+      phone,
+      alternativeNumber,
+      dob,
+      idNumber,
+      email,
+      address,
+      nationality,
+      password,
+      role,
+    } = body
 
     if (
       !firstName ||
       !lastName ||
       !phone ||
+      !alternativeNumber ||
       !dob ||
+      !idNumber ||
       !email ||
       !address ||
-      !password
+      !nationality
     ) {
       return NextResponse.json(
         { error: 'Missing required fields' },
@@ -35,16 +49,22 @@ export const POST = async (req: NextRequest) => {
       )
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10)
+    let hashedPassword: string | undefined
+    if (password) {
+      hashedPassword = await bcrypt.hash(password, 10)
+    }
 
     const user = await User.create({
       firstName,
       lastName,
       phone,
       dob,
+      alternativeNumber,
+      idNumber,
+      nationality,
       email,
       address,
-      password: hashedPassword,
+      ...(hashedPassword && { password: hashedPassword }),
       role,
     })
 

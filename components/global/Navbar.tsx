@@ -62,7 +62,7 @@ export default function Navbar() {
       ],
     },
     { label: 'Library', href: '#' },
-    { label: 'Contact Learning', href: '#' },
+    { label: 'Contact Learning', href: '/contact-learning' },
     { label: 'Campus', href: '#' },
     { label: 'Career Pathways', href: '/career-pathway' },
     { label: 'Sozim Store', href: '/shop' },

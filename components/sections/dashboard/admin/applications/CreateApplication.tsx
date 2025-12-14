@@ -1,126 +1,81 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { useForm, Controller } from 'react-hook-form'
+import { useState } from 'react'
+import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import * as z from 'zod'
 import { toast } from 'react-toastify'
-import { upload } from '@imagekit/next'
+import { Form } from '@/components/ui/form'
+import { Button } from '@/components/ui/button'
+import { formSchema, FormValues, DisabilityKey } from '@/lib/schema'
+import CoPrincipalDebtorSection from '@/components/sections/application-form/CoPrincipalDebtorForm'
+import StudyMaterial from '@/components/sections/application-form/StudyMaterial'
+import ProgrammeDetails from '@/components/sections/application-form/ProgrammeDetails'
+import NewProgrammeDetailsSection from '@/components/sections/application-form/NewProgrammeDetailsSection'
+import DemographicsSection from '@/components/sections/application-form/DemographicsSection'
+import SpecialNeedsSection from '@/components/sections/application-form/SpecialNeedsSection'
+import StudentInformationSection from '@/components/sections/application-form/StudentInformationSection'
 import { v4 as uuidv4 } from 'uuid'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { upload } from '@imagekit/next'
 
-// --- Types & Schema ---
-const applicationSchema = z.object({
-  applicantId: z.string().min(1, 'Applicant ID is required'),
-  courseId: z.string().min(1, 'Course ID is required'),
-  status: z.string().min(1, 'Status is required'),
-  documents: z.array(
-    z.object({
-      url: z.url(),
-      fileId: z.string().min(1, 'File ID is required'),
-    })
-  ),
-})
-
-type ApplicationFormData = z.infer<typeof applicationSchema>
-
-type Course = {
-  _id: string
-  name: string
-}
-
-type User = {
-  _id: string
-  firstName: string
-  lastName: string
-  email: string
-  phone: string
-  role: string
+function disabilityPath(key: DisabilityKey) {
+  return `disabilities.${key}` as const
 }
 
 export default function CreateApplication() {
   const [selectedFiles, setSelectedFiles] = useState<File[] | null>(null)
   const [isUploading, setIsUploading] = useState(false)
-  const [courses, setCourses] = useState<Course[]>([])
-  const [users, setUsers] = useState<User[]>([])
 
-  const router = useRouter()
-
-  const {
-    handleSubmit,
-    control,
-    setValue,
-    formState: { errors, isSubmitting },
-  } = useForm<ApplicationFormData>({
-    resolver: zodResolver(applicationSchema),
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
-      applicantId: '',
-      courseId: '',
-      status: '',
       documents: [],
+      qualifications: [
+        {
+          tertiaryQualification: 'certificate',
+          tertiaryQualificationOther: '',
+          tertiaryQualificationName: '',
+          tertiaryInstitution: '',
+          yearCommenced: '',
+          YearCompletedTertiary: '',
+        },
+      ],
+      user: {
+        firstName: '',
+        lastName: '',
+        idNumber: '',
+        phone: '',
+        alternativeNumber: '',
+        email: '',
+        address: '',
+        nationality: '',
+      },
     },
   })
 
-  // --- Helper: Fetch Auth Params ---
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: 'qualifications',
+  })
+
+  const watchSpecialNeeds = form.watch('specialNeeds')
+
+  // Fetch ImageKit auth params
   const getAuthParams = async () => {
     const res = await fetch('/api/images/upload-auth')
     if (!res.ok) throw new Error('Failed to fetch upload auth')
     return res.json()
   }
 
-  // --- Helper: Handle File Selection ---
+  // Handle file selection
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      // Convert FileList to a standard Array
       setSelectedFiles(Array.from(e.target.files))
     } else {
       setSelectedFiles(null)
     }
   }
 
-  // --- Data Fetching ---
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const courseRes = await fetch('/api/courses')
-        if (courseRes.ok) {
-          const courseData = await courseRes.json()
-          setCourses(courseData.data)
-        }
-
-        const userRes = await fetch('/api/users')
-        if (userRes.ok) {
-          const userData = await userRes.json()
-
-          let loadedUsers: User[] = []
-
-          // normalize API response
-          if (Array.isArray(userData)) loadedUsers = userData
-          else if (Array.isArray(userData.users)) loadedUsers = userData.users
-          else if (Array.isArray(userData.data)) loadedUsers = userData.data
-
-          // keep only regular users
-          const filtered = loadedUsers.filter((u) => u.role === 'USER')
-
-          setUsers(filtered)
-        }
-      } catch (error) {
-        console.error(error)
-        toast.error('Failed to load form data')
-      }
-    }
-    fetchData()
-  }, [])
-
-  // --- Submit Logic ---
-  const onSubmit = async (data: ApplicationFormData) => {
+  async function onSubmit(values: FormValues) {
     try {
       if (!selectedFiles || selectedFiles.length === 0) {
         toast.error('Please select at least one document.')
@@ -129,13 +84,9 @@ export default function CreateApplication() {
 
       setIsUploading(true)
 
-      // Create a unique subfolder for this documents
-      // const applicationFolder = `application/${uuidv4()}`
       const uploadedDocs: { url: string; fileId: string }[] = []
 
-      // Upload loop
-      for (let i = 0; i < selectedFiles.length; i++) {
-        const file = selectedFiles[i]
+      for (const file of selectedFiles) {
         const { token, signature, publicKey, expire } = await getAuthParams()
         const uniqueFileName = `${uuidv4()}_${file.name}`
 
@@ -144,16 +95,20 @@ export default function CreateApplication() {
             file,
             fileName: uniqueFileName,
             folder: 'application',
-            expire,
             token,
             signature,
             publicKey,
+            expire,
           })
 
-          if (!res || !res.url || !res.fileId)
-            throw new Error(`Upload failed for ${file.name}`)
+          if (!res?.url || !res?.fileId) {
+            throw new Error('Upload failed')
+          }
 
-          uploadedDocs.push({ url: res.url, fileId: res.fileId })
+          uploadedDocs.push({
+            url: res.url,
+            fileId: res.fileId,
+          })
         } catch (err) {
           console.error(err)
           toast.error(`Failed to upload ${file.name}`)
@@ -161,143 +116,78 @@ export default function CreateApplication() {
       }
 
       if (uploadedDocs.length === 0) {
-        setIsUploading(false)
         toast.error('All uploads failed. Please try again.')
+        setIsUploading(false)
         return
       }
 
-      // Update form data with uploaded URLs
-      setValue('documents', uploadedDocs, { shouldValidate: true })
+      // Create user
+      const userRes = await fetch('/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(values.user),
+      })
 
-      const payload = {
-        ...data,
+      const userData = await userRes.json()
+
+      if (!userRes.ok) {
+        throw new Error(userData.message || 'Failed to create user')
+      }
+
+      const finalValues = {
+        ...values,
         documents: uploadedDocs,
       }
 
-      const res = await fetch('/api/applications', {
+      // Create application
+      const appRes = await fetch('/api/applications', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          ...finalValues,
+          applicantId: userData._id,
+        }),
       })
 
-      if (res.ok) {
-        toast.success('Application created successfully!')
-        setSelectedFiles(null)
+      const appData = await appRes.json()
 
-        router.push('/dashboard/admin/applications')
-      } else {
-        const err = await res.json()
-        toast.error(err.error || 'Failed to create application')
+      if (!appRes.ok) {
+        throw new Error(appData.message || 'Failed to create application')
       }
+
+      toast.success('Application submitted successfully')
     } catch (error) {
-      console.error(error)
-      toast.error('Something went wrong')
+      toast.error(error instanceof Error ? error.message : 'Submission failed')
     } finally {
       setIsUploading(false)
     }
   }
 
   return (
-    <div className="container mx-auto p-4">
+    <Form {...form}>
       <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="bg-white p-8 py-12 space-y-4 rounded-xl"
+        onSubmit={form.handleSubmit(onSubmit)}
+        autoComplete="off"
+        className="space-y-12 max-w-4xl mx-auto py-12 px-6 bg-white shadow-xl rounded-2xl"
       >
-        {/* users */}
-        <div>
-          <Controller
-            control={control}
-            name="applicantId" // Matches your Zod schema
-            render={({ field }) => (
-              <Select onValueChange={field.onChange} value={field.value}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select Applicant" />
-                </SelectTrigger>
-                <SelectContent>
-                  {users?.length > 0 ? (
-                    users.map((user) => (
-                      <SelectItem key={user._id} value={user._id}>
-                        {/* DISPLAY LOGIC: Name + (Unique Identifier) */}
-                        <span className="font-medium">
-                          {user.firstName} {user.lastName}
-                        </span>
-                        <span className="text-muted-foreground ml-2 text-xs">
-                          {/* Show email if exists, otherwise phone */}(
-                          {user.email || user.phone})
-                        </span>
-                      </SelectItem>
-                    ))
-                  ) : (
-                    <div className="p-2 text-sm text-muted-foreground">
-                      No users found
-                    </div>
-                  )}
-                </SelectContent>
-              </Select>
-            )}
-          />
-          {errors.applicantId && (
-            <p className="text-red-500 text-sm mt-1">
-              {errors.applicantId.message}
-            </p>
-          )}
-        </div>
+        <CoPrincipalDebtorSection form={form} />
+        <StudyMaterial form={form} />
+        <ProgrammeDetails
+          form={form}
+          fields={fields}
+          append={append}
+          remove={remove}
+        />
+        <NewProgrammeDetailsSection form={form} />
+        <DemographicsSection form={form} />
+        <SpecialNeedsSection
+          form={form}
+          watchSpecialNeeds={watchSpecialNeeds}
+          disabilityPath={disabilityPath}
+        />
+        <StudentInformationSection form={form} />
 
-        {/* course */}
-        <div>
-          <Controller
-            control={control}
-            name="courseId"
-            render={({ field }) => (
-              <Select onValueChange={field.onChange} value={field.value}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select Course" />
-                </SelectTrigger>
-                <SelectContent>
-                  {courses?.length > 0 ? (
-                    courses.map((course) => (
-                      <SelectItem key={course._id} value={course._id}>
-                        {course.name}
-                      </SelectItem>
-                    ))
-                  ) : (
-                    <div className="p-2 text-sm text-muted-foreground">
-                      No courses found
-                    </div>
-                  )}
-                </SelectContent>
-              </Select>
-            )}
-          />
-          {errors.courseId && (
-            <p className="text-red-500">{errors.courseId.message}</p>
-          )}
-        </div>
-
-        {/* status */}
-        <div>
-          <Controller
-            control={control}
-            name="status"
-            render={({ field }) => (
-              <Select onValueChange={field.onChange} value={field.value}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select Applicantion Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="PENDING">Pending</SelectItem>
-                  <SelectItem value="APPROVED">Approved</SelectItem>
-                  <SelectItem value="REJECTED">Rejected</SelectItem>
-                </SelectContent>
-              </Select>
-            )}
-          />
-          {errors.status && (
-            <p className="text-red-500">{errors.status.message}</p>
-          )}
-        </div>
-
-        {/* file upload */}
+        {/* FILE UPLOAD SECTION */}
         <div className="space-y-2">
           <label className="text-sm font-medium">Upload Documents</label>
           <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 hover:bg-gray-50 transition-colors">
@@ -318,7 +208,6 @@ export default function CreateApplication() {
             </p>
           </div>
 
-          {/* Selected Files Preview */}
           {selectedFiles && selectedFiles.length > 0 && (
             <div className="bg-gray-50 p-3 rounded-md">
               <p className="text-sm font-semibold mb-2">
@@ -328,9 +217,9 @@ export default function CreateApplication() {
                 {selectedFiles.map((file, index) => (
                   <li
                     key={index}
-                    className="text-sm text-gray-600 flex items-center justify-between"
+                    className="text-sm text-gray-600 flex justify-between"
                   >
-                    <span className="truncate max-w-[200px]">{file.name}</span>
+                    <span className="truncate max-w-[220px]">{file.name}</span>
                     <span className="text-xs text-gray-400">
                       {(file.size / 1024).toFixed(0)} KB
                     </span>
@@ -341,23 +230,16 @@ export default function CreateApplication() {
           )}
         </div>
 
-        {/* Submit Button */}
-        <button
-          type="submit"
-          disabled={isUploading || isSubmitting}
-          className={`w-full py-2 px-4 rounded font-medium text-white transition-all ${
-            isUploading || isSubmitting
-              ? 'bg-blue-300 cursor-not-allowed'
-              : 'bg-blue-600 hover:bg-blue-700'
-          }`}
-        >
-          {isUploading
-            ? 'Uploading Documents...'
-            : isSubmitting
-            ? 'Creating Application...'
-            : 'Create Application'}
-        </button>
+        <div className="flex justify-end">
+          <Button
+            type="submit"
+            className="w-full px-8 py-3 text-lg"
+            disabled={isUploading}
+          >
+            {isUploading ? 'Uploading...' : 'Submit'}
+          </Button>
+        </div>
       </form>
-    </div>
+    </Form>
   )
 }

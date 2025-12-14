@@ -30,7 +30,17 @@ export const registerSchema = z.object({
       /^(\+?\d{1,3}[- ]?)?(\d{9,12})$/,
       'Please enter a valid international or South African phone number'
     ),
+  alternativeNumber: z
+    .string()
+    .optional()
+    .refine(
+      (val) => val === undefined || val.match(/^(\+?\d{1,3}[- ]?)?(\d{9,12})$/),
+      'Please enter a valid alternative number'
+    )
+    .or(z.literal('')), // Allow empty string
   dob: z.string().min(1, 'Date of birth is required'),
+  idNumber: z.string().min(13, 'ID number is required'),
+  nationality: z.string().min(1, 'Nationality is required'),
   email: z.email('Please enter a valid email'),
   address: z.string().min(1, 'Address is required'),
   password: z
@@ -114,16 +124,12 @@ export default function Register() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* First Name */}
                 <div>
-                  <label
-                    htmlFor="firstName"
-                    className="text-slate-900 text-sm font-medium mb-2 block"
-                  >
+                  <label className="text-slate-900 text-sm font-medium mb-2 block">
                     First Name
                   </label>
                   <div className="relative flex items-center">
                     <User className="absolute left-3 text-gray-400 w-4 h-4" />
                     <input
-                      id="firstName"
                       type="text"
                       placeholder="Enter first name"
                       {...register('firstName')}
@@ -139,16 +145,12 @@ export default function Register() {
 
                 {/* Last Name */}
                 <div>
-                  <label
-                    htmlFor="lastName"
-                    className="text-slate-900 text-sm font-medium mb-2 block"
-                  >
+                  <label className="text-slate-900 text-sm font-medium mb-2 block">
                     Last Name
                   </label>
                   <div className="relative flex items-center">
                     <User className="absolute left-3 text-gray-400 w-4 h-4" />
                     <input
-                      id="lastName"
                       type="text"
                       placeholder="Enter last name"
                       {...register('lastName')}
@@ -165,16 +167,12 @@ export default function Register() {
 
               {/* Email */}
               <div>
-                <label
-                  htmlFor="email"
-                  className="text-slate-900 text-sm font-medium mb-2 block"
-                >
+                <label className="text-slate-900 text-sm font-medium mb-2 block">
                   Email
                 </label>
                 <div className="relative flex items-center">
                   <Mail className="absolute left-3 text-gray-400 w-4 h-4" />
                   <input
-                    id="email"
                     type="email"
                     placeholder="Enter email address"
                     {...register('email')}
@@ -191,16 +189,12 @@ export default function Register() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Phone */}
                 <div>
-                  <label
-                    htmlFor="phone"
-                    className="text-slate-900 text-sm font-medium mb-2 block"
-                  >
+                  <label className="text-slate-900 text-sm font-medium mb-2 block">
                     Phone Number
                   </label>
                   <div className="relative flex items-center">
                     <Phone className="absolute left-3 text-gray-400 w-4 h-4" />
                     <input
-                      id="phone"
                       type="tel"
                       placeholder="e.g. +27821234567"
                       {...register('phone')}
@@ -214,18 +208,35 @@ export default function Register() {
                   )}
                 </div>
 
+                {/* Alternative Number */}
+                <div>
+                  <label className="text-slate-900 text-sm font-medium mb-2 block">
+                    Alternative Number
+                  </label>
+                  <div className="relative flex items-center">
+                    <Phone className="absolute left-3 text-gray-400 w-4 h-4" />
+                    <input
+                      type="tel"
+                      placeholder="Optional alternative phone number"
+                      {...register('alternativeNumber')}
+                      className="w-full pl-9 pr-3 py-3 border border-slate-300 rounded-md text-sm text-slate-900 outline-blue-600"
+                    />
+                  </div>
+                  {errors.alternativeNumber && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.alternativeNumber.message}
+                    </p>
+                  )}
+                </div>
+
                 {/* Date of Birth */}
                 <div>
-                  <label
-                    htmlFor="dob"
-                    className="text-slate-900 text-sm font-medium mb-2 block"
-                  >
+                  <label className="text-slate-900 text-sm font-medium mb-2 block">
                     Date of Birth
                   </label>
                   <div className="relative flex items-center">
                     <Calendar className="absolute left-3 text-gray-400 w-4 h-4" />
                     <input
-                      id="dob"
                       type="date"
                       {...register('dob')}
                       className="w-full pl-9 pr-3 py-3 border border-slate-300 rounded-md text-sm text-slate-900 outline-blue-600"
@@ -237,19 +248,56 @@ export default function Register() {
                     </p>
                   )}
                 </div>
+              </div>
 
-                {/* Password */}
+              {/* New Row for ID + Nationality */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* ID Number */}
                 <div>
-                  <label
-                    htmlFor="password"
-                    className="text-slate-900 text-sm font-medium mb-2 block"
-                  >
+                  <label className="text-slate-900 text-sm font-medium mb-2 block">
+                    ID Number
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Enter ID number"
+                    {...register('idNumber')}
+                    className="w-full pl-3 pr-3 py-3 border border-slate-300 rounded-md text-sm text-slate-900 outline-blue-600"
+                  />
+                  {errors.idNumber && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.idNumber.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* Nationality */}
+                <div>
+                  <label className="text-slate-900 text-sm font-medium mb-2 block">
+                    Nationality (optional)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Enter nationality"
+                    {...register('nationality')}
+                    className="w-full pl-3 pr-3 py-3 border border-slate-300 rounded-md text-sm text-slate-900 outline-blue-600"
+                  />
+                  {errors.nationality && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.nationality.message}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Password */}
+              <div className="grid grid-cols-1">
+                <div>
+                  <label className="text-slate-900 text-sm font-medium mb-2 block">
                     Password
                   </label>
                   <div className="relative flex items-center">
                     <Lock className="absolute left-3 text-gray-400 w-4 h-4" />
                     <input
-                      id="password"
                       type={showPassword ? 'text' : 'password'}
                       placeholder="Enter password"
                       {...register('password')}
@@ -277,16 +325,12 @@ export default function Register() {
 
               {/* Address */}
               <div>
-                <label
-                  htmlFor="address"
-                  className="text-slate-900 text-sm font-medium mb-2 block"
-                >
+                <label className="text-slate-900 text-sm font-medium mb-2 block">
                   Address
                 </label>
                 <div className="relative flex items-start">
                   <MapPin className="absolute left-3 top-3 text-gray-400 w-4 h-4" />
                   <textarea
-                    id="address"
                     placeholder="Enter your address"
                     {...register('address')}
                     className="w-full pl-9 pr-3 py-3 border border-slate-300 rounded-md text-sm text-slate-900 outline-blue-600 min-h-[120px]"
@@ -299,7 +343,7 @@ export default function Register() {
                 )}
               </div>
 
-              {/* Submit button */}
+              {/* Submit */}
               <div className="!mt-12">
                 <button
                   type="submit"

@@ -7,10 +7,13 @@ export interface IUser extends Document {
   firstName?: string
   lastName?: string
   phone: string
+  alternativeNumber?: string
   dob?: Date
   email?: string
   address?: string
   password: string
+  idNumber?: string
+  nationality?: string
   role: 'USER' | 'ADMIN' | 'MODERATOR'
   applications: mongoose.Types.ObjectId[]
   comparePassword(candidatePassword: string): Promise<boolean>
@@ -28,6 +31,10 @@ const userSchema = new Schema<IUser>(
       unique: true,
       trim: true,
     },
+    alternativeNumber: {
+      type: String,
+      trim: true,
+    },
     dob: { type: Date },
     email: {
       type: String,
@@ -40,8 +47,15 @@ const userSchema = new Schema<IUser>(
     address: { type: String, trim: true },
     password: {
       type: String,
-      required: [true, 'Password is required'],
       minlength: [6, 'Password must be at least 6 characters'],
+    },
+    idNumber: {
+      type: String,
+      trim: true,
+    },
+    nationality: {
+      type: String,
+      trim: true,
     },
     role: {
       type: String,

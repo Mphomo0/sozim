@@ -1,11 +1,11 @@
 'use client'
 
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { Modal } from './Modal'
 import { CourseForm } from './CourseForm'
-import { useForm } from 'react-hook-form'
+import { useForm, Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { courseSchema, Course, CourseInput } from './types'
+import { courseSchema, CourseInput, Course } from './types'
 import { toast } from 'react-toastify'
 
 type EditCourseModalProps = {
@@ -25,9 +25,10 @@ export function EditCourseModal({
     register,
     reset,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm<CourseInput>({
-    resolver: zodResolver(courseSchema),
+    resolver: zodResolver(courseSchema) as unknown as Resolver<CourseInput>,
     defaultValues: {
       name: '',
       code: '',
@@ -35,11 +36,19 @@ export function EditCourseModal({
       duration: '',
       isOpen: true,
       categoryId: '',
+      qualification: '',
+      level: '',
+      creditTotals: {},
+      modules: {
+        knowledgeModules: [],
+        practicalSkillModules: [],
+        workExperienceModules: [],
+      },
+      entryRequirements: [],
     },
   })
 
-  // Populate form when course changes
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // Load course data into the form when the course is available
   useEffect(() => {
     if (course) {
       reset({
@@ -48,22 +57,32 @@ export function EditCourseModal({
         description: course.description || '',
         duration: course.duration || '',
         isOpen: course.isOpen ?? true,
+        qualification: course.qualification || '',
+        level: course.level || '',
         categoryId:
           typeof course.categoryId === 'string'
             ? course.categoryId
             : course.categoryId?._id || '',
+        modules: {
+          knowledgeModules: course.modules?.knowledgeModules || [], // Default to empty array if undefined
+          practicalSkillModules: course.modules?.practicalSkillModules || [], // Default to empty array if undefined
+          workExperienceModules: course.modules?.workExperienceModules || [], // Default to empty array if undefined
+        },
+        creditTotals: course.creditTotals || {},
+        entryRequirements: course.entryRequirements || [],
       })
     }
   }, [course, reset])
 
-  // Submit handler
   const onSubmit = async (data: CourseInput) => {
+    console.log('Form data submitted: ', data) // Log the entire form data
+
     if (!course) return
     try {
       await onEdit(data)
       toast.success('Course updated successfully')
       onClose()
-    } catch (error: unknown) {
+    } catch {
       toast.error('Failed to update course')
     }
   }
@@ -74,16 +93,18 @@ export function EditCourseModal({
       description="Modify the selected course."
       isOpen={isOpen}
       onClose={onClose}
-      footer={
-        <button
-          className="w-full px-4 py-2 bg-green-600 text-white rounded-lg"
-          onClick={handleSubmit(onSubmit)}
-        >
-          Save Changes
-        </button>
-      }
     >
-      <CourseForm register={register} errors={errors} />
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col h-full">
+        <CourseForm register={register} errors={errors} control={control} />
+        <div className="mt-6">
+          <button
+            type="submit"
+            className="w-full px-4 py-2 bg-green-600 text-white rounded-lg"
+          >
+            Save Changes
+          </button>
+        </div>
+      </form>
     </Modal>
   )
 }

@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react'
 import { toast } from 'react-toastify'
-// Ensure your types are correctly defined here
 import { Course, CourseInput } from './courses/types'
 import { CreateCourseModal } from './courses/CreateCourseModal'
 import { EditCourseModal } from './courses/EditCourseModal'
@@ -14,46 +13,28 @@ export default function CourseComponent() {
   const [showEditModal, setShowEditModal] = useState(false)
   const [loading, setLoading] = useState(true)
 
-  // Fetch courses with defensive parsing
+  // Fetch all courses
   const fetchCourses = useCallback(async () => {
-    setLoading(true)
     try {
+      setLoading(true)
+
       const res = await fetch('/api/courses')
+      if (!res.ok) throw new Error('Failed to load courses')
 
-      if (!res.ok) {
-        // Attempt to read the error message from the response body
-        const errorText = await res.text()
-        try {
-          const errJson = JSON.parse(errorText)
-          throw new Error(errJson.message || `Server error: ${res.status}`)
-        } catch {
-          throw new Error(`Failed to load courses: ${res.statusText}`)
-        }
-      }
+      const data = await res.json()
 
-      const rawData = await res.json()
-      let coursesArray: Course[] = []
+      const list = Array.isArray(data)
+        ? data
+        : Array.isArray(data?.courses)
+        ? data.courses
+        : Array.isArray(data?.data)
+        ? data.data
+        : []
 
-      // --- Defensive Parsing Logic ---
-      if (Array.isArray(rawData)) {
-        coursesArray = rawData
-      } else if (rawData.data && Array.isArray(rawData.data)) {
-        // Handles API wrapping like { data: [...] }
-        coursesArray = rawData.data
-      } else if (rawData.courses && Array.isArray(rawData.courses)) {
-        // Handles API wrapping like { courses: [...] }
-        coursesArray = rawData.courses
-      } else {
-        // Fallback if the structure is completely unexpected
-        console.warn('API returned unexpected format for courses:', rawData)
-        coursesArray = []
-      }
-      // --- End Defensive Parsing Logic ---
-
-      setCourses(coursesArray)
-    } catch (error: unknown) {
-      console.error('Error fetching courses:', error)
-      toast.error('Network error')
+      setCourses(list)
+    } catch (err) {
+      console.error(err)
+      toast.error('Failed to load courses')
     } finally {
       setLoading(false)
     }
@@ -63,102 +44,97 @@ export default function CourseComponent() {
     fetchCourses()
   }, [fetchCourses])
 
-  // --- CRUD Handlers ---
+  // ---------------------------
+  // CREATE COURSE
+  // ---------------------------
 
-  // Create course
-  const handleCreate = async (data: CourseInput): Promise<void> => {
-    const payload = {
-      name: data.name.trim(),
-      code: data.code.trim(),
-      description: data.description?.trim() || undefined,
-      duration: data.duration?.trim(),
-      isOpen: data.isOpen ?? true,
-      categoryId: data.categoryId,
-    }
-
+  const handleCreate = async (data: CourseInput) => {
     try {
       const res = await fetch('/api/courses', {
         method: 'POST',
-        body: JSON.stringify(payload),
         headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data), // send everything
       })
+
       if (!res.ok) {
         const err = await res.json()
-        throw new Error(err.message || 'Creation failed')
+        throw new Error(err.error || 'Failed to create')
       }
-      const newCourse = await res.json()
-      setCourses((prev) => [...prev, newCourse])
-      toast.success('Course created successfully')
+
+      const created = await res.json()
+      setCourses((prev) => [...prev, created])
+
+      toast.success('Course created!')
       setShowCreateModal(false)
-    } catch (error: unknown) {
-      toast.error('failed to create course')
+    } catch (error) {
+      console.error(error)
+      toast.error('Failed to create course')
     }
   }
 
-  // Edit course
-  const handleEdit = async (data: CourseInput): Promise<void> => {
-    if (!selectedCourse) {
-      toast.error('Invalid course')
-      return
-    }
+  // ---------------------------
+  // EDIT COURSE
+  // ---------------------------
 
-    const payload = {
-      name: data.name.trim(),
-      code: data.code.trim(),
-      description: data.description?.trim() || undefined,
-      duration: data.duration?.trim() || undefined,
-      isOpen: data.isOpen ?? true,
-      categoryId: data.categoryId,
-    }
+  const handleEdit = async (data: CourseInput) => {
+    if (!selectedCourse) return
 
     try {
       const res = await fetch(`/api/courses/${selectedCourse._id}`, {
-        method: 'PATCH', // Assumed from original code
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(data), // send full updated object
       })
+
       if (!res.ok) {
         const err = await res.json()
-        throw new Error(err.message || 'Update failed')
+        throw new Error(err.error || 'Failed to update')
       }
+
       const updated = await res.json()
+
+      // Update state
       setCourses((prev) =>
         prev.map((c) => (c._id === updated._id ? updated : c))
       )
-      toast.success('Course updated successfully')
 
-      // Removed redundant fetchCourses() call here, mapping the state is faster
+      toast.success('Course updated!')
       setSelectedCourse(null)
       setShowEditModal(false)
-    } catch (error: unknown) {
+    } catch (error) {
+      console.error(error)
       toast.error('Failed to update course')
     }
   }
 
-  // Delete course
+  // ---------------------------
+  // DELETE COURSE
+  // ---------------------------
+
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this course?')) return
+
     try {
       const res = await fetch(`/api/courses/${id}`, { method: 'DELETE' })
       if (!res.ok) {
         const err = await res.json()
-        throw new Error(err.message || 'Delete failed')
+        throw new Error(err.error || 'Failed to delete')
       }
+
       setCourses((prev) => prev.filter((c) => c._id !== id))
       toast.success('Course deleted')
-    } catch (error: unknown) {
-      toast.error('failed to delete course')
+    } catch (error) {
+      console.error(error)
+      toast.error('Failed to delete course')
     }
   }
-
-  // --- Render Component ---
 
   return (
     <div className="p-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Courses</h1>
         <button
-          className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+          className="px-4 py-2 bg-indigo-600 text-white rounded-lg"
           onClick={() => setShowCreateModal(true)}
         >
           + Create
@@ -173,35 +149,29 @@ export default function CourseComponent() {
         <table className="min-w-full border shadow-md rounded-lg overflow-hidden">
           <thead>
             <tr className="bg-gray-100 border-b">
-              <th className="p-3 text-left font-semibold text-sm">ID</th>
               <th className="p-3 text-left font-semibold text-sm">Name</th>
               <th className="p-3 text-left font-semibold text-sm">Code</th>
               <th className="p-3 text-left font-semibold text-sm">Category</th>
-              <th className="p-3 text-left font-semibold text-sm">Reg Open</th>
+              <th className="p-3 text-left font-semibold text-sm">Open?</th>
               <th className="p-3 text-left font-semibold text-sm">Actions</th>
             </tr>
           </thead>
+
           <tbody>
             {courses.map((course) => (
-              <tr
-                key={course._id}
-                className="border-t hover:bg-gray-50 transition-colors"
-              >
-                <td className="p-3">{course._id}</td>
+              <tr key={course._id} className="border-t hover:bg-gray-50">
                 <td className="p-3">{course.name}</td>
                 <td className="p-3">{course.code}</td>
                 <td className="p-3">
-                  {/* FIX: Correctly access the category name */}
-                  {course.categoryId
-                    ? typeof course.categoryId === 'object'
-                      ? course.categoryId.name // Assumes the object has a 'name' field
-                      : 'Unpopulated' // If it's a string ID but not populated
-                    : 'N/A'}
+                  {typeof course.categoryId === 'object'
+                    ? course.categoryId?.name
+                    : 'Unpopulated'}
                 </td>
                 <td className="p-3">{course.isOpen ? 'Yes' : 'No'}</td>
+
                 <td className="p-3 flex space-x-3">
                   <button
-                    className="text-indigo-600 hover:text-indigo-800 transition-colors"
+                    className="text-indigo-600 hover:underline"
                     onClick={() => {
                       setSelectedCourse(course)
                       setShowEditModal(true)
@@ -209,8 +179,9 @@ export default function CourseComponent() {
                   >
                     Edit
                   </button>
+
                   <button
-                    className="text-red-600 hover:text-red-800 transition-colors"
+                    className="text-red-600 hover:underline"
                     onClick={() => handleDelete(course._id)}
                   >
                     Delete
@@ -222,20 +193,21 @@ export default function CourseComponent() {
         </table>
       )}
 
-      {/* Modals remain the same */}
+      {/* CREATE MODAL */}
       <CreateCourseModal
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
         onCreate={handleCreate}
       />
 
+      {/* EDIT MODAL */}
       <EditCourseModal
         isOpen={showEditModal}
-        course={selectedCourse}
         onClose={() => {
           setSelectedCourse(null)
           setShowEditModal(false)
         }}
+        course={selectedCourse}
         onEdit={handleEdit}
       />
     </div>

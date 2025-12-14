@@ -128,8 +128,8 @@ export default function Footer() {
 
         <div className="border-t border-border mt-8 pt-8 text-center text-sm text-muted-foreground">
           <p>
-            &copy; {new Date().getFullYear()} Excellence University. All rights
-            reserved.
+            &copy; {new Date().getFullYear()} Sozim Trading and Consultancy. All
+            rights reserved.
           </p>
         </div>
       </div>

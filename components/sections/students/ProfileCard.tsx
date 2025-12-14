@@ -5,7 +5,7 @@ import { useSession } from 'next-auth/react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { toast } from 'react-toastify' // 👈 Import toast
+import { toast } from 'react-toastify'
 
 import {
   Dialog,
@@ -22,7 +22,7 @@ const ProfileSchema = z
   .object({
     firstName: z.string().min(1, 'Required'),
     lastName: z.string().min(1, 'Required'),
-    email: z.email('Invalid email'),
+    email: z.string().email('Invalid email'),
     phone: z
       .string()
       .min(1, 'Phone number is required')
@@ -30,13 +30,23 @@ const ProfileSchema = z
         /^(\+?\d{1,3}[- ]?)?(\d{9,12})$/,
         'Please enter a valid international or South African phone number'
       ),
+    alternativeNumber: z
+      .string()
+      .optional()
+      .refine(
+        (val) =>
+          val === undefined || val.match(/^(\+?\d{1,3}[- ]?)?(\d{9,12})$/),
+        'Please enter a valid alternative number'
+      )
+      .or(z.literal('')), // Allow empty string
     dob: z.string().min(1, 'Date of birth is required'),
     address: z.string().min(1, 'Address is required'),
+    idNumber: z.string().min(1, 'ID number is required'),
+    nationality: z.string().min(1, 'Nationality is required'),
     password: z.string().optional(),
   })
   .refine(
     (data) => {
-      // If password is provided, validate its strength
       if (data.password && data.password.length > 0) {
         return (
           data.password.length >= 8 &&
@@ -46,7 +56,6 @@ const ProfileSchema = z
           /[^A-Za-z0-9]/.test(data.password)
         )
       }
-      // If password is empty or undefined, it's valid (optional)
       return true
     },
     {
@@ -64,8 +73,11 @@ interface UserProfile {
   lastName: string
   email: string
   phone?: string
+  alternativeNumber?: string
   dob?: string
   address?: string
+  idNumber?: string
+  nationality?: string
 }
 
 export default function ProfileCard() {
@@ -91,21 +103,20 @@ export default function ProfileCard() {
     const loadUser = async () => {
       try {
         const res = await fetch(`/api/users/${userId}`)
-        if (!res.ok) {
-          throw new Error('Failed to fetch user data')
-        }
+        if (!res.ok) throw new Error('Failed to fetch user data')
         const data = await res.json()
-
         setUser(data)
 
-        // populate form values
         reset({
-          firstName: data.firstName,
-          lastName: data.lastName,
-          email: data.email,
+          firstName: data.firstName || '',
+          lastName: data.lastName || '',
+          email: data.email || '',
           phone: data.phone || '',
-          dob: data.dob ? data.dob.substring(0, 10) : '', // Ensure date format is correct
+          alternativeNumber: data.alternativeNumber || '',
+          dob: data.dob ? data.dob.substring(0, 10) : '',
           address: data.address || '',
+          idNumber: data.idNumber || '',
+          nationality: data.nationality || '',
           password: '',
         })
       } catch (error) {
@@ -123,38 +134,28 @@ export default function ProfileCard() {
     setLoading(true)
 
     const payload = { ...values }
-
-    // 🔑 Fix: Filter out empty password before sending the PATCH request
-    if (!payload.password || payload.password.length === 0) {
+    if (!payload.password || payload.password.length === 0)
       delete payload.password
-    }
 
     try {
       const res = await fetch(`/api/users/${userId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload), // Send filtered payload
+        body: JSON.stringify(payload),
       })
 
       const data = await res.json()
 
       if (!res.ok) {
-        // Show server-side error message
         toast.error(data.message || 'Failed to update profile.')
         return
       }
 
-      // Show success toast
-      toast.success('Profile updated successfully! 🎉')
-
-      // Update local state with new user data
+      toast.success('Profile updated successfully!')
       setUser(data)
       setOpen(false)
-
-      // Reset the form, explicitly clearing the password field
       reset({ ...values, password: '' })
     } catch (err) {
-      // Show generic network/client error
       toast.error('An unexpected error occurred.')
       console.error('Update error:', err)
     } finally {
@@ -169,7 +170,7 @@ export default function ProfileCard() {
 
         <div className="space-y-4">
           <p>
-            <strong>Name:</strong> {user.firstName} {user.lastName}
+            <strong>FullName:</strong> {user.firstName} {user.lastName}
           </p>
           <p>
             <strong>Email:</strong> {user.email}
@@ -179,19 +180,29 @@ export default function ProfileCard() {
               <strong>Phone:</strong> {user.phone}
             </p>
           )}
+          {user.alternativeNumber && (
+            <p>
+              <strong>Alt Phone:</strong> {user.alternativeNumber}
+            </p>
+          )}
           {user.dob && (
             <p>
-              <strong>DOB:</strong>{' '}
-              {new Date(user.dob).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'short', // e.g., 'Nov'
-                day: 'numeric', // e.g., '23'
-              })}
+              <strong>DOB:</strong> {new Date(user.dob).toLocaleDateString()}
             </p>
           )}
           {user.address && (
             <p>
               <strong>Address:</strong> {user.address}
+            </p>
+          )}
+          {user.idNumber && (
+            <p>
+              <strong>ID Number:</strong> {user.idNumber}
+            </p>
+          )}
+          {user.nationality && (
+            <p>
+              <strong>Nationality:</strong> {user.nationality}
             </p>
           )}
         </div>
@@ -201,14 +212,14 @@ export default function ProfileCard() {
             <Button className="mt-4">Edit Profile</Button>
           </DialogTrigger>
 
-          <DialogContent>
+          <DialogContent className="max-h-[80vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Edit Your Information</DialogTitle>
             </DialogHeader>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-4">
-              {/* FIRST NAME */}
               <div>
+                <label className="block mb-1 font-medium">First Name</label>
                 <Input placeholder="First Name" {...register('firstName')} />
                 {errors.firstName && (
                   <p className="text-red-600 text-sm">
@@ -217,8 +228,8 @@ export default function ProfileCard() {
                 )}
               </div>
 
-              {/* LAST NAME */}
               <div>
+                <label className="block mb-1 font-medium">Last Name</label>
                 <Input placeholder="Last Name" {...register('lastName')} />
                 {errors.lastName && (
                   <p className="text-red-600 text-sm">
@@ -227,8 +238,8 @@ export default function ProfileCard() {
                 )}
               </div>
 
-              {/* EMAIL */}
               <div>
+                <label className="block mb-1 font-medium">Email</label>
                 <Input
                   type="email"
                   placeholder="Email"
@@ -239,24 +250,39 @@ export default function ProfileCard() {
                 )}
               </div>
 
-              {/* PHONE */}
               <div>
+                <label className="block mb-1 font-medium">Phone</label>
                 <Input placeholder="Phone" {...register('phone')} />
                 {errors.phone && (
                   <p className="text-red-600 text-sm">{errors.phone.message}</p>
                 )}
               </div>
 
-              {/* DOB */}
               <div>
+                <label className="block mb-1 font-medium">
+                  Alternative Number
+                </label>
+                <Input
+                  placeholder="Alternative Number"
+                  {...register('alternativeNumber')}
+                />
+                {errors.alternativeNumber && (
+                  <p className="text-red-600 text-sm">
+                    {errors.alternativeNumber.message}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block mb-1 font-medium">Date of Birth</label>
                 <Input type="date" placeholder="DOB" {...register('dob')} />
                 {errors.dob && (
                   <p className="text-red-600 text-sm">{errors.dob.message}</p>
                 )}
               </div>
 
-              {/* ADDRESS */}
               <div>
+                <label className="block mb-1 font-medium">Address</label>
                 <Input placeholder="Address" {...register('address')} />
                 {errors.address && (
                   <p className="text-red-600 text-sm">
@@ -265,11 +291,33 @@ export default function ProfileCard() {
                 )}
               </div>
 
-              {/* PASSWORD */}
               <div>
+                <label className="block mb-1 font-medium">ID Number</label>
+                <Input placeholder="ID Number" {...register('idNumber')} />
+                {errors.idNumber && (
+                  <p className="text-red-600 text-sm">
+                    {errors.idNumber.message}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block mb-1 font-medium">Nationality</label>
+                <Input placeholder="Nationality" {...register('nationality')} />
+                {errors.nationality && (
+                  <p className="text-red-600 text-sm">
+                    {errors.nationality.message}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block mb-1 font-medium">
+                  New Password (optional)
+                </label>
                 <Input
                   type="password"
-                  placeholder="New Password (optional)"
+                  placeholder="Password"
                   {...register('password')}
                 />
                 {errors.password && (
