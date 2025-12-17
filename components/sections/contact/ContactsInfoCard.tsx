@@ -7,7 +7,12 @@ const contactInfo = [
   {
     icon: MapPin,
     title: 'Visit Us',
-    details: ['123 Education Street', 'Johannesburg, 2000', 'South Africa'],
+    details: [
+      'Shop 4',
+      'Sunday School Building',
+      '154 Charlotte Maxeke Street',
+      'Bloemfontein',
+    ],
   },
   {
     icon: Phone,

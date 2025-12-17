@@ -211,51 +211,150 @@ export default function CreateApplication() {
   }
 
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        autoComplete="off"
-        className="space-y-12 max-w-4xl mx-auto py-12 px-6 bg-white shadow-xl rounded-2xl"
-      >
-        <CoPrincipalDebtorSection form={form} />
-        <StudyMaterial form={form} />
+    <>
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          autoComplete="off"
+          className="space-y-12 max-w-4xl mx-auto py-12 px-6 bg-white shadow-xl rounded-2xl"
+        >
+          <CoPrincipalDebtorSection form={form} />
+          <StudyMaterial form={form} />
 
-        <ProgrammeDetails
-          form={form}
-          fields={fields}
-          append={append}
-          remove={remove}
-        />
-
-        <NewProgrammeDetailsSection form={form} />
-        <DemographicsSection form={form} />
-
-        <SpecialNeedsSection
-          form={form}
-          watchSpecialNeeds={watchSpecialNeeds}
-          disabilityPath={disabilityPath}
-        />
-
-        <StudentInformationSection
-          form={form}
-          isLoggedIn={status === 'authenticated'}
-        />
-
-        {/* FILE UPLOAD */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Upload Documents</label>
-          <input
-            type="file"
-            multiple
-            accept="image/*,application/pdf"
-            onChange={handleFileChange}
+          <ProgrammeDetails
+            form={form}
+            fields={fields}
+            append={append}
+            remove={remove}
           />
-        </div>
 
-        <Button type="submit" disabled={isUploading} className="w-full text-lg">
-          {isUploading ? 'Uploading...' : 'Submit'}
-        </Button>
-      </form>
-    </Form>
+          <NewProgrammeDetailsSection form={form} />
+          <DemographicsSection form={form} />
+
+          <SpecialNeedsSection
+            form={form}
+            watchSpecialNeeds={watchSpecialNeeds}
+            disabilityPath={disabilityPath}
+          />
+
+          <StudentInformationSection
+            form={form}
+            isLoggedIn={status === 'authenticated'}
+          />
+
+          {/* FILE UPLOAD */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">
+              Upload Documents
+            </label>
+
+            <label
+              htmlFor="file-upload"
+              className="
+      flex flex-col items-center justify-center
+      w-full h-32
+      border-2 border-dashed border-gray-300
+      rounded-lg
+      cursor-pointer
+      bg-gray-50
+      hover:border-blue-500 hover:bg-blue-50
+      transition
+    "
+            >
+              <svg
+                className="w-8 h-8 text-gray-400 mb-2"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.5}
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 16v-8m0 0l-3 3m3-3l3 3"
+                />
+              </svg>
+
+              <p className="text-sm text-gray-600">
+                <span className="font-medium text-blue-600">
+                  Click to upload
+                </span>
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                Please upload your Matric certificate and certificate ID
+              </p>
+            </label>
+
+            <input
+              id="file-upload"
+              type="file"
+              multiple
+              accept="image/*,application/pdf"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+          </div>
+
+          <Button
+            type="submit"
+            disabled={isUploading}
+            className="w-full text-lg"
+          >
+            {isUploading ? 'Uploading...' : 'Submit'}
+          </Button>
+        </form>
+      </Form>
+
+      {/* BANKING DETAILS SECTION */}
+      <section className="max-w-4xl mx-auto mt-12 px-6 py-8 bg-gray-50 border border-gray-200 rounded-2xl shadow-sm">
+        <h2 className="text-xl font-semibold text-gray-800 mb-4">
+          Banking Details
+        </h2>
+
+        <p className="text-gray-700 mb-6">
+          A fee of <span className="font-semibold">R150</span> must be paid and
+          proof of payment can be emailed to{' '}
+          <a
+            href="mailto:admin@sozim.co.za"
+            className="text-blue-600 font-medium underline"
+          >
+            admin@sozim.co.za
+          </a>
+          .
+        </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-700">
+          <div>
+            <p className="font-medium text-gray-900">Bank Name</p>
+            <p>First National Bank</p>
+          </div>
+
+          <div>
+            <p className="font-medium text-gray-900">Account Name</p>
+            <p>Sozim Trading and Consultancy CC</p>
+          </div>
+
+          <div>
+            <p className="font-medium text-gray-900">Account Number</p>
+            <p>62814066610</p>
+          </div>
+
+          <div>
+            <p className="font-medium text-gray-900">Branch Code</p>
+            <p>250-655</p>
+          </div>
+
+          <div>
+            <p className="font-medium text-gray-900">Account Type</p>
+            <p>Cheque</p>
+          </div>
+
+          <div>
+            <p className="font-medium text-gray-900">Reference</p>
+            <p>Applicant ID / ID Number</p>
+          </div>
+        </div>
+      </section>
+    </>
   )
 }

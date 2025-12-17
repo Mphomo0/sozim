@@ -1,5 +1,4 @@
 import { NextResponse, NextRequest } from 'next/server'
-import bcrypt from 'bcryptjs'
 import dbConnect from '@/lib/mongodb'
 import User from '@/models/User'
 import { auth } from '@/auth'
@@ -49,11 +48,6 @@ export const POST = async (req: NextRequest) => {
       )
     }
 
-    let hashedPassword: string | undefined
-    if (password) {
-      hashedPassword = await bcrypt.hash(password, 10)
-    }
-
     const user = await User.create({
       firstName,
       lastName,
@@ -64,7 +58,7 @@ export const POST = async (req: NextRequest) => {
       nationality,
       email,
       address,
-      ...(hashedPassword && { password: hashedPassword }),
+      password,
       role,
     })
 

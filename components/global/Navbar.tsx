@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useSession, signOut } from 'next-auth/react'
+import { usePathname } from 'next/navigation'
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
@@ -14,6 +15,7 @@ export default function Navbar() {
     {}
   )
 
+  const pathname = usePathname()
   const { data: session } = useSession()
 
   const topMenuItems = [
@@ -24,7 +26,7 @@ export default function Navbar() {
   ]
 
   const mainMenuItems = [
-    { label: 'Home', href: '/' },
+    { label: 'Home', href: '/home' },
     { label: 'About Us', href: '/about' },
     {
       label: 'Academic Schools',
@@ -77,6 +79,11 @@ export default function Navbar() {
 
   const isDropdownOpen = (label: string) => openDropdowns[label] || false
 
+  const isActive = (href: string) => {
+    if (href === '/') return pathname === '/'
+    return pathname.startsWith(href)
+  }
+
   return (
     <header className="relative z-50 bg-white border-b border-gray-300 tracking-wide">
       {/* Top Section */}
@@ -111,7 +118,11 @@ export default function Navbar() {
             <li key={item.label}>
               <Link
                 href={item.href}
-                className="text-[15px] font-medium text-slate-900 hover:text-blue-900"
+                className={`text-[15px] font-medium transition ${
+                  isActive(item.href)
+                    ? 'text-blue-900 font-semibold border-b-2 border-blue-900'
+                    : 'text-slate-900 hover:text-blue-900'
+                }`}
               >
                 {item.label}
               </Link>
@@ -344,7 +355,11 @@ export default function Navbar() {
                 >
                   <Link
                     href={item.href}
-                    className="block text-[15px] font-medium text-slate-500 hover:text-blue-600"
+                    className={`block text-[15px] font-medium transition ${
+                      isActive(item.href)
+                        ? 'text-blue-900 font-semibold border-b-2 border-blue-900'
+                        : 'text-slate-500 hover:text-blue-600'
+                    }`}
                   >
                     {item.label}
                   </Link>
