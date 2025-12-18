@@ -119,7 +119,8 @@ export default function Footer() {
               <li className="flex items-start gap-2">
                 <MapPin className="h-6 w-6 mt-0.5 text-white" />
                 <span>
-                  4697 Modiko Street, Bochabela Location, Mangaung, 9323
+                  Shop 4,Sunday School Building, 154 Charlotte Maxeke Street,
+                  Bloemfontein
                 </span>
               </li>
             </ul>
