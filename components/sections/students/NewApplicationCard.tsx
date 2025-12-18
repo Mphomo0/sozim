@@ -146,7 +146,7 @@ export default function CreateApplication() {
         const res = await upload({
           file,
           fileName,
-          folder: 'application',
+          folder: 'applications',
           token,
           signature,
           publicKey,

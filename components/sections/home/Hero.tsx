@@ -6,7 +6,9 @@ export default function Hero() {
     <section className="relative h-[600px] md:h-[900px] flex items-center justify-center overflow-hidden">
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `url('../../images/heroImage.jpg')` }}
+        style={{
+          backgroundImage: `url('https://ik.imagekit.io/vzofqg2fg/images/heroImage.jpg')`,
+        }}
       />
       <div className="absolute inset-0 bg-blue-950/90" />
 

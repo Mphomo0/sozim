@@ -63,9 +63,9 @@ export default function Navbar() {
         { title: 'Conduct Outcome-Based Moderation', href: '#' },
       ],
     },
-    { label: 'Library', href: '#' },
+    { label: 'Library', href: '/library' },
     { label: 'Contact Learning', href: '/contact-learning' },
-    { label: 'Campus', href: '#' },
+    { label: 'Campus', href: '/campus' },
     { label: 'Career Pathways', href: '/career-pathway' },
     { label: 'Sozim Store', href: '/shop' },
   ]
@@ -91,7 +91,7 @@ export default function Navbar() {
         {/* Logo */}
         <Link href="/" className="max-sm:hidden">
           <Image
-            src="https://ik.imagekit.io/e2pess7p4/application/SozimLogo.webp"
+            src="https://ik.imagekit.io/vzofqg2fg/images/SozimLogo.webp"
             alt="logo"
             width={250}
             height={80}
@@ -102,7 +102,7 @@ export default function Navbar() {
         </Link>
         <Link href="/" className="hidden max-sm:block">
           <Image
-            src="https://ik.imagekit.io/e2pess7p4/application/SozimLogo.webp"
+            src="https://ik.imagekit.io/vzofqg2fg/images/SozimLogo.webp"
             alt="logo"
             width={180}
             height={70}

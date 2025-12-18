@@ -78,7 +78,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenuButton size="lg" asChild>
               <Link href="/dashboard">
                 <Image
-                  src="/images/logo/sozimLogo.webp"
+                  src="https://ik.imagekit.io/vzofqg2fg/images/SozimLogo.webp"
                   alt="Logo"
                   width={116}
                   height={20}

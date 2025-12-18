@@ -9,7 +9,8 @@ export default function CTA() {
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: "url('/images/student.jpg')",
+          backgroundImage:
+            "url('https://ik.imagekit.io/vzofqg2fg/images/student.jpg')",
         }}
       />
 
