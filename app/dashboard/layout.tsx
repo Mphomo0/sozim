@@ -12,8 +12,13 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'Sozim',
-  description: 'SOZIM.',
+  robots: {
+    index: false,
+    follow: false,
+  },
+  title: 'Dashboard | Sozim Trading and Consultancy',
+  description:
+    'Access your learner dashboard, courses, progress, and account details at Sozim Trading and Consultancy.',
 }
 
 export default function DashboardLayout({

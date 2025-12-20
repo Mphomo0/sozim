@@ -213,7 +213,7 @@ export default function OurPrograms() {
 
                     {/* ACTION BUTTONS */}
                     <div className="mt-6 flex gap-2">
-                      <Link href="/apply" className="flex-1">
+                      <Link href="/student" className="flex-1">
                         <Button className="w-full bg-blue-900 text-white">
                           Apply Now
                         </Button>

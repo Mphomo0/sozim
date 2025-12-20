@@ -22,11 +22,7 @@ const contactInfo = [
   {
     icon: Mail,
     title: 'Email Us',
-    details: [
-      'info@sozim.co.za',
-      'admissions@sozim.co.za',
-      'support@sozim.co.za',
-    ],
+    details: ['admin@sozim.co.za'],
   },
   {
     icon: Clock,
