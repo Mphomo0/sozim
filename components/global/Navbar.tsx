@@ -9,18 +9,19 @@ import { usePathname } from 'next/navigation'
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const [searchActive, setSearchActive] = useState(false)
-  // This state is now used by the onMouseEnter/onMouseLeave handlers below
-  const [isDesktopDropdownOpen, setIsDesktopDropdownOpen] = useState(false)
   const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>(
     {}
   )
+  const [desktopDropdowns, setDesktopDropdowns] = useState<
+    Record<string, boolean>
+  >({})
 
   const pathname = usePathname()
   const { data: session } = useSession()
 
   const topMenuItems = [
     { label: 'Apply Now', href: '/student' },
-    { label: 'Call Me Back', href: '/contact-me' },
+    { label: 'Call Me Back', href: '/call-me-back' },
     { label: 'Student Portal', href: '/portal' },
     { label: 'Contact Us', href: '/contact' },
   ]
@@ -36,7 +37,7 @@ export default function Navbar() {
           links: [
             {
               label: 'Occupational Certificate in Library Assistant',
-              href: '#',
+              href: '/courses/692ea8739f5f634ccd8948a9',
             },
           ],
         },
@@ -44,23 +45,32 @@ export default function Navbar() {
           title: 'School of Education',
           links: [
             {
-              label:
-                'Occupational Skills Programme: Learning and Development Facilitator',
-              href: '#',
+              label: 'Learning and Development Facilitator',
+              href: '/courses/692eaac59f5f634ccd8948bb',
             },
             {
-              label: 'Occupational Skills Programme: Assessment Practitioner',
-              href: '#',
+              label: 'Assessment Practitioner',
+              href: '/courses/692eabb39f5f634ccd8948c9',
             },
           ],
         },
-        { title: 'ETDP SETA Skills Programmes', href: '#' },
-        { title: 'Outcome-Based Assessment', href: '#' },
         {
-          title: 'Facilitation Using a Variety of Given Methodologies',
-          href: '#',
+          title: 'ETDP SETA Skills Programmes',
+          links: [
+            {
+              label: 'Outcome-Based Assessment',
+              href: '/courses/692eacec9f5f634ccd8948df',
+            },
+            {
+              label: 'Facilitation Using Given Methodologies',
+              href: '//courses/692ead479f5f634ccd8948e3',
+            },
+            {
+              label: 'Conduct Outcome-Based Moderation',
+              href: '/courses/692ead929f5f634ccd8948e7',
+            },
+          ],
         },
-        { title: 'Conduct Outcome-Based Moderation', href: '#' },
       ],
     },
     { label: 'Library', href: '/library' },
@@ -77,7 +87,15 @@ export default function Navbar() {
     }))
   }
 
+  const toggleDesktopDropdown = (label: string, state: boolean) => {
+    setDesktopDropdowns((prev) => ({
+      ...prev,
+      [label]: state,
+    }))
+  }
+
   const isDropdownOpen = (label: string) => openDropdowns[label] || false
+  const isDesktopOpen = (label: string) => desktopDropdowns[label] || false
 
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/'
@@ -95,7 +113,7 @@ export default function Navbar() {
             alt="logo"
             width={250}
             height={80}
-            className="w-auto h-auto object-contain "
+            className="w-auto h-auto object-contain"
             priority
             unoptimized
           />
@@ -113,7 +131,7 @@ export default function Navbar() {
         </Link>
 
         {/* Top Menu */}
-        <ul className="flex space-x-8 max-lg:hidden lg:absolute lg:top-1/2 lg:left-1/2 lg:-translate-x-1/2 lg:-translate-y-1/2 space-y-10">
+        <ul className="flex space-x-8 max-lg:hidden lg:absolute lg:top-1/2 lg:left-1/2 lg:-translate-x-1/2 lg:-translate-y-1/2">
           {topMenuItems.map((item) => (
             <li key={item.label}>
               <Link
@@ -236,56 +254,46 @@ export default function Navbar() {
                 <li
                   key={item.label}
                   className="relative max-lg:border-b border-blue-200 max-lg:py-3"
-                  // FIX: Use the state setter to open dropdown on hover for desktop
-                  onMouseEnter={() => {
-                    if (item.label === 'Academic Schools') {
-                      setIsDesktopDropdownOpen(true)
-                    }
-                  }}
-                  onMouseLeave={() => {
-                    if (item.label === 'Academic Schools') {
-                      setIsDesktopDropdownOpen(false)
-                    }
-                  }}
+                  onMouseEnter={() => toggleDesktopDropdown(item.label, true)}
+                  onMouseLeave={() => toggleDesktopDropdown(item.label, false)}
                 >
                   {/* Desktop Dropdown */}
-                  {isDesktopDropdownOpen &&
-                    item.label === 'Academic Schools' && (
-                      <ul className="lg:absolute lg:left-1/2 lg:-translate-x-1/2 lg:top-full lg:mt-0 lg:min-w-[300px] lg:bg-white lg:border lg:border-gray-200 lg:shadow-xl lg:rounded lg:p-4 lg:space-y-2 lg:transition-all lg:duration-200 lg:z-50">
-                        {item.dropdown.map((sub, index) => (
-                          <li
-                            key={index}
-                            className="pb-2 border-b border-gray-100 last:border-b-0"
+                  {isDesktopOpen(item.label) && (
+                    <ul className="lg:absolute lg:left-1/2 lg:-translate-x-1/2 lg:top-full lg:mt-0 lg:min-w-[300px] lg:bg-white lg:border lg:border-gray-200 lg:shadow-xl lg:rounded lg:p-4 lg:space-y-2 lg:transition-all lg:duration-200 lg:z-50">
+                      {item.dropdown.map((sub, index) => (
+                        <li
+                          key={index}
+                          className="pb-2 border-b border-gray-100 last:border-b-0"
+                        >
+                          <Link
+                            href={sub.title || sub.links?.[0]?.href || '#'}
+                            className="block text-[14px] font-bold text-blue-900 hover:text-blue-700"
                           >
-                            <Link
-                              href={sub.href || '#'}
-                              className="block text-[14px] font-bold text-blue-900 hover:text-blue-700"
-                            >
-                              {sub.title}
-                            </Link>
+                            {sub.title}
+                          </Link>
 
-                            {sub.links && (
-                              <ul className="pl-3 mt-1 space-y-1">
-                                {sub.links.map((link, i) => (
-                                  <li key={i}>
-                                    <Link
-                                      href={link.href}
-                                      className="block text-[13px] text-slate-500 hover:text-blue-700 transition"
-                                    >
-                                      {link.label}
-                                    </Link>
-                                  </li>
-                                ))}
-                              </ul>
-                            )}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
+                          {sub.links && (
+                            <ul className="pl-3 mt-1 space-y-1">
+                              {sub.links.map((link, i) => (
+                                <li key={i}>
+                                  <Link
+                                    href={link.href}
+                                    className="block text-[13px] text-slate-500 hover:text-blue-700 transition"
+                                  >
+                                    {link.label}
+                                  </Link>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
 
                   {/* Desktop/Mobile Link */}
                   <Link
-                    href={'#'} // Use '#' or the first link in the dropdown as the main link
+                    href={item.dropdown?.[0]?.links?.[0]?.href || '#'}
                     className="hidden lg:block text-[15px] font-medium text-slate-500 hover:text-blue-600"
                   >
                     {item.label}
@@ -323,7 +331,7 @@ export default function Navbar() {
                           className="border-b border-blue-100 last:border-b-0"
                         >
                           <Link
-                            href={sub.href || '#'}
+                            href={sub.title || sub.links?.[0]?.href || '#'}
                             className="block text-[14px] font-bold text-blue-800 hover:text-blue-600 py-1"
                           >
                             {sub.title}
