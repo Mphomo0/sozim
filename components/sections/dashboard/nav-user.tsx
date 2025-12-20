@@ -110,7 +110,7 @@ export function NavUser() {
                   'Are you sure you want to log out?'
                 )
                 if (confirmed) {
-                  signOut({ callbackUrl: '/login' })
+                  signOut({ redirectTo: '/' })
                   toast.success('Logged out successfully!')
                 }
               }}

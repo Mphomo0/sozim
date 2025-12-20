@@ -160,7 +160,7 @@ export default function Navbar() {
               </Link>
 
               <button
-                onClick={() => signOut({ callbackUrl: '/login' })}
+                onClick={() => signOut({ redirectTo: '/' })}
                 className="px-4 py-2 text-[15px] font-medium text-white bg-red-600 rounded-full hover:bg-red-700"
               >
                 Logout

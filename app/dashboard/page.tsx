@@ -27,7 +27,7 @@ import ApplicationYearTrendChart from '@/components/sections/dashboard/Applicati
 import YearSelector from '@/components/sections/dashboard/YearSelector'
 
 interface PageProps {
-  searchParams?: { [key: string]: string | string[] | undefined }
+  searchParams: Promise<{ year?: string }>
 }
 
 // Type for chart data
@@ -76,7 +76,8 @@ export default async function DashboardPage({ searchParams }: PageProps) {
 
   // --- Year Filter ---
   const currentYear = new Date().getFullYear()
-  const selectedYear = Number(searchParams?.year) || currentYear
+  const params = await searchParams
+  const selectedYear = Number(params?.year) || currentYear
 
   const startDate = new Date(selectedYear, 0, 1)
   const endDate = new Date(selectedYear + 1, 0, 1)
