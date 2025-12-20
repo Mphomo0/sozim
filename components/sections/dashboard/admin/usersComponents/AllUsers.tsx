@@ -21,6 +21,7 @@ interface User {
   lastName: string
   email: string
   phone: string
+  role: string
 }
 
 export default function AllUsers() {
@@ -36,6 +37,7 @@ export default function AllUsers() {
       if (!res.ok) throw new Error('Failed to fetch users')
       const data = await res.json()
       setUsers(data.users)
+      console.log(data)
       setTotalPages(data.totalPages)
     } catch (error) {
       console.error('Failed to load users:', error)
@@ -115,7 +117,12 @@ export default function AllUsers() {
                       size="icon"
                       aria-label={`Delete user with this email: ${user.email}`}
                       onClick={() => handleDeleteUser(user._id)}
-                      className="text-red-600 hover:text-red-800 hover:bg-red-50"
+                      disabled={user.role === 'ADMIN'} // Disable if user is admin
+                      className={`text-red-600 hover:text-red-800 hover:bg-red-50 ${
+                        user.role === 'ADMIN'
+                          ? 'opacity-50 cursor-not-allowed hover:bg-transparent hover:text-red-600'
+                          : ''
+                      }`}
                     >
                       <Trash2 size={18} />
                     </Button>
@@ -184,7 +191,12 @@ export default function AllUsers() {
                 size="icon"
                 aria-label={`Delete user with this email: ${user.email}`}
                 onClick={() => handleDeleteUser(user._id)}
-                className="text-red-600 hover:text-red-800 hover:bg-red-50"
+                disabled={user.role === 'ADMIN'} // Disable if user is admin
+                className={`text-red-600 hover:text-red-800 hover:bg-red-50 ${
+                  user.role === 'ADMIN'
+                    ? 'opacity-50 cursor-not-allowed hover:bg-transparent hover:text-red-600'
+                    : ''
+                }`}
               >
                 <Trash2 size={18} />
               </Button>

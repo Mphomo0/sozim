@@ -3,52 +3,73 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
+import { useState } from 'react'
 
-const contactSchema = z.object({
+const callbackSchema = z.object({
   firstName: z.string().min(1, 'First Name is required'),
   surname: z.string().min(1, 'Surname is required'),
   email: z.email('Invalid email address'),
   cellphoneNumber: z.string().min(1, 'Cellphone Number is required'),
   alternativeContactNumber: z.string().optional(),
-  natureOfEnquiry: z.enum(
-    ['General Inquiry', 'School Specific'],
-    'Please select the nature of enquiry'
-  ),
-  schoolOf: z.z.enum(
-    [
-      'School of Arts and Humanities',
-      'School of Education',
-      'ETDP SETA Skills Programmes',
-    ],
-    'Please select school faculty'
-  ),
-  contactMethod: z.enum(
-    ['Email', 'Phone', 'SMS', 'WhatsApp'],
-    'Please select a contact method'
-  ),
-  preferredContactTime: z.enum(
-    ['Morning', 'Afternoon', 'Evening'],
-    'Please select a preferred contact time'
-  ),
+  natureOfEnquiry: z.enum(['General Inquiry', 'School Specific']),
+  schoolOf: z.enum([
+    'School of Arts and Humanities',
+    'School of Education',
+    'ETDP SETA Skills Programmes',
+  ]),
+  contactMethod: z.enum(['Email', 'Phone', 'SMS', 'WhatsApp']),
+  preferredContactTime: z.enum(['Morning', 'Afternoon', 'Evening']),
   message: z.string().min(1, 'Message is required'),
 })
 
-type ContactFormData = z.infer<typeof contactSchema>
+type CallbackFormData = z.infer<typeof callbackSchema>
 
 export default function CallbackForm() {
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm<ContactFormData>({
-    resolver: zodResolver(contactSchema),
+  } = useForm<CallbackFormData>({
+    resolver: zodResolver(callbackSchema),
+    defaultValues: {
+      firstName: '',
+      surname: '',
+      email: '',
+      cellphoneNumber: '',
+      alternativeContactNumber: '',
+      natureOfEnquiry: 'General Inquiry',
+      schoolOf: 'School of Arts and Humanities',
+      contactMethod: 'Email',
+      preferredContactTime: 'Morning',
+      message: '',
+    },
   })
 
-  const onSubmit = (data: ContactFormData) => {
-    console.log('Form Data:', data)
-    alert('Form submitted successfully!')
-    reset()
+  const onSubmit = async (data: CallbackFormData) => {
+    setIsSubmitting(true)
+
+    const formData = { ...data, formType: 'callback' }
+
+    try {
+      const res = await fetch('/api/send-mails', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      })
+
+      if (!res.ok) throw new Error('Failed to send message')
+
+      alert('Message sent successfully!')
+      reset()
+    } catch (err) {
+      console.error(err)
+      alert('Error sending message')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -58,7 +79,7 @@ export default function CallbackForm() {
         className="max-w-xl mx-auto p-6 bg-white shadow-lg rounded-lg space-y-6"
       >
         <h2 className="text-2xl font-bold text-gray-800 text-center">
-          Contact Me
+          Callback Request
         </h2>
 
         {/* First Name */}
@@ -66,7 +87,6 @@ export default function CallbackForm() {
           <label className="mb-1 font-medium text-gray-700">First Name</label>
           <input
             {...register('firstName')}
-            name="firstName"
             placeholder="Your First Name"
             className={`px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
               errors.firstName ? 'border-red-500' : 'border-gray-300'
@@ -84,7 +104,6 @@ export default function CallbackForm() {
           <label className="mb-1 font-medium text-gray-700">Surname</label>
           <input
             {...register('surname')}
-            name="surname"
             placeholder="Your Surname"
             className={`px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
               errors.surname ? 'border-red-500' : 'border-gray-300'
@@ -103,7 +122,6 @@ export default function CallbackForm() {
           <input
             type="email"
             {...register('email')}
-            name="email"
             placeholder="Your Email"
             className={`px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
               errors.email ? 'border-red-500' : 'border-gray-300'
@@ -121,7 +139,6 @@ export default function CallbackForm() {
           </label>
           <input
             {...register('cellphoneNumber')}
-            name="cellphoneNumber"
             placeholder="Your Cellphone Number"
             className={`px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
               errors.cellphoneNumber ? 'border-red-500' : 'border-gray-300'
@@ -141,7 +158,6 @@ export default function CallbackForm() {
           </label>
           <input
             {...register('alternativeContactNumber')}
-            name="alternativeContactNumber"
             placeholder="Your Alternative Contact Number"
             className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
@@ -169,7 +185,7 @@ export default function CallbackForm() {
           )}
         </div>
 
-        {/* School Department */}
+        {/* School of */}
         <div className="flex flex-col">
           <label className="mb-1 font-medium text-gray-700">School of</label>
           <select
@@ -197,7 +213,7 @@ export default function CallbackForm() {
         {/* Contact Method */}
         <div className="flex flex-col">
           <label className="mb-1 font-medium text-gray-700">
-            How would you like to be contacted
+            Preferred Contact Method
           </label>
           <select
             {...register('contactMethod')}
@@ -205,7 +221,7 @@ export default function CallbackForm() {
               errors.contactMethod ? 'border-red-500' : 'border-gray-300'
             }`}
           >
-            <option value="">Select Preferred Contact Method</option>
+            <option value="">Select Contact Method</option>
             <option value="Email">Email</option>
             <option value="Phone">Phone</option>
             <option value="SMS">SMS</option>
@@ -229,7 +245,7 @@ export default function CallbackForm() {
               errors.preferredContactTime ? 'border-red-500' : 'border-gray-300'
             }`}
           >
-            <option value="">Select Preferred Contact Time</option>
+            <option value="">Select Contact Time</option>
             <option value="Morning">Morning</option>
             <option value="Afternoon">Afternoon</option>
             <option value="Evening">Evening</option>
@@ -261,9 +277,14 @@ export default function CallbackForm() {
 
         <button
           type="submit"
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-md transition-colors"
+          disabled={isSubmitting}
+          className={`w-full font-semibold py-3 rounded-md transition-colors ${
+            isSubmitting
+              ? 'bg-gray-400 cursor-not-allowed text-gray-200'
+              : 'bg-blue-600 hover:bg-blue-700 text-white'
+          }`}
         >
-          Submit
+          {isSubmitting ? 'Sending...' : 'Submit'}
         </button>
       </form>
     </div>

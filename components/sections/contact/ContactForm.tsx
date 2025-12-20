@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
+// Validation schema
 const contactFormSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),
   lastName: z.string().min(1, 'Last name is required'),
@@ -30,12 +31,21 @@ const contactFormSchema = z.object({
   phone: z
     .string()
     .min(10, 'Phone number must be at least 10 digits')
-    .regex(/^\d+$/, 'Phone number must contain only digits'),
+    .regex(/^\+?\d+$/, 'Phone number must contain only digits or start with +'),
   subject: z.string().min(1, 'Subject is required'),
   message: z.string().min(1, 'Message is required'),
 })
 
 type ContactFormData = z.infer<typeof contactFormSchema>
+
+// Mapping select values to human-readable labels
+const subjectLabels: Record<string, string> = {
+  general: 'General Inquiry',
+  admissions: 'Admissions',
+  programs: 'Program Information',
+  support: 'Student Support',
+  other: 'Other',
+}
 
 export default function ContactForm() {
   const {
@@ -45,11 +55,37 @@ export default function ContactForm() {
     formState: { errors, isSubmitting },
   } = useForm<ContactFormData>({
     resolver: zodResolver(contactFormSchema),
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      email: '',
+      phone: '',
+      subject: 'general',
+      message: '',
+    },
   })
 
-  const onSubmit = (data: ContactFormData) => {
-    console.log('Form Data:', data)
-    // Add API call or toast here
+  const onSubmit = async (data: ContactFormData) => {
+    const formData = {
+      ...data,
+      subject: subjectLabels[data.subject] || data.subject,
+      formType: 'contact',
+    }
+
+    try {
+      const res = await fetch('/api/send-mails', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      })
+
+      if (!res.ok) throw new Error('Failed to send message')
+
+      alert('Message sent successfully!')
+    } catch (err) {
+      console.error(err)
+      alert('Error sending message')
+    }
   }
 
   return (

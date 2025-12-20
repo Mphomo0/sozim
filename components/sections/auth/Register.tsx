@@ -102,7 +102,7 @@ export default function Register() {
         <div className="max-w-[800px] w-full">
           <Link href="#">
             <Image
-              src="/images/logo/SozimLogo.webp"
+              src="https://ik.imagekit.io/vzofqg2fg/images/SozimLogo.webp"
               alt="Sozim Logo"
               width={160}
               height={90}
