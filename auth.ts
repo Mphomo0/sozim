@@ -1,5 +1,8 @@
 import NextAuth from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
+import Nodemailer from 'next-auth/providers/nodemailer'
+import { MongoDBAdapter } from '@auth/mongodb-adapter'
+import clientPromise from '@/lib/mongodb-client'
 import dbConnect from '@/lib/mongodb'
 import User from '@/models/User'
 
@@ -19,7 +22,20 @@ interface AppUser {
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  adapter: MongoDBAdapter(clientPromise),
+  session: { strategy: 'jwt' },
   providers: [
+    Nodemailer({
+      server: {
+        host: process.env.SMTP_HOST,
+        port: Number(process.env.SMTP_PORT),
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS,
+        },
+      },
+      from: process.env.EMAIL_FROM,
+    }),
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
@@ -82,7 +98,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       // Add properties from user to token when signing in
       if (user) {
         token.id = user.id
-        // NOTE: If you apply the type augmentation below, you can remove the '(user as AppUser)' casting
         token.firstName = (user as AppUser).firstName
         token.lastName = (user as AppUser).lastName
         token.email = (user as AppUser).email

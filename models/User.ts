@@ -1,17 +1,15 @@
 import mongoose, { Schema, Document, Model } from 'mongoose'
 import bcrypt from 'bcryptjs'
-// import './Application'
 
-// TypeScript interface
 export interface IUser extends Document {
   firstName?: string
   lastName?: string
-  phone: string
+  phone?: string // Changed to optional
   alternativeNumber?: string
   dob?: Date
   email?: string
   address?: string
-  password: string
+  password?: string // Changed to optional for Magic Link users
   idNumber?: string
   nationality?: string
   role: 'USER' | 'ADMIN' | 'MODERATOR'
@@ -27,14 +25,11 @@ const userSchema = new Schema<IUser>(
     lastName: { type: String, trim: true },
     phone: {
       type: String,
-      required: [true, 'Phone number is required'],
       unique: true,
+      sparse: true, // Allows multiple null/missing phones without unique conflict
       trim: true,
     },
-    alternativeNumber: {
-      type: String,
-      trim: true,
-    },
+    alternativeNumber: { type: String, trim: true, sparse: true },
     dob: { type: Date },
     email: {
       type: String,
@@ -47,16 +42,10 @@ const userSchema = new Schema<IUser>(
     address: { type: String, trim: true },
     password: {
       type: String,
-      minlength: [6, 'Password must be at least 6 characters'],
+      // No required: true here so Magic Link users can exist
     },
-    idNumber: {
-      type: String,
-      trim: true,
-    },
-    nationality: {
-      type: String,
-      trim: true,
-    },
+    idNumber: { type: String, trim: true },
+    nationality: { type: String, trim: true },
     role: {
       type: String,
       enum: ['USER', 'ADMIN', 'MODERATOR'],
@@ -69,27 +58,26 @@ const userSchema = new Schema<IUser>(
   { timestamps: true }
 )
 
-// Hash password before save
+// Modified Hash middleware
 userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next()
+  // Only hash if there is a password AND it's modified
+  if (!this.password || !this.isModified('password')) return next()
+
   const salt = await bcrypt.genSalt(10)
   this.password = await bcrypt.hash(this.password, salt)
   next()
 })
 
-// Compare password
 userSchema.methods.comparePassword = async function (
   candidatePassword: string
 ): Promise<boolean> {
+  // Guard against null passwords (magic link users trying to use credentials)
+  if (!this.password) return false
   return bcrypt.compare(candidatePassword, this.password)
 }
 
-// Use a getter function instead of immediate evaluation
 function getUserModel(): Model<IUser> {
-  if (mongoose.models && mongoose.models.User) {
-    return mongoose.models.User as Model<IUser>
-  }
-  return mongoose.model<IUser>('User', userSchema)
+  return mongoose.models.User || mongoose.model<IUser>('User', userSchema)
 }
 
 export default getUserModel()
