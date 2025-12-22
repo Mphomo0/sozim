@@ -6,28 +6,13 @@ import clientPromise from '@/lib/mongodb-client'
 import dbConnect from '@/lib/mongodb'
 import User from '@/models/User'
 import { DefaultSession } from 'next-auth'
-import { AdapterUser } from 'next-auth/adapters'
-
-interface AppUser {
-  id: string
-  firstName?: string
-  lastName?: string
-  email?: string
-  phone?: string
-  alternativeNumber?: string
-  dob?: string
-  idNumber?: string
-  nationality?: string
-  address?: string
-  role?: string
-}
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: MongoDBAdapter(clientPromise),
 
-  // ✅ DATABASE SESSIONS
+  // ✅ JWT Strategy is recommended for Credentials & Role-based access
   session: {
-    strategy: 'database',
+    strategy: 'jwt',
   },
 
   providers: [
@@ -49,22 +34,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         email: { label: 'Email', type: 'text' },
         password: { label: 'Password', type: 'password' },
       },
-
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          throw new Error('Invalid credentials')
-        }
+        if (!credentials?.email || !credentials?.password) return null
 
         await dbConnect()
-
         const user = await User.findOne({ email: credentials.email })
-        if (!user) throw new Error('Invalid credentials')
 
-        const isValid = await user.comparePassword(
-          credentials.password as string
-        )
-        if (!isValid) throw new Error('Invalid credentials')
+        if (!user) throw new Error('No user found with this email')
 
+        const isValid = await user.comparePassword(credentials.password as string)
+        if (!isValid) throw new Error('Incorrect password')
+
+        // This object is passed to the JWT callback
         return {
           id: user._id.toString(),
           firstName: user.firstName,
@@ -77,43 +58,80 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           nationality: user.nationality,
           address: user.address,
           role: user.role,
-        } as AppUser
+        }
       },
     }),
   ],
 
-  pages: {
-    signIn: '/login',
-  },
-
   callbacks: {
     /**
-     * ✅ DATABASE SESSION CALLBACK
-     * Runs on every request that calls auth() / useSession()
+     * 1. JWT Callback: Runs when the token is created (sign in) or updated.
+     * Persists user data into the encrypted cookie.
      */
-    async session({ session, user }) {
-      if (session.user && user && session.user.firstName) {
-        session.user.id = user.id
-        session.user.firstName = user.firstName
-        session.user.lastName = user.lastName
-        session.user.email = user.email
-        session.user.phone = user.phone
-        session.user.alternativeNumber = user.alternativeNumber
-        session.user.dob = user.dob
-        session.user.idNumber = user.idNumber
-        session.user.nationality = user.nationality
-        session.user.address = user.address
-        session.user.role = user.role
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id
+        token.role = user.role
+        token.firstName = user.firstName
+        token.lastName = user.lastName
+        token.phone = user.phone
+        token.alternativeNumber = user.alternativeNumber
+        token.dob = user.dob
+        token.idNumber = user.idNumber
+        token.nationality = user.nationality
+        token.address = user.address
+      }
+      return token
+    },
+
+    /**
+     * 2. Session Callback: Runs whenever the session is checked.
+     * Exposes the data from the token to your frontend/Server Components.
+     */
+    async session({ session, token }) {
+      if (token && session.user) {
+        session.user.id = token.id as string
+        session.user.role = token.role as string
+        session.user.firstName = token.firstName as string
+        session.user.lastName = token.lastName as string
+        session.user.phone = token.phone as string
+        session.user.alternativeNumber = token.alternativeNumber as string
+        session.user.dob = token.dob as string
+        session.user.idNumber = token.idNumber as string
+        session.user.nationality = token.nationality as string
+        session.user.address = token.address as string
       }
       return session
     },
   },
 
+  pages: {
+    signIn: '/login',
+  },
+
   secret: process.env.NEXTAUTH_SECRET,
 })
 
-declare module 'next-auth/adapters' {
-  interface AdapterUser {
+// --- TypeScript Module Augmentation ---
+
+declare module 'next-auth' {
+  interface Session {
+    user: {
+      id: string
+      firstName?: string | null
+      lastName?: string | null
+      role?: string | null
+      phone?: string | null
+      alternativeNumber?: string | null
+      dob?: string | null
+      idNumber?: string | null
+      nationality?: string | null
+      address?: string | null
+    } & DefaultSession['user']
+  }
+
+  interface User {
+    role?: string | null
     firstName?: string | null
     lastName?: string | null
     phone?: string | null
@@ -122,24 +140,22 @@ declare module 'next-auth/adapters' {
     idNumber?: string | null
     nationality?: string | null
     address?: string | null
-    role?: string | null
   }
 }
 
-declare module 'next-auth' {
-  interface Session {
-    user: {
-      id: string
-      firstName?: string | null
-      lastName?: string | null
-      email?: string | null
-      phone?: string | null
-      alternativeNumber?: string | null
-      dob?: string | null
-      idNumber?: string | null
-      nationality?: string | null
-      address?: string | null
-      role?: string | null
-    } & DefaultSession['user']
+import { JWT } from 'next-auth/jwt'
+
+declare module 'next-auth/jwt' {
+  interface JWT {
+    id: string
+    role?: string | null
+    firstName?: string | null
+    lastName?: string | null
+    phone?: string | null
+    alternativeNumber?: string | null
+    dob?: string | null
+    idNumber?: string | null
+    nationality?: string | null
+    address?: string | null
   }
 }
