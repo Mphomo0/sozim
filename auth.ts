@@ -6,11 +6,11 @@ import clientPromise from '@/lib/mongodb-client'
 import dbConnect from '@/lib/mongodb'
 import User from '@/models/User'
 import { DefaultSession } from 'next-auth'
+import { JWT } from 'next-auth/jwt' // ✅ Required for type augmentation
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: MongoDBAdapter(clientPromise),
 
-  // ✅ JWT strategy is necessary for Credentials and efficient role-based routing
   session: {
     strategy: 'jwt',
   },
@@ -40,13 +40,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         await dbConnect()
         const user = await User.findOne({ email: credentials.email })
 
-        if (!user) throw new Error('No account found with this email')
+        if (!user) throw new Error('No account found')
 
         const isValid = await user.comparePassword(credentials.password as string)
         if (!isValid) throw new Error('Incorrect password')
 
-        // ✅ We return a flat object where all types match the NextAuth 'User' interface.
-        // Important: dob must be a string to avoid the Date vs String TypeScript error.
+        // ✅ Convert Date to String here to satisfy 'User' type
         return {
           id: user._id.toString(),
           firstName: user.firstName,
@@ -54,7 +53,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           email: user.email,
           phone: user.phone,
           alternativeNumber: user.alternativeNumber,
-          dob: user.dob instanceof Date ? user.dob.toISOString() : user.dob, 
+          dob: user.dob instanceof Date ? user.dob.toISOString() : user.dob,
           idNumber: user.idNumber,
           nationality: user.nationality,
           address: user.address,
@@ -65,10 +64,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ],
 
   callbacks: {
-    /**
-     * ✅ JWT CALLBACK
-     * This saves the data from 'authorize' into the encrypted cookie.
-     */
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id as string
@@ -85,22 +80,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return token
     },
 
-    /**
-     * ✅ SESSION CALLBACK
-     * This makes the data available when you call 'await auth()' in your app.
-     */
     async session({ session, token }) {
-      if (token && session.user) {
-        session.user.id = token.id
-        session.user.role = token.role
-        session.user.firstName = token.firstName
-        session.user.lastName = token.lastName
-        session.user.phone = token.phone
-        session.user.alternativeNumber = token.alternativeNumber
-        session.user.dob = token.dob
-        session.user.idNumber = token.idNumber
-        session.user.nationality = token.nationality
-        session.user.address = token.address
+      if (session.user && token) {
+        // ✅ Explicitly casting 'unknown' to 'string' to fix Build Errors
+        session.user.id = token.id as string
+        session.user.role = token.role as string | null
+        session.user.firstName = token.firstName as string | null
+        session.user.lastName = token.lastName as string | null
+        session.user.phone = token.phone as string | null
+        session.user.alternativeNumber = token.alternativeNumber as string | null
+        session.user.dob = token.dob as string | null
+        session.user.idNumber = token.idNumber as string | null
+        session.user.nationality = token.nationality as string | null
+        session.user.address = token.address as string | null
       }
       return session
     },
@@ -113,8 +105,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   secret: process.env.NEXTAUTH_SECRET,
 })
 
-// --- TypeScript Module Augmentation ---
-// This tells TypeScript that these extra fields exist on the Session and User objects.
+// --- Type Augmentation ---
 
 declare module 'next-auth' {
   interface Session {
