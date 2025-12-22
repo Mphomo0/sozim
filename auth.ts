@@ -6,7 +6,7 @@ import clientPromise from '@/lib/mongodb-client'
 import dbConnect from '@/lib/mongodb'
 import User from '@/models/User'
 import { DefaultSession } from 'next-auth'
-import { JWT } from 'next-auth/jwt' // ✅ Required for type augmentation
+import { JWT } from 'next-auth/jwt'
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: MongoDBAdapter(clientPromise),
@@ -42,7 +42,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         if (!user) throw new Error('No account found')
 
-        const isValid = await user.comparePassword(credentials.password as string)
+        const isValid = await user.comparePassword(
+          credentials.password as string
+        )
         if (!isValid) throw new Error('Incorrect password')
 
         // ✅ Convert Date to String here to satisfy 'User' type
@@ -53,7 +55,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           email: user.email,
           phone: user.phone,
           alternativeNumber: user.alternativeNumber,
-          dob: user.dob instanceof Date ? user.dob.toISOString() : user.dob,
+          dob: user.dob,
           idNumber: user.idNumber,
           nationality: user.nationality,
           address: user.address,
@@ -82,14 +84,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
     async session({ session, token }) {
       if (session.user && token) {
-        // ✅ Explicitly casting 'unknown' to 'string' to fix Build Errors
         session.user.id = token.id as string
         session.user.role = token.role as string | null
         session.user.firstName = token.firstName as string | null
         session.user.lastName = token.lastName as string | null
         session.user.phone = token.phone as string | null
-        session.user.alternativeNumber = token.alternativeNumber as string | null
-        session.user.dob = token.dob as string | null
+        session.user.alternativeNumber = token.alternativeNumber as
+          | string
+          | null
+        session.user.dob = token.dob ?? null
         session.user.idNumber = token.idNumber as string | null
         session.user.nationality = token.nationality as string | null
         session.user.address = token.address as string | null
@@ -116,7 +119,7 @@ declare module 'next-auth' {
       lastName?: string | null
       phone?: string | null
       alternativeNumber?: string | null
-      dob?: string | null
+      dob?: Date | null
       idNumber?: string | null
       nationality?: string | null
       address?: string | null
@@ -130,7 +133,7 @@ declare module 'next-auth' {
     lastName?: string | null
     phone?: string | null
     alternativeNumber?: string | null
-    dob?: string | null
+    dob?: Date | null
     idNumber?: string | null
     nationality?: string | null
     address?: string | null
@@ -145,7 +148,7 @@ declare module 'next-auth/jwt' {
     lastName?: string | null
     phone?: string | null
     alternativeNumber?: string | null
-    dob?: string | null
+    dob?: Date | null
     idNumber?: string | null
     nationality?: string | null
     address?: string | null
