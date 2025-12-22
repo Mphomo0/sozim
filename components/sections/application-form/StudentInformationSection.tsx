@@ -12,17 +12,17 @@ type Props = {
 
 export default function StudentInformationSection({ form }: Props) {
   return (
-    <div className="space-y-6 p-6 border rounded-xl bg-gray-50">
-      <h2 className="font-bold text-3xl text-primary border-b pb-2">
+    <div className='space-y-6 p-6 border rounded-xl bg-gray-50'>
+      <h2 className='font-bold text-3xl text-primary border-b pb-2'>
         Student Information
       </h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
         <Field>
-          <FieldLabel htmlFor="user.firstName">First Name</FieldLabel>
+          <FieldLabel htmlFor='user.firstName'>First Name</FieldLabel>
           <Input
-            id="user.firstName"
-            placeholder="Enter first name"
+            id='user.firstName'
+            placeholder='Enter first name'
             {...form.register('user.firstName')}
           />
           <FieldError>
@@ -31,10 +31,10 @@ export default function StudentInformationSection({ form }: Props) {
         </Field>
 
         <Field>
-          <FieldLabel htmlFor="user.lastName">Last Name</FieldLabel>
+          <FieldLabel htmlFor='user.lastName'>Last Name</FieldLabel>
           <Input
-            id="user.lastName"
-            placeholder="Enter last name"
+            id='user.lastName'
+            placeholder='Enter last name'
             {...form.register('user.lastName')}
           />
           <FieldError>
@@ -44,16 +44,24 @@ export default function StudentInformationSection({ form }: Props) {
 
         {/* NEW FIELD: Date of Birth */}
         <Field>
-          <FieldLabel htmlFor="user.dob">Date of Birth</FieldLabel>
-          <Input type="date" id="user.dob" {...form.register('user.dob')} />
+          <FieldLabel htmlFor='user.dob'>Date of Birth</FieldLabel>
+
+          <Input
+            type='date'
+            id='user.dob'
+            {...form.register('user.dob', {
+              valueAsDate: true,
+            })}
+          />
+
           <FieldError>{form.formState.errors.user?.dob?.message}</FieldError>
         </Field>
 
         <Field>
-          <FieldLabel htmlFor="user.idNumber">ID Number</FieldLabel>
+          <FieldLabel htmlFor='user.idNumber'>ID Number</FieldLabel>
           <Input
-            id="user.idNumber"
-            placeholder="Enter your ID number"
+            id='user.idNumber'
+            placeholder='Enter your ID number'
             {...form.register('user.idNumber')}
           />
           <FieldError>
@@ -62,22 +70,22 @@ export default function StudentInformationSection({ form }: Props) {
         </Field>
 
         <Field>
-          <FieldLabel htmlFor="user.phone">Cellphone Number</FieldLabel>
+          <FieldLabel htmlFor='user.phone'>Cellphone Number</FieldLabel>
           <Input
-            id="user.phone"
-            placeholder="Enter cellphone number"
+            id='user.phone'
+            placeholder='Enter cellphone number'
             {...form.register('user.phone')}
           />
           <FieldError>{form.formState.errors.user?.phone?.message}</FieldError>
         </Field>
 
         <Field>
-          <FieldLabel htmlFor="user.alternativeNumber">
+          <FieldLabel htmlFor='user.alternativeNumber'>
             Alternative Number
           </FieldLabel>
           <Input
-            id="user.alternativeNumber"
-            placeholder="Enter alternative number"
+            id='user.alternativeNumber'
+            placeholder='Enter alternative number'
             {...form.register('user.alternativeNumber')}
           />
           <FieldError>
@@ -86,20 +94,20 @@ export default function StudentInformationSection({ form }: Props) {
         </Field>
 
         <Field>
-          <FieldLabel htmlFor="user.email">Email Address</FieldLabel>
+          <FieldLabel htmlFor='user.email'>Email Address</FieldLabel>
           <Input
-            id="user.email"
-            placeholder="Enter email"
+            id='user.email'
+            placeholder='Enter email'
             {...form.register('user.email')}
           />
           <FieldError>{form.formState.errors.user?.email?.message}</FieldError>
         </Field>
 
         <Field>
-          <FieldLabel htmlFor="user.nationality">Nationality</FieldLabel>
+          <FieldLabel htmlFor='user.nationality'>Nationality</FieldLabel>
           <Input
-            id="user.nationality"
-            placeholder="e.g South African"
+            id='user.nationality'
+            placeholder='e.g South African'
             {...form.register('user.nationality')}
           />
           <FieldError>
@@ -107,11 +115,11 @@ export default function StudentInformationSection({ form }: Props) {
           </FieldError>
         </Field>
 
-        <Field className="md:col-span-2">
-          <FieldLabel htmlFor="user.address">Residential Address</FieldLabel>
+        <Field className='md:col-span-2'>
+          <FieldLabel htmlFor='user.address'>Residential Address</FieldLabel>
           <Textarea
-            id="user.address"
-            placeholder="Enter your address"
+            id='user.address'
+            placeholder='Enter your address'
             {...form.register('user.address')}
           />
           <FieldError>
