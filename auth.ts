@@ -10,7 +10,7 @@ import { DefaultSession } from 'next-auth'
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: MongoDBAdapter(clientPromise),
 
-  // ✅ JWT Strategy is recommended for Credentials & Role-based access
+  // ✅ JWT strategy is necessary for Credentials and efficient role-based routing
   session: {
     strategy: 'jwt',
   },
@@ -40,12 +40,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         await dbConnect()
         const user = await User.findOne({ email: credentials.email })
 
-        if (!user) throw new Error('No user found with this email')
+        if (!user) throw new Error('No account found with this email')
 
         const isValid = await user.comparePassword(credentials.password as string)
         if (!isValid) throw new Error('Incorrect password')
 
-        // This object is passed to the JWT callback
+        // ✅ We return a flat object where all types match the NextAuth 'User' interface.
+        // Important: dob must be a string to avoid the Date vs String TypeScript error.
         return {
           id: user._id.toString(),
           firstName: user.firstName,
@@ -53,7 +54,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           email: user.email,
           phone: user.phone,
           alternativeNumber: user.alternativeNumber,
-          dob: user.dob,
+          dob: user.dob instanceof Date ? user.dob.toISOString() : user.dob, 
           idNumber: user.idNumber,
           nationality: user.nationality,
           address: user.address,
@@ -65,12 +66,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
   callbacks: {
     /**
-     * 1. JWT Callback: Runs when the token is created (sign in) or updated.
-     * Persists user data into the encrypted cookie.
+     * ✅ JWT CALLBACK
+     * This saves the data from 'authorize' into the encrypted cookie.
      */
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id
+        token.id = user.id as string
         token.role = user.role
         token.firstName = user.firstName
         token.lastName = user.lastName
@@ -85,21 +86,21 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
 
     /**
-     * 2. Session Callback: Runs whenever the session is checked.
-     * Exposes the data from the token to your frontend/Server Components.
+     * ✅ SESSION CALLBACK
+     * This makes the data available when you call 'await auth()' in your app.
      */
     async session({ session, token }) {
       if (token && session.user) {
-        session.user.id = token.id as string
-        session.user.role = token.role as string
-        session.user.firstName = token.firstName as string
-        session.user.lastName = token.lastName as string
-        session.user.phone = token.phone as string
-        session.user.alternativeNumber = token.alternativeNumber as string
-        session.user.dob = token.dob as string
-        session.user.idNumber = token.idNumber as string
-        session.user.nationality = token.nationality as string
-        session.user.address = token.address as string
+        session.user.id = token.id
+        session.user.role = token.role
+        session.user.firstName = token.firstName
+        session.user.lastName = token.lastName
+        session.user.phone = token.phone
+        session.user.alternativeNumber = token.alternativeNumber
+        session.user.dob = token.dob
+        session.user.idNumber = token.idNumber
+        session.user.nationality = token.nationality
+        session.user.address = token.address
       }
       return session
     },
@@ -113,14 +114,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 })
 
 // --- TypeScript Module Augmentation ---
+// This tells TypeScript that these extra fields exist on the Session and User objects.
 
 declare module 'next-auth' {
   interface Session {
     user: {
       id: string
+      role?: string | null
       firstName?: string | null
       lastName?: string | null
-      role?: string | null
       phone?: string | null
       alternativeNumber?: string | null
       dob?: string | null
@@ -131,6 +133,7 @@ declare module 'next-auth' {
   }
 
   interface User {
+    id?: string
     role?: string | null
     firstName?: string | null
     lastName?: string | null
@@ -142,8 +145,6 @@ declare module 'next-auth' {
     address?: string | null
   }
 }
-
-import { JWT } from 'next-auth/jwt'
 
 declare module 'next-auth/jwt' {
   interface JWT {
