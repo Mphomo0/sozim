@@ -27,10 +27,9 @@ import ApplicationYearTrendChart from '@/components/sections/dashboard/Applicati
 import YearSelector from '@/components/sections/dashboard/YearSelector'
 
 interface PageProps {
-  searchParams: Promise<{ year?: string }>
+  searchParams: { year?: string }
 }
 
-// Type for chart data
 interface StatusChartData {
   _id: number
   pending: number
@@ -40,49 +39,28 @@ interface StatusChartData {
 }
 
 export default async function DashboardPage({ searchParams }: PageProps) {
-  let session
-
-  try {
-    session = await auth()
-  } catch (error) {
-    console.error('Authentication error:', error)
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 px-4">
-        <p className="text-xl text-red-600">
-          Authentication error. Please try again.
-        </p>
-      </div>
-    )
-  }
+  // 🔐 AUTH — NO RENDERING BEFORE THIS
+  const session = await auth()
 
   if (!session) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 px-4">
-        <p className="text-xl text-gray-700">You are not authenticated.</p>
-        <Link href="/login" passHref>
-          <Button className="mt-4 bg-black text-white hover:bg-gray-800 transition duration-200">
-            Login
-          </Button>
-        </Link>
-      </div>
-    )
+    redirect('/login')
   }
 
   if (session.user?.role !== 'ADMIN') {
     redirect('/student')
   }
 
+  // ✅ Only admins reach here
   await dbConnect()
 
   // --- Year Filter ---
   const currentYear = new Date().getFullYear()
-  const params = await searchParams
-  const selectedYear = Number(params?.year) || currentYear
+  const selectedYear = Number(searchParams?.year) || currentYear
 
   const startDate = new Date(selectedYear, 0, 1)
   const endDate = new Date(selectedYear + 1, 0, 1)
 
-  // --- Year-filtered analytics ---
+  // --- Analytics ---
   const totalUsers = await User.countDocuments({ role: 'USER' })
 
   const totalApplications = await Application.countDocuments({
@@ -104,18 +82,19 @@ export default async function DashboardPage({ searchParams }: PageProps) {
     createdAt: { $gte: startDate, $lt: endDate },
   })
 
-  // Percentages
   const pendingPercent = totalApplications
     ? Math.round((totalPending / totalApplications) * 100)
     : 0
+
   const approvedPercent = totalApplications
     ? Math.round((totalApproved / totalApplications) * 100)
     : 0
+
   const rejectedPercent = totalApplications
     ? Math.round((totalRejected / totalApplications) * 100)
     : 0
 
-  // --- Chart Data ---
+  // --- Charts ---
   const statusChartData: StatusChartData[] = [
     {
       _id: selectedYear,
@@ -126,22 +105,20 @@ export default async function DashboardPage({ searchParams }: PageProps) {
     },
   ]
 
-  // Multi-year trend aggregation
-  const yearTrendRaw: {
-    _id: number
-    count: number
-    pending: number
-    approved: number
-    rejected: number
-  }[] = await Application.aggregate([
-    // <--- Type added here
+  const yearTrendRaw = await Application.aggregate([
     {
       $group: {
         _id: { $year: '$createdAt' },
         count: { $sum: 1 },
-        pending: { $sum: { $cond: [{ $eq: ['$status', 'PENDING'] }, 1, 0] } },
-        approved: { $sum: { $cond: [{ $eq: ['$status', 'APPROVED'] }, 1, 0] } },
-        rejected: { $sum: { $cond: [{ $eq: ['$status', 'REJECTED'] }, 1, 0] } },
+        pending: {
+          $sum: { $cond: [{ $eq: ['$status', 'PENDING'] }, 1, 0] },
+        },
+        approved: {
+          $sum: { $cond: [{ $eq: ['$status', 'APPROVED'] }, 1, 0] },
+        },
+        rejected: {
+          $sum: { $cond: [{ $eq: ['$status', 'REJECTED'] }, 1, 0] },
+        },
       },
     },
     { $sort: { _id: 1 } },
@@ -155,6 +132,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
     count: y.count,
   }))
 
+  // 🧱 UI (ONLY ADMINS GET HERE)
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -180,7 +158,6 @@ export default async function DashboardPage({ searchParams }: PageProps) {
         </header>
 
         <div className="flex flex-1 flex-col gap-6 p-4 pt-0">
-          {/* Year Dropdown */}
           <div className="flex justify-end">
             <YearSelector
               currentYear={currentYear}
@@ -188,81 +165,37 @@ export default async function DashboardPage({ searchParams }: PageProps) {
             />
           </div>
 
-          {/* Analytics Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {/* Users */}
-            <div className="bg-white p-6 rounded-xl shadow-md">
-              <div className="flex items-center gap-4">
-                <Users className="w-10 h-10 text-blue-600" />
-                <div>
-                  <p className="text-xl font-semibold">{totalUsers}</p>
-                  <p className="text-gray-500 mt-1">Total Users</p>
-                </div>
-              </div>
-            </div>
+            <StatCard icon={<Users className="w-10 h-10 text-blue-600" />} label="Total Users" value={totalUsers} />
 
-            {/* Pending */}
-            <div className="bg-white p-6 rounded-xl shadow-md">
-              <div className="flex items-center gap-4">
-                <Clock className="w-10 h-10 text-yellow-500" />
-                <div>
-                  <p className="text-xl font-semibold">{totalPending}</p>
-                  <p className="text-gray-500 mt-1">Pending</p>
-                </div>
-              </div>
-              <div className="w-full bg-gray-200 h-3 rounded-full mt-4">
-                <div
-                  className="h-3 rounded-full bg-yellow-500"
-                  style={{ width: `${pendingPercent}%` }}
-                />
-              </div>
-              <p className="text-xs text-gray-500 mt-1">
-                {pendingPercent}% ({selectedYear})
-              </p>
-            </div>
+            <ProgressCard
+              icon={<Clock className="w-10 h-10 text-yellow-500" />}
+              label="Pending"
+              value={totalPending}
+              percent={pendingPercent}
+              color="bg-yellow-500"
+              year={selectedYear}
+            />
 
-            {/* Approved */}
-            <div className="bg-white p-6 rounded-xl shadow-md">
-              <div className="flex items-center gap-4">
-                <CheckCircle2 className="w-10 h-10 text-green-600" />
-                <div>
-                  <p className="text-xl font-semibold">{totalApproved}</p>
-                  <p className="text-gray-500 mt-1">Approved</p>
-                </div>
-              </div>
-              <div className="w-full bg-gray-200 h-3 rounded-full mt-4">
-                <div
-                  className="h-3 rounded-full bg-green-600"
-                  style={{ width: `${approvedPercent}%` }}
-                />
-              </div>
-              <p className="text-xs text-gray-500 mt-1">
-                {approvedPercent}% ({selectedYear})
-              </p>
-            </div>
+            <ProgressCard
+              icon={<CheckCircle2 className="w-10 h-10 text-green-600" />}
+              label="Approved"
+              value={totalApproved}
+              percent={approvedPercent}
+              color="bg-green-600"
+              year={selectedYear}
+            />
 
-            {/* Rejected */}
-            <div className="bg-white p-6 rounded-xl shadow-md">
-              <div className="flex items-center gap-4">
-                <XCircle className="w-10 h-10 text-red-600" />
-                <div>
-                  <p className="text-xl font-semibold">{totalRejected}</p>
-                  <p className="text-gray-500 mt-1">Rejected</p>
-                </div>
-              </div>
-              <div className="w-full bg-gray-200 h-3 rounded-full mt-4">
-                <div
-                  className="h-3 rounded-full bg-red-600"
-                  style={{ width: `${rejectedPercent}%` }}
-                />
-              </div>
-              <p className="text-xs text-gray-500 mt-1">
-                {rejectedPercent}% ({selectedYear})
-              </p>
-            </div>
+            <ProgressCard
+              icon={<XCircle className="w-10 h-10 text-red-600" />}
+              label="Rejected"
+              value={totalRejected}
+              percent={rejectedPercent}
+              color="bg-red-600"
+              year={selectedYear}
+            />
           </div>
 
-          {/* Charts */}
           <div className="bg-white p-6 rounded-xl shadow-md mt-6">
             <h2 className="text-lg font-semibold mb-4">
               Application Status ({selectedYear})
@@ -282,5 +215,67 @@ export default async function DashboardPage({ searchParams }: PageProps) {
         </div>
       </SidebarInset>
     </SidebarProvider>
+  )
+}
+
+/* -------------------------------- */
+/* Reusable stat components (optional) */
+/* -------------------------------- */
+
+function StatCard({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode
+  label: string
+  value: number
+}) {
+  return (
+    <div className="bg-white p-6 rounded-xl shadow-md">
+      <div className="flex items-center gap-4">
+        {icon}
+        <div>
+          <p className="text-xl font-semibold">{value}</p>
+          <p className="text-gray-500 mt-1">{label}</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ProgressCard({
+  icon,
+  label,
+  value,
+  percent,
+  color,
+  year,
+}: {
+  icon: React.ReactNode
+  label: string
+  value: number
+  percent: number
+  color: string
+  year: number
+}) {
+  return (
+    <div className="bg-white p-6 rounded-xl shadow-md">
+      <div className="flex items-center gap-4">
+        {icon}
+        <div>
+          <p className="text-xl font-semibold">{value}</p>
+          <p className="text-gray-500 mt-1">{label}</p>
+        </div>
+      </div>
+
+      <div className="w-full bg-gray-200 h-3 rounded-full mt-4">
+        <div className={`h-3 rounded-full ${color}`} style={{ width: `${percent}%` }} />
+      </div>
+
+      <p className="text-xs text-gray-500 mt-1">
+        {percent}% ({year})
+      </p>
+    </div>
   )
 }
