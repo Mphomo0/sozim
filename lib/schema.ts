@@ -146,26 +146,7 @@ export const formSchema = z.object({
     email: z.email('Invalid email address'),
     address: z.string().min(5, 'Address is required'),
     nationality: z.string().min(1, 'Nationality is required'),
-    dob: z
-      .string()
-      .min(1, 'Date of Birth is required')
-      .refine(
-        (value) => !Number.isNaN(Date.parse(value)),
-        'Invalid date format'
-      )
-      .refine((value) => {
-        const date = new Date(value)
-        const today = new Date()
-        const age =
-          today.getFullYear() -
-          date.getFullYear() -
-          (today <
-          new Date(today.getFullYear(), date.getMonth(), date.getDate())
-            ? 1
-            : 0)
-
-        return age >= 16
-      }, 'You must be at least 16 years old'),
+    dob: z.date().nullable(),
   }),
 })
 
