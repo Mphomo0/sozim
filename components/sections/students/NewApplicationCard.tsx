@@ -14,12 +14,9 @@ import {
   Trash2,
   UploadCloud,
 } from 'lucide-react'
-
 import { Form } from '@/components/ui/form'
 import { Button } from '@/components/ui/button'
-
 import { formSchema, FormValues, DisabilityKey } from '@/lib/schema'
-
 import CoPrincipalDebtorSection from '@/components/sections/application-form/CoPrincipalDebtorForm'
 import StudyMaterial from '@/components/sections/application-form/StudyMaterial'
 import ProgrammeDetails from '@/components/sections/application-form/ProgrammeDetails'
