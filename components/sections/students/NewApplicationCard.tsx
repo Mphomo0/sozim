@@ -6,7 +6,14 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useSession } from 'next-auth/react'
 import { toast } from 'react-toastify'
 import { v4 as uuidv4 } from 'uuid'
-import { upload } from '@imagekit/next'
+import {
+  Loader2,
+  CheckCircle2,
+  XCircle,
+  FileText,
+  Trash2,
+  UploadCloud,
+} from 'lucide-react'
 
 import { Form } from '@/components/ui/form'
 import { Button } from '@/components/ui/button'
@@ -25,11 +32,16 @@ function disabilityPath(key: DisabilityKey) {
   return `disabilities.${key}` as const
 }
 
+type FileStatus = 'waiting' | 'uploading' | 'success' | 'error'
+
 export default function CreateApplication() {
   const { data: session, status } = useSession()
 
-  const [selectedFiles, setSelectedFiles] = useState<File[] | null>(null)
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [isUploading, setIsUploading] = useState(false)
+  const [fileStatuses, setFileStatuses] = useState<{
+    [key: string]: FileStatus
+  }>({})
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -68,6 +80,14 @@ export default function CreateApplication() {
 
   useEffect(() => {
     if (status !== 'authenticated' || !session?.user) return
+
+    const dob =
+      session.user.dob instanceof Date
+        ? session.user.dob
+        : session.user.dob
+        ? new Date(session.user.dob)
+        : null
+
     form.reset((prev) => ({
       ...prev,
       user: {
@@ -75,7 +95,7 @@ export default function CreateApplication() {
         lastName: session.user.lastName ?? '',
         email: session.user.email ?? '',
         phone: session.user.phone ?? '',
-        dob: session.user.dob ?? '',
+        dob: dob ? dob.toISOString() : '',
         idNumber: session.user.idNumber ?? '',
         address: session.user.address ?? '',
         nationality: session.user.nationality ?? '',
@@ -85,66 +105,135 @@ export default function CreateApplication() {
   }, [session, status, form])
 
   const getAuthParams = async () => {
-    const res = await fetch('/api/images/upload-auth')
-    if (!res.ok) throw new Error('Failed to fetch upload auth')
-    return res.json()
-  }
+    try {
+      const res = await fetch('/api/images/upload-auth', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
 
-  /* ===============================
-     ONLY ADDITION #1 (APPEND FILES)
-     =============================== */
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.length) {
-      setSelectedFiles((prev) =>
-        prev
-          ? [...prev, ...Array.from(e.target.files as ArrayLike<File>)]
-          : Array.from(e.target.files as ArrayLike<File>)
-      )
-      e.target.value = ''
+      if (!res.ok) {
+        const errorData = await res.json()
+        throw new Error(errorData.message || 'Failed to fetch upload auth')
+      }
+
+      return await res.json()
+    } catch (error) {
+      console.error('Error getting auth params:', error)
+      throw error
     }
   }
 
-  /* ===============================
-     ONLY ADDITION #2 (DELETE FILE)
-     =============================== */
-  const removeFile = (index: number) => {
-    setSelectedFiles((prev) =>
-      prev ? prev.filter((_, i) => i !== index) : prev
+  const uploadToImageKit = async (file: File) => {
+    // 1. Get auth params from your API
+    const authParams = await getAuthParams()
+
+    const formData = new FormData()
+    const fileName = `${uuidv4()}_${file.name}`
+
+    // 2. Map these directly from the API response
+    formData.append('file', file)
+    formData.append('fileName', fileName)
+    formData.append('folder', '/applications')
+    formData.append('publicKey', authParams.publicKey)
+
+    // CRITICAL: These three must match what the server used for the signature
+    formData.append('signature', authParams.signature)
+    formData.append('expire', authParams.expire.toString())
+    formData.append('token', authParams.token)
+
+    const response = await fetch(
+      'https://upload.imagekit.io/api/v1/files/upload',
+      {
+        method: 'POST',
+        body: formData,
+      }
     )
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      throw new Error(errorText || 'Upload failed')
+    }
+
+    return await response.json()
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files?.length) return
+
+    const files = Array.from(e.target.files)
+    const maxSize = 10 * 1024 * 1024 // 10MB
+    const allowedTypes = [
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'application/pdf',
+    ]
+
+    const validFiles: File[] = []
+    const invalidFiles: string[] = []
+
+    files.forEach((file) => {
+      if (!allowedTypes.includes(file.type)) {
+        invalidFiles.push(`${file.name} (invalid type)`)
+      } else if (file.size > maxSize) {
+        invalidFiles.push(`${file.name} (too large - max 10MB)`)
+      } else {
+        validFiles.push(file)
+      }
+    })
+
+    if (invalidFiles.length > 0) {
+      toast.error(`Invalid files: ${invalidFiles.join(', ')}`)
+    }
+
+    if (validFiles.length > 0) {
+      setSelectedFiles((prev) => [...prev, ...validFiles])
+      toast.success(`${validFiles.length} file(s) added`)
+    }
+
+    e.target.value = ''
+  }
+
+  const removeFile = (index: number) => {
+    const fileName = selectedFiles[index].name
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index))
+    setFileStatuses((prev) => {
+      const newState = { ...prev }
+      delete newState[fileName]
+      return newState
+    })
+    toast.info('File removed')
   }
 
   async function onSubmit(values: FormValues) {
     try {
-      if (!selectedFiles?.length) {
+      if (!selectedFiles.length) {
         toast.error('Please select at least one document.')
         return
       }
 
       setIsUploading(true)
-
       const uploadedDocs: { url: string; fileId: string }[] = []
 
-      for (const file of selectedFiles) {
-        const { token, signature, publicKey, expire } = await getAuthParams()
-        const fileName = `${uuidv4()}_${file.name}`
+      // Sequential uploads with UI state updates
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const file = selectedFiles[i]
+        setFileStatuses((prev) => ({ ...prev, [file.name]: 'uploading' }))
 
-        const res = await upload({
-          file,
-          fileName,
-          folder: 'applications',
-          token,
-          signature,
-          publicKey,
-          expire,
-        })
-
-        if (res?.url && res?.fileId) {
-          uploadedDocs.push({ url: res.url, fileId: res.fileId })
+        try {
+          const result = await uploadToImageKit(file)
+          uploadedDocs.push(result)
+          setFileStatuses((prev) => ({ ...prev, [file.name]: 'success' }))
+        } catch (uploadErr) {
+          setFileStatuses((prev) => ({ ...prev, [file.name]: 'error' }))
+          toast.error(`Failed to upload ${file.name}`)
+          throw new Error(`Upload failed for ${file.name}`)
         }
       }
 
       let applicantId: string
-
       if (session?.user?.id) {
         applicantId = session.user.id
       } else {
@@ -156,7 +245,6 @@ export default function CreateApplication() {
 
         const userData = await userRes.json()
         if (!userRes.ok) throw new Error(userData.message)
-
         applicantId = userData._id
       }
 
@@ -177,7 +265,8 @@ export default function CreateApplication() {
 
       toast.success('Application submitted successfully')
       form.reset()
-      setSelectedFiles(null)
+      setSelectedFiles([])
+      setFileStatuses({})
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Submission failed')
     } finally {
@@ -195,12 +284,14 @@ export default function CreateApplication() {
         >
           <CoPrincipalDebtorSection form={form} />
           <StudyMaterial form={form} />
+
           <ProgrammeDetails
             form={form}
             fields={fields}
             append={append}
             remove={remove}
           />
+
           <NewProgrammeDetailsSection form={form} />
           <DemographicsSection form={form} />
 
@@ -215,37 +306,24 @@ export default function CreateApplication() {
             isLoggedIn={status === 'authenticated'}
           />
 
-          {/* FILE UPLOAD */}
-          <div className='space-y-2'>
+          <div className='space-y-4'>
             <label className='block text-sm font-medium text-gray-700'>
-              Upload Documents
+              Upload Documents <span className='text-red-500'>*</span>
             </label>
 
             <label
               htmlFor='file-upload'
               className='flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:border-blue-500 hover:bg-blue-50 transition'
             >
-              <svg
-                className='w-8 h-8 text-gray-400 mb-2'
-                fill='none'
-                stroke='currentColor'
-                strokeWidth={1.5}
-                viewBox='0 0 24 24'
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  d='M12 16v-8m0 0l-3 3m3-3l3 3'
-                />
-              </svg>
-
+              <UploadCloud className='w-8 h-8 text-gray-400 mb-2' />
               <p className='text-sm text-gray-600'>
                 <span className='font-medium text-blue-600'>
                   Click to upload
-                </span>
+                </span>{' '}
+                or drag and drop
               </p>
               <p className='text-xs text-gray-500 mt-1'>
-                Please upload your Matric certificate and certificate ID
+                PDF, JPG, PNG up to 10MB
               </p>
             </label>
 
@@ -256,62 +334,92 @@ export default function CreateApplication() {
               accept='image/*,application/pdf'
               onChange={handleFileChange}
               className='hidden'
+              disabled={isUploading}
             />
+
+            {selectedFiles.length > 0 && (
+              <div className='space-y-2'>
+                <p className='text-sm font-medium text-gray-700'>
+                  Selected files ({selectedFiles.length}):
+                </p>
+                <ul className='space-y-2'>
+                  {selectedFiles.map((file, index) => {
+                    const status = fileStatuses[file.name] || 'waiting'
+                    return (
+                      <li
+                        key={`${file.name}-${index}`}
+                        className='flex flex-col p-3 bg-gray-50 border border-gray-200 rounded-lg'
+                      >
+                        <div className='flex items-center justify-between'>
+                          <div className='flex items-center space-x-3 flex-1 min-w-0'>
+                            {status === 'uploading' && (
+                              <Loader2 className='w-5 h-5 animate-spin text-blue-500' />
+                            )}
+                            {status === 'success' && (
+                              <CheckCircle2 className='w-5 h-5 text-green-500' />
+                            )}
+                            {status === 'error' && (
+                              <XCircle className='w-5 h-5 text-red-500' />
+                            )}
+                            {status === 'waiting' && (
+                              <FileText className='w-5 h-5 text-gray-400' />
+                            )}
+                            <div className='flex-1 min-w-0'>
+                              <p className='text-sm font-medium text-gray-900 truncate'>
+                                {file.name}
+                              </p>
+                              <p className='text-xs text-gray-500'>
+                                {(file.size / 1024 / 1024).toFixed(2)} MB
+                              </p>
+                            </div>
+                          </div>
+                          {!isUploading && (
+                            <button
+                              type='button'
+                              onClick={() => removeFile(index)}
+                              className='ml-3 text-red-500 hover:text-red-700 transition'
+                            >
+                              <Trash2 className='w-5 h-5' />
+                            </button>
+                          )}
+                        </div>
+                        {status === 'uploading' && (
+                          <div className='w-full bg-gray-200 h-1 mt-3 rounded-full overflow-hidden'>
+                            <div
+                              className='bg-blue-600 h-full animate-pulse'
+                              style={{ width: '100%' }}
+                            />
+                          </div>
+                        )}
+                      </li>
+                    )
+                  })}
+                </ul>
+              </div>
+            )}
           </div>
-
-          {/* FILE PREVIEW */}
-          {selectedFiles && selectedFiles.length > 0 && (
-            <div className='grid grid-cols-2 sm:grid-cols-3 gap-4 mt-4'>
-              {selectedFiles.map((file, index) => {
-                const isImage = file.type.startsWith('image/')
-                const previewUrl = URL.createObjectURL(file)
-
-                return (
-                  <div
-                    key={index}
-                    className='relative border rounded-lg p-2 bg-gray-50'
-                  >
-                    <button
-                      type='button'
-                      onClick={() => removeFile(index)}
-                      className='absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs'
-                    >
-                      ✕
-                    </button>
-
-                    {isImage ? (
-                      <img
-                        src={previewUrl}
-                        alt={file.name}
-                        className='w-full h-32 object-cover rounded'
-                      />
-                    ) : (
-                      <div className='flex flex-col items-center justify-center h-32 text-gray-600 text-sm'>
-                        {file.name}
-                      </div>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-          )}
 
           <Button
             type='submit'
-            disabled={isUploading}
+            disabled={isUploading || selectedFiles.length === 0}
             className='w-full text-lg'
           >
-            {isUploading ? 'Uploading...' : 'Submit'}
+            {isUploading ? (
+              <>
+                <Loader2 className='mr-2 h-5 w-5 animate-spin' />
+                Uploading Files...
+              </>
+            ) : (
+              'Submit Application'
+            )}
           </Button>
         </form>
       </Form>
 
-      {/* BANKING DETAILS SECTION — UNCHANGED */}
-      <section className='max-w-4xl mx-auto mt-12 px-6 py-8 bg-gray-50 border border-gray-200 rounded-2xl shadow-sm'>
+      <section className='max-w-4xl mx-auto mt-12 mb-12 px-6 py-8 bg-gray-50 border border-gray-200 rounded-2xl shadow-sm'>
         <h2 className='text-xl font-semibold text-gray-800 mb-4'>
           Banking Details
         </h2>
-
         <p className='text-gray-700 mb-6'>
           A fee of <span className='font-semibold'>R150</span> must be paid and
           proof of payment can be emailed to{' '}
@@ -323,7 +431,6 @@ export default function CreateApplication() {
           </a>
           .
         </p>
-
         <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-700'>
           <div>
             <p className='font-medium text-gray-900'>Bank Name</p>
