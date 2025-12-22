@@ -74,7 +74,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.lastName = user.lastName
         token.phone = user.phone
         token.alternativeNumber = user.alternativeNumber
-        token.dob = user.dob
+        token.dob = user.dob ? new Date(user.dob).toISOString() : null
         token.idNumber = user.idNumber
         token.nationality = user.nationality
         token.address = user.address
@@ -92,7 +92,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.alternativeNumber = token.alternativeNumber as
           | string
           | null
-        session.user.dob = token.dob ?? null
+        session.user.dob = token.dob ? new Date(token.dob) : null
         session.user.idNumber = token.idNumber as string | null
         session.user.nationality = token.nationality as string | null
         session.user.address = token.address as string | null
@@ -148,7 +148,7 @@ declare module 'next-auth/jwt' {
     lastName?: string | null
     phone?: string | null
     alternativeNumber?: string | null
-    dob?: Date | null
+    dob?: string | null
     idNumber?: string | null
     nationality?: string | null
     address?: string | null
