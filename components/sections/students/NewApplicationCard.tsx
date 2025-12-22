@@ -25,18 +25,6 @@ function disabilityPath(key: DisabilityKey) {
   return `disabilities.${key}` as const
 }
 
-interface User {
-  firstName: string
-  lastName: string
-  idNumber: string
-  phone: string
-  email: string
-  address: string
-  nationality: string
-  dob: string
-  alternativeNumber?: string
-}
-
 export default function CreateApplication() {
   const { data: session, status } = useSession()
 
@@ -78,15 +66,9 @@ export default function CreateApplication() {
 
   const watchSpecialNeeds = form.watch('specialNeeds')
 
-  /**
-   * ----------------------------------------------------
-   * Populate form when user is logged in
-   * ----------------------------------------------------
-   */
   useEffect(() => {
     if (status !== 'authenticated' || !session?.user) return
-    console.log('Session:', session)
-    console.log('Session user:', session?.user)
+
     form.reset((prev) => ({
       ...prev,
       user: {
@@ -103,28 +85,32 @@ export default function CreateApplication() {
     }))
   }, [session, status, form])
 
-  /**
-   * ----------------------------------------------------
-   * ImageKit auth
-   * ----------------------------------------------------
-   */
   const getAuthParams = async () => {
     const res = await fetch('/api/images/upload-auth')
     if (!res.ok) throw new Error('Failed to fetch upload auth')
     return res.json()
   }
 
+  /* -----------------------------
+     FILE HANDLING (APPEND + DELETE)
+  ------------------------------ */
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.length) {
-      setSelectedFiles(Array.from(e.target.files))
-    }
+    if (!e.target.files?.length) return
+
+    const newFiles = Array.from(e.target.files)
+
+    setSelectedFiles((prev) => (prev ? [...prev, ...newFiles] : newFiles))
+
+    e.target.value = ''
   }
 
-  /**
-   * ----------------------------------------------------
-   * Submit
-   * ----------------------------------------------------
-   */
+  const removeFile = (index: number) => {
+    setSelectedFiles((prev) =>
+      prev ? prev.filter((_, i) => i !== index) : prev
+    )
+  }
+
   async function onSubmit(values: FormValues) {
     try {
       if (!selectedFiles?.length) {
@@ -134,13 +120,11 @@ export default function CreateApplication() {
 
       setIsUploading(true)
 
-      /**
-       * Upload documents
-       */
       const uploadedDocs: { url: string; fileId: string }[] = []
 
       for (const file of selectedFiles) {
         const { token, signature, publicKey, expire } = await getAuthParams()
+
         const fileName = `${uuidv4()}_${file.name}`
 
         const res = await upload({
@@ -158,13 +142,8 @@ export default function CreateApplication() {
         }
       }
 
-      if (!uploadedDocs.length) {
-        throw new Error('All uploads failed')
-      }
+      if (!uploadedDocs.length) throw new Error('All uploads failed')
 
-      /**
-       * Determine applicantId
-       */
       let applicantId: string
 
       if (session?.user?.id) {
@@ -182,9 +161,6 @@ export default function CreateApplication() {
         applicantId = userData._id
       }
 
-      /**
-       * Create application
-       */
       const appRes = await fetch('/api/applications', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -215,8 +191,8 @@ export default function CreateApplication() {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          autoComplete="off"
-          className="space-y-12 max-w-4xl mx-auto py-12 px-6 bg-white shadow-xl rounded-2xl"
+          autoComplete='off'
+          className='space-y-12 max-w-4xl mx-auto py-12 px-6 bg-white shadow-xl rounded-2xl'
         >
           <CoPrincipalDebtorSection form={form} />
           <StudyMaterial form={form} />
@@ -243,118 +219,78 @@ export default function CreateApplication() {
           />
 
           {/* FILE UPLOAD */}
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
+          <div className='space-y-2'>
+            <label className='block text-sm font-medium text-gray-700'>
               Upload Documents
             </label>
 
             <label
-              htmlFor="file-upload"
-              className="
-      flex flex-col items-center justify-center
-      w-full h-32
-      border-2 border-dashed border-gray-300
-      rounded-lg
-      cursor-pointer
-      bg-gray-50
-      hover:border-blue-500 hover:bg-blue-50
-      transition
-    "
+              htmlFor='file-upload'
+              className='flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:border-blue-500 hover:bg-blue-50 transition'
             >
-              <svg
-                className="w-8 h-8 text-gray-400 mb-2"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={1.5}
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M12 16v-8m0 0l-3 3m3-3l3 3"
-                />
-              </svg>
-
-              <p className="text-sm text-gray-600">
-                <span className="font-medium text-blue-600">
+              <p className='text-sm text-gray-600'>
+                <span className='font-medium text-blue-600'>
                   Click to upload
                 </span>
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                Please upload your Matric certificate and certificate ID
               </p>
             </label>
 
             <input
-              id="file-upload"
-              type="file"
+              id='file-upload'
+              type='file'
               multiple
-              accept="image/*,application/pdf"
+              accept='image/*,application/pdf'
               onChange={handleFileChange}
-              className="hidden"
+              className='hidden'
             />
           </div>
 
+          {/* FILE PREVIEW */}
+          {selectedFiles && (
+            <div className='grid grid-cols-2 sm:grid-cols-3 gap-4'>
+              {selectedFiles.map((file, index) => {
+                const isImage = file.type.startsWith('image/')
+                const previewUrl = URL.createObjectURL(file)
+
+                return (
+                  <div
+                    key={index}
+                    className='relative border rounded-lg p-2 bg-gray-50'
+                  >
+                    <button
+                      type='button'
+                      onClick={() => removeFile(index)}
+                      className='absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600'
+                    >
+                      ✕
+                    </button>
+
+                    {isImage ? (
+                      <img
+                        src={previewUrl}
+                        alt={file.name}
+                        className='w-full h-32 object-cover rounded'
+                      />
+                    ) : (
+                      <div className='flex items-center justify-center h-32 text-sm'>
+                        {file.name}
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          )}
+
           <Button
-            type="submit"
+            type='submit'
             disabled={isUploading}
-            className="w-full text-lg"
+            className='w-full text-lg'
           >
             {isUploading ? 'Uploading...' : 'Submit'}
           </Button>
         </form>
       </Form>
-
-      {/* BANKING DETAILS SECTION */}
-      <section className="max-w-4xl mx-auto mt-12 px-6 py-8 bg-gray-50 border border-gray-200 rounded-2xl shadow-sm">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">
-          Banking Details
-        </h2>
-
-        <p className="text-gray-700 mb-6">
-          A fee of <span className="font-semibold">R150</span> must be paid and
-          proof of payment can be emailed to{' '}
-          <a
-            href="mailto:admin@sozim.co.za"
-            className="text-blue-600 font-medium underline"
-          >
-            admin@sozim.co.za
-          </a>
-          .
-        </p>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-700">
-          <div>
-            <p className="font-medium text-gray-900">Bank Name</p>
-            <p>First National Bank</p>
-          </div>
-
-          <div>
-            <p className="font-medium text-gray-900">Account Name</p>
-            <p>Sozim Trading and Consultancy CC</p>
-          </div>
-
-          <div>
-            <p className="font-medium text-gray-900">Account Number</p>
-            <p>62814066610</p>
-          </div>
-
-          <div>
-            <p className="font-medium text-gray-900">Branch Code</p>
-            <p>250-655</p>
-          </div>
-
-          <div>
-            <p className="font-medium text-gray-900">Account Type</p>
-            <p>Cheque</p>
-          </div>
-
-          <div>
-            <p className="font-medium text-gray-900">Reference</p>
-            <p>Applicant ID / ID Number</p>
-          </div>
-        </div>
-      </section>
     </>
   )
 }
