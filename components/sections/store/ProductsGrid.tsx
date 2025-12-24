@@ -7,27 +7,27 @@ export default function ProductsGrid() {
     {
       name: 'T-Shirt',
       price: '599.95',
-      image: '/images/store/TSHIRT.jpg',
+      image: 'https://ik.imagekit.io/vzofqg2fg/images/store/BlackHoodie.jpg?updatedAt=1766078079955',
     },
     {
       name: 'Cap',
       price: '350',
-      image: '/images/store/Cap.jpg',
+      image: 'https://ik.imagekit.io/vzofqg2fg/images/store/BlackHoodie.jpg?updatedAt=1766078079955',
     },
     {
       name: 'Black Hoodie',
       price: '699.95',
-      image: '/images/store/BlackHoodie.jpg',
+      image: 'https://ik.imagekit.io/vzofqg2fg/images/store/BlackHoodie.jpg?updatedAt=1766078079955',
     },
     {
       name: 'Golf Shirt',
       price: '499.95',
-      image: '/images/store/golf.jpg',
+      image: 'https://ik.imagekit.io/vzofqg2fg/images/store/golf.jpg?updatedAt=1766078080265',
     },
     {
       name: 'White Hoodie',
       price: '699.95',
-      image: '/images/store/whitehoodie.jpg',
+      image: 'https://ik.imagekit.io/vzofqg2fg/images/store/whitehoodie.jpg?updatedAt=1766078080543',
     },
   ]
 
