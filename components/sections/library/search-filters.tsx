@@ -2,7 +2,9 @@
 
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSystemHealth } from '@/lib/hooks/use-system-health'
+import type { Facets } from '@/lib/types'
 
 interface FilterState {
   year: string
@@ -14,9 +16,18 @@ interface FilterState {
 interface SearchFiltersProps {
   filters: FilterState
   setFilters: (filters: FilterState) => void
+  onApplyFilters: () => void
+  facets?: Facets | null
+  loading?: boolean
 }
 
-export function SearchFilters({ filters, setFilters }: SearchFiltersProps) {
+export function SearchFilters({
+  filters,
+  setFilters,
+  onApplyFilters,
+  facets,
+  loading = false,
+}: SearchFiltersProps) {
   const [expandedSections, setExpandedSections] = useState({
     year: true,
     repository: true,
@@ -24,12 +35,19 @@ export function SearchFilters({ filters, setFilters }: SearchFiltersProps) {
     author: true,
   })
 
+  const { health } = useSystemHealth()
+
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections((prev) => ({
       ...prev,
       [section]: !prev[section],
     }))
   }
+
+  // Extract unique values from facets
+  const years = facets?.years || []
+  const repositories = facets?.repositories || []
+  const types = facets?.types || []
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-6">
@@ -56,12 +74,15 @@ export function SearchFilters({ filters, setFilters }: SearchFiltersProps) {
           <select
             value={filters.year}
             onChange={(e) => setFilters({ ...filters, year: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            disabled={loading}
+            className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
           >
-            <option>All Years</option>
-            <option>2025</option>
-            <option>2024</option>
-            <option>2023</option>
+            <option value="">All Years</option>
+            {years.slice(0, 20).map((year) => (
+              <option key={year.name} value={year.name}>
+                {year.name} ({year.count})
+              </option>
+            ))}
           </select>
         )}
       </div>
@@ -87,12 +108,15 @@ export function SearchFilters({ filters, setFilters }: SearchFiltersProps) {
             onChange={(e) =>
               setFilters({ ...filters, repository: e.target.value })
             }
-            className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            disabled={loading}
+            className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
           >
-            <option>All Repositories</option>
-            <option>Zenodo</option>
-            <option>JSTOR</option>
-            <option>PubMed</option>
+            <option value="">All Repositories</option>
+            {repositories.map((repo) => (
+              <option key={repo.name} value={repo.name}>
+                {repo.name} ({repo.count})
+              </option>
+            ))}
           </select>
         )}
       </div>
@@ -114,12 +138,15 @@ export function SearchFilters({ filters, setFilters }: SearchFiltersProps) {
           <select
             value={filters.type}
             onChange={(e) => setFilters({ ...filters, type: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            disabled={loading}
+            className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
           >
-            <option>All Types</option>
-            <option>Journal Article</option>
-            <option>Dataset</option>
-            <option>Thesis</option>
+            <option value="">All Types</option>
+            {types.map((type) => (
+              <option key={type.name} value={type.name}>
+                {type.name} ({type.count})
+              </option>
+            ))}
           </select>
         )}
       </div>
@@ -145,42 +172,59 @@ export function SearchFilters({ filters, setFilters }: SearchFiltersProps) {
             placeholder="e.g. Smith"
             value={filters.author}
             onChange={(e) => setFilters({ ...filters, author: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            disabled={loading}
+            className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
           />
         )}
       </div>
 
       {/* Apply Filters Button */}
-      <Button className="w-full bg-blue-900 hover:bg-blue-800 text-white">
-        Apply Filters
+      <Button
+        onClick={onApplyFilters}
+        disabled={loading}
+        className="w-full bg-blue-900 hover:bg-blue-800 text-white disabled:opacity-50"
+      >
+        {loading ? 'Loading...' : 'Apply Filters'}
       </Button>
 
       {/* System Info */}
-      <div className="bg-gray-100 rounded p-4 text-sm space-y-1">
-        <h3 className="font-semibold text-gray-900 mb-2">System Info</h3>
-        <div className="text-gray-700">
-          <div>
-            <span className="font-medium">Records:</span> 1,768
-          </div>
-          <div>
-            <span className="font-medium">Theses:</span> 702
-          </div>
-          <div>
-            <span className="font-medium">Articles:</span> 575
-          </div>
-          <div>
-            <span className="font-medium">Research Data:</span> 487
-          </div>
-          <div>
-            <span className="font-medium">Last Harvest:</span> 15/11/2025,
-            06:28:43
-          </div>
-          <div className="mt-2">
-            <span className="font-medium">Includes E-LIS:</span>
-            <span className="ml-1 text-green-600">✓</span>
+      {health && (
+        <div className="bg-gray-100 rounded p-4 text-sm space-y-1">
+          <h3 className="font-semibold text-gray-900 mb-2">System Info</h3>
+          <div className="text-gray-700">
+            <div>
+              <span className="font-medium">Records:</span>{' '}
+              {health.data.total_records.toLocaleString()}
+            </div>
+            <div>
+              <span className="font-medium">Theses:</span>{' '}
+              {health.data.theses.toLocaleString()}
+            </div>
+            <div>
+              <span className="font-medium">Articles:</span>{' '}
+              {health.data.articles.toLocaleString()}
+            </div>
+            <div>
+              <span className="font-medium">Research Data:</span>{' '}
+              {health.data.research.toLocaleString()}
+            </div>
+            <div>
+              <span className="font-medium">Last Harvest:</span>{' '}
+              {health.harvest.last_harvest !== 'Never'
+                ? new Date(health.harvest.last_harvest).toLocaleString()
+                : 'Never'}
+            </div>
+            <div className="mt-2">
+              <span className="font-medium">Includes E-LIS:</span>
+              <span className="ml-1 text-green-600">✓</span>
+            </div>
+            <div>
+              <span className="font-medium">Includes OpenAlex:</span>
+              <span className="ml-1 text-green-600">✓</span>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }

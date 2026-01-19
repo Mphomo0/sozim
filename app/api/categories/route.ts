@@ -7,7 +7,11 @@ export async function GET() {
   try {
     await dbConnect()
     const categories = await CourseCategory.find()
-    return NextResponse.json(categories)
+    return NextResponse.json(categories, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60',
+      },
+    })
   } catch (error) {
     console.error('GET /categories error:', error)
     return NextResponse.json(

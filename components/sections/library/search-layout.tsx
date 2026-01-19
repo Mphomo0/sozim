@@ -1,77 +1,260 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, forwardRef, useImperativeHandle } from 'react'
+import { ChevronLeft, ChevronRight, Database, AlertCircle } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import { SearchFilters } from './search-filters'
 import { ArticleGrid } from './article-grid'
+import { useLibrarySearch } from '@/lib/hooks/use-library-search'
+import { useElisSearch } from '@/lib/hooks/use-elis-search'
+import { useSelectedRecords } from '@/lib/hooks/use-selected-records'
+import { downloadRIS } from '@/lib/api/download'
+import { toast } from 'react-toastify'
+import type { Record as RecordType } from '@/lib/types'
 
-// Sample data for demonstration
-const sampleArticles = [
-  {
-    id: 1,
-    source: 'Research Data',
-    repository: 'Zenodo',
-    title: 'AngleDome, Gas flow conditioning through reflection',
-    authors: ['Kim, Jae Un'],
-    year: 2025,
-    doi: '10.5281/zenodo.17614147',
-  },
-  {
-    id: 2,
-    source: 'Research Data',
-    repository: 'Zenodo',
-    title:
-      'The experimental date for the paper "Entanglement-enhanced quantum lock-in detection achieving Heisenberg scaling"',
-    authors: ['Jiawei, Zhang'],
-    year: 2025,
-    doi: '10.5281/zenodo.17614133',
-  },
-  {
-    id: 3,
-    source: 'Research Data',
-    repository: 'Zenodo',
-    title:
-      'Modul Digital Panduan Penggunaan Website Permainan Tradisional Statak',
-    authors: ['Susilawati'],
-    year: 2025,
-    doi: '10.5281/zenodo.17614129',
-    description:
-      'Modul Panduan Permainan Seatak Digital merupakan bahan ajar digital yang dirancang untuk mendukung guru dan siswa Sekolah Dasar (kelas 4, 5, dan 6) dalam memanfaatkan permainan Seatak Digital sebagai media pembelajaran matematika yang interaktif dan menyenangkan. Modul...',
-  },
-  {
-    id: 4,
-    source: 'Research Data',
-    repository: 'Zenodo',
-    title:
-      'ФЕНОМЕНАЛЬНОЕ ОБУЧЕНИЕ: ТВОРЧЕСТВО ДИМАША КУДАЙБЕРГЕНА КАК СИНТЕЗ НАЦИОНАЛЬНОГО НАСЛЕДИЯ И СОВРЕМЕННЫХ ИННОВАЦИЙ',
-    authors: ['Кадыр Жанетта Нурланқызы', 'Мукеева Нуржамал Ерсайдновна'],
-    year: 2025,
-    doi: '10.5281/zenodo.17614136',
-    description:
-      "Ushbu maqolada Dimash Qudaybergen ijodi misolida musiqiy ta'limda fenomenal ol'itish ikoniyatlari ko'rib chiqiladi. Uning ijodiy an'anaviy meros va zamomaviy innovatsiyalarning noyob sintezini ifodalayydi, busa mazkur fenomenni ta'1...",
-  },
-]
+type CategoryType = 'all' | 'research' | 'articles' | 'theses' | 'elis'
 
-export function SearchLayout() {
+export interface SearchLayoutProps {
+  initialQuery?: string
+  initialCategory?: CategoryType
+}
+
+export interface SearchLayoutRef {
+  handleSearch: (query: string, category: CategoryType) => void
+}
+
+export interface SearchLayoutProps {
+  initialQuery?: string
+  initialCategory?: CategoryType
+  noDataAction?: React.ReactNode
+}
+
+export const SearchLayout = forwardRef<SearchLayoutRef, SearchLayoutProps>(function SearchLayout({
+  initialQuery = '',
+  initialCategory = 'all',
+  noDataAction,
+}: SearchLayoutProps, ref) {
   const [filters, setFilters] = useState({
-    year: 'All Years',
-    repository: 'All Repositories',
-    type: 'All Types',
+    year: '',
+    repository: '',
+    type: '',
     author: '',
   })
+
+  const [currentQuery, setCurrentQuery] = useState(initialQuery)
+  const [currentCategory, setCurrentCategory] =
+    useState<CategoryType>(initialCategory)
+
+  // Main search hook
+  const {
+    records: mainRecords,
+    total,
+    page,
+    hasMore,
+    facets,
+    loading: mainLoading,
+    error: mainError,
+    search,
+    nextPage,
+    prevPage,
+  } = useLibrarySearch()
+
+  // E-LIS search hook
+  const {
+    records: elisRecords,
+    loading: elisLoading,
+    error: elisError,
+    search: searchElis,
+  } = useElisSearch()
+
+  // Selected records management
+  const {
+    selectedRecords,
+    selectedCount,
+    toggleRecord,
+    selectAll,
+    clearSelection,
+    getSelectedRecords,
+  } = useSelectedRecords()
+
+  // Determine which records and loading state to use
+  const isElisMode = currentCategory === 'elis'
+  const displayRecords = isElisMode ? elisRecords : mainRecords
+  const loading = isElisMode ? elisLoading : mainLoading
+  const error = isElisMode ? elisError : mainError
+
+  // Initial search on mount
+  useEffect(() => {
+    if (initialQuery || initialCategory !== 'all') {
+      handleSearch(initialQuery, initialCategory)
+    } else {
+      // Load all records by default
+      performMainSearch('', 'all', { year: '', repository: '', type: '', author: '' })
+    }
+  }, [])
+
+  const performMainSearch = async (
+    query: string,
+    category: 'all' | 'research' | 'articles' | 'theses',
+    searchFilters: typeof filters,
+  ) => {
+    await search({
+      category,
+      query,
+      page: 1,
+      pageSize: 24,
+      filters: {
+        year: searchFilters.year || undefined,
+        repository: searchFilters.repository || undefined,
+        type: searchFilters.type || undefined,
+        author: searchFilters.author || undefined,
+      },
+    })
+  }
+
+  const handleSearch = async (query: string, category: CategoryType) => {
+    setCurrentQuery(query)
+    setCurrentCategory(category)
+    clearSelection()
+
+    if (category === 'elis') {
+      if (!query || query.length < 2) {
+        toast.error('Please enter at least 2 characters to search E-LIS')
+        return
+      }
+      await searchElis({ query, page: 1, pageSize: 24 })
+    } else {
+      await performMainSearch(query, category as any, filters)
+    }
+  }
+
+  const handleApplyFilters = async () => {
+    if (currentCategory === 'elis') {
+      toast.info('Filters are not available for E-LIS live search')
+      return
+    }
+    await performMainSearch(currentQuery, currentCategory as any, filters)
+  }
+
+  const handleExportSelected = async () => {
+    const selected = getSelectedRecords(displayRecords)
+    if (selected.length === 0) {
+      toast.error('No records selected')
+      return
+    }
+
+    try {
+      await downloadRIS(selected)
+      toast.success(`Exported ${selected.length} records to RIS format`)
+    } catch (err) {
+      toast.error('Failed to export records')
+      console.error(err)
+    }
+  }
+
+  const handleSelectAll = () => {
+    selectAll(displayRecords)
+  }
+
+  useImperativeHandle(ref, () => ({
+    handleSearch,
+  }))
+
+  useEffect(() => {
+    if (error) {
+      toast.error(error)
+    }
+  }, [error])
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-8">
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Sidebar Filters */}
-        <div className="lg:col-span-1">
-          <SearchFilters filters={filters} setFilters={setFilters} />
+        <div className="lg:col-span-1 lg:sticky lg:top-8 h-fit">
+          <SearchFilters
+            filters={filters}
+            setFilters={setFilters}
+            onApplyFilters={handleApplyFilters}
+            facets={facets}
+            loading={loading}
+          />
         </div>
 
-        {/* Articles Grid */}
-        <div className="lg:col-span-3">
-          <ArticleGrid articles={sampleArticles} />
+        {/* Main Content */}
+        <div className="lg:col-span-3 space-y-6">
+          {/* Results Header */}
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-gray-600">
+              {loading
+                ? 'Searching...'
+                : isElisMode
+                  ? `${displayRecords.length} results from E-LIS`
+                  : `${total.toLocaleString()} results found (page ${page})`}
+            </div>
+          </div>
+
+          {/* No Data Action */}
+          {!loading && displayRecords.length === 0 && noDataAction && (
+            <div className="flex justify-center mb-6">{noDataAction}</div>
+          )}
+
+          {/* Articles Grid - Scrollable */}
+          <div className="max-h-[calc(100vh-300px)] overflow-y-auto pr-2">
+            <ArticleGrid
+              records={displayRecords}
+              loading={loading}
+              selectedRecords={selectedRecords}
+              onToggleRecord={toggleRecord}
+              onSelectAll={handleSelectAll}
+              onClearSelection={clearSelection}
+              onExportSelected={handleExportSelected}
+            />
+          </div>
+
+          {/* Pagination - Only for main search */}
+          {!isElisMode && !loading && displayRecords.length > 0 && (
+            <div className="flex items-center justify-between pt-6">
+              <Button
+                onClick={prevPage}
+                disabled={page === 1}
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                Previous
+              </Button>
+
+              <div className="flex items-center gap-2">
+                {Array.from({ length: Math.min(Math.ceil(total / 24), 10) }, (_, i) => i + 1).map((pageNum) => (
+                  <Button
+                    key={pageNum}
+                    onClick={() => search({ category: currentCategory, query: currentQuery, page: pageNum, pageSize: 24, filters })}
+                    variant={page === pageNum ? 'default' : 'outline'}
+                    className={`w-10 h-10 ${page === pageNum ? 'bg-blue-900 text-white' : ''}`}
+                  >
+                    {pageNum}
+                  </Button>
+                ))}
+                {Math.ceil(total / 24) > 10 && (
+                  <span className="text-sm text-gray-600">... {Math.ceil(total / 24)}</span>
+                )}
+              </div>
+
+              <Button
+                onClick={nextPage}
+                disabled={!hasMore}
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                Next
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </div>
   )
-}
+})
+
+SearchLayout.displayName = 'SearchLayout'

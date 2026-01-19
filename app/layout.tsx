@@ -81,6 +81,9 @@ export const metadata: Metadata = {
     icon: '/favicon.ico',
     apple: '/apple-touch-icon.png',
   },
+  other: {
+    'google-site-verification': 'Vn5qS44TPieZXQZPnKMlAqLoVJLZd9635iahYuDpIWk',
+  },
 }
 
 export default function RootLayout({
