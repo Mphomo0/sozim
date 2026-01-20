@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight, Database, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { SearchFilters } from './search-filters'
 import { ArticleGrid } from './article-grid'
+import { Pagination } from '@/components/global/Pagination'
 import { useLibrarySearch } from '@/lib/hooks/use-library-search'
 import { useElisSearch } from '@/lib/hooks/use-elis-search'
 import { useSelectedRecords } from '@/lib/hooks/use-selected-records'
@@ -102,7 +103,7 @@ export const SearchLayout = forwardRef<SearchLayoutRef, SearchLayoutProps>(funct
       category,
       query,
       page: 1,
-      pageSize: 24,
+      pageSize: 10,
       filters: {
         year: searchFilters.year || undefined,
         repository: searchFilters.repository || undefined,
@@ -122,7 +123,7 @@ export const SearchLayout = forwardRef<SearchLayoutRef, SearchLayoutProps>(funct
         toast.error('Please enter at least 2 characters to search E-LIS')
         return
       }
-      await searchElis({ query, page: 1, pageSize: 24 })
+      await searchElis({ query, page: 1, pageSize: 10 })
     } else {
       await performMainSearch(query, category as any, filters)
     }
@@ -198,58 +199,25 @@ export const SearchLayout = forwardRef<SearchLayoutRef, SearchLayoutProps>(funct
             <div className="flex justify-center mb-6">{noDataAction}</div>
           )}
 
-          {/* Articles Grid - Scrollable */}
-          <div className="max-h-[calc(100vh-300px)] overflow-y-auto pr-2">
-            <ArticleGrid
-              records={displayRecords}
-              loading={loading}
-              selectedRecords={selectedRecords}
-              onToggleRecord={toggleRecord}
-              onSelectAll={handleSelectAll}
-              onClearSelection={clearSelection}
-              onExportSelected={handleExportSelected}
-            />
-          </div>
+          {/* Articles Grid */}
+          <ArticleGrid
+            records={displayRecords}
+            loading={loading}
+            selectedRecords={selectedRecords}
+            onToggleRecord={toggleRecord}
+            onSelectAll={handleSelectAll}
+            onClearSelection={clearSelection}
+            onExportSelected={handleExportSelected}
+          />
 
           {/* Pagination - Only for main search */}
           {!isElisMode && !loading && displayRecords.length > 0 && (
-            <div className="flex items-center justify-between pt-6">
-              <Button
-                onClick={prevPage}
-                disabled={page === 1}
-                variant="outline"
-                className="flex items-center gap-2"
-              >
-                <ChevronLeft className="w-4 h-4" />
-                Previous
-              </Button>
-
-              <div className="flex items-center gap-2">
-                {Array.from({ length: Math.min(Math.ceil(total / 24), 10) }, (_, i) => i + 1).map((pageNum) => (
-                  <Button
-                    key={pageNum}
-                    onClick={() => search({ category: currentCategory, query: currentQuery, page: pageNum, pageSize: 24, filters })}
-                    variant={page === pageNum ? 'default' : 'outline'}
-                    className={`w-10 h-10 ${page === pageNum ? 'bg-blue-900 text-white' : ''}`}
-                  >
-                    {pageNum}
-                  </Button>
-                ))}
-                {Math.ceil(total / 24) > 10 && (
-                  <span className="text-sm text-gray-600">... {Math.ceil(total / 24)}</span>
-                )}
-              </div>
-
-              <Button
-                onClick={nextPage}
-                disabled={!hasMore}
-                variant="outline"
-                className="flex items-center gap-2"
-              >
-                Next
-                <ChevronRight className="w-4 h-4" />
-              </Button>
-            </div>
+            <Pagination
+              currentPage={page}
+              totalPages={Math.ceil(total / 10)}
+              onPageChange={(newPage) => search({ category: currentCategory, query: currentQuery, page: newPage, pageSize: 10, filters })}
+              limit={10}
+            />
           )}
         </div>
       </div>
