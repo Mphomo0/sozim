@@ -16,17 +16,18 @@ export const GET = auth(async function (req) {
     const limit = parseInt(searchParams.get('limit') || '10', 10)
     const skip = (page - 1) * limit
 
-    // Filter only logged-in user's applications
     const total = await Application.countDocuments({
       applicantId: req.auth.user.id,
     })
 
     const apps = await Application.find({ applicantId: req.auth.user.id })
-      .populate('applicantId')
-      .populate('courseId')
+      .select('status createdAt applicantId courseId documents')
+      .populate('applicantId', 'firstName lastName email')
+      .populate('courseId', 'name code')
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 })
+      .lean()
 
     return NextResponse.json(
       {

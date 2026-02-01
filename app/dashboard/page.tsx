@@ -25,7 +25,7 @@ import ApplicationStatusChart from '@/components/sections/dashboard/ApplicationS
 import ApplicationYearTrendChart from '@/components/sections/dashboard/ApplicationYearTrendChart'
 import YearSelector from '@/components/sections/dashboard/YearSelector'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 30
 
 interface PageProps {
   searchParams: Promise<{ year?: string }>
@@ -42,7 +42,6 @@ interface StatusChartData {
 export default async function DashboardPage({ searchParams }: PageProps) {
   const session = await auth()
 
-  // 1. Handle Unauthenticated users
   if (!session || !session.user) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 px-4">
@@ -56,15 +55,12 @@ export default async function DashboardPage({ searchParams }: PageProps) {
     )
   }
 
-  // 2. Handle Authorization (The Redirect Fix)
-  // Ensure your auth.ts callbacks actually expose the "role" property.
   if (session.user.role !== 'ADMIN') {
     redirect('/student')
   }
 
   await dbConnect()
 
-  // --- Year Filter ---
   const currentYear = new Date().getFullYear()
   const params = await searchParams
   const selectedYear = Number(params?.year) || currentYear
@@ -72,7 +68,6 @@ export default async function DashboardPage({ searchParams }: PageProps) {
   const startDate = new Date(selectedYear, 0, 1)
   const endDate = new Date(selectedYear + 1, 0, 1)
 
-  // --- Data Fetching ---
   const [totalUsers, totalApplications, totalPending, totalApproved, totalRejected] = await Promise.all([
     User.countDocuments({ role: 'USER' }),
     Application.countDocuments({ createdAt: { $gte: startDate, $lt: endDate } }),
@@ -85,7 +80,6 @@ export default async function DashboardPage({ searchParams }: PageProps) {
   const approvedPercent = totalApplications ? Math.round((totalApproved / totalApplications) * 100) : 0
   const rejectedPercent = totalApplications ? Math.round((totalRejected / totalApplications) * 100) : 0
 
-  // --- Aggregation for Chart ---
   const yearTrendRaw = await Application.aggregate([
     {
       $group: {
@@ -99,7 +93,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
     { $sort: { _id: 1 } },
   ])
 
-  const yearTrend: StatusChartData[] = yearTrendRaw.map((y) => ({
+  const yearTrend: StatusChartData[] = yearTrendRaw.map((y: any) => ({
     _id: y._id,
     pending: y.pending,
     approved: y.approved,
@@ -145,7 +139,6 @@ export default async function DashboardPage({ searchParams }: PageProps) {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {/* Users */}
             <div className="bg-white p-6 rounded-xl shadow-md">
               <div className="flex items-center gap-4">
                 <Users className="w-10 h-10 text-blue-600" />
@@ -156,7 +149,6 @@ export default async function DashboardPage({ searchParams }: PageProps) {
               </div>
             </div>
 
-            {/* Pending */}
             <div className="bg-white p-6 rounded-xl shadow-md">
               <div className="flex items-center gap-4">
                 <Clock className="w-10 h-10 text-yellow-500" />
@@ -168,13 +160,12 @@ export default async function DashboardPage({ searchParams }: PageProps) {
               <div className="w-full bg-gray-200 h-3 rounded-full mt-4">
                 <div
                   className="h-3 rounded-full bg-yellow-500"
-                  style={{ width: `${pendingPercent}%` }} 
+                  style={{ width: `${pendingPercent}%` }}
                 />
               </div>
               <p className="text-xs text-gray-500 mt-1">{pendingPercent}% ({selectedYear})</p>
             </div>
 
-            {/* Approved */}
             <div className="bg-white p-6 rounded-xl shadow-md">
               <div className="flex items-center gap-4">
                 <CheckCircle2 className="w-10 h-10 text-green-600" />
@@ -192,7 +183,6 @@ export default async function DashboardPage({ searchParams }: PageProps) {
               <p className="text-xs text-gray-500 mt-1">{approvedPercent}% ({selectedYear})</p>
             </div>
 
-            {/* Rejected */}
             <div className="bg-white p-6 rounded-xl shadow-md">
               <div className="flex items-center gap-4">
                 <XCircle className="w-10 h-10 text-red-600" />

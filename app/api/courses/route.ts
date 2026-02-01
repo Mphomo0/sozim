@@ -4,15 +4,27 @@ import Course from '@/models/Course'
 import CourseCategory from '@/models/CourseCategory'
 import { auth } from '@/auth'
 
-// GET /api/courses
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
   try {
     await dbConnect()
-    const courses = await Course.find().populate('categoryId', 'name')
 
-    return NextResponse.json({ success: true, data: courses })
+    const courses = await Course.find()
+      .select('name code description duration isOpen categoryId level qualification')
+      .populate('categoryId', 'name')
+      .lean()
+
+    return NextResponse.json(
+      { success: true, data: courses },
+      {
+        headers: {
+          'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
+        },
+      }
+    )
   } catch (error: unknown) {
-    console.error('GET /courses error:', error) // <-- log it
+    console.error('GET /courses error:', error)
     return NextResponse.json(
       {
         success: false,
@@ -48,7 +60,6 @@ export const POST = auth(async function (req) {
       level,
     } = body
 
-    // Validate required fields
     if (!name?.trim() || !code?.trim() || !duration?.trim() || !categoryId) {
       return NextResponse.json(
         {
@@ -58,8 +69,7 @@ export const POST = auth(async function (req) {
       )
     }
 
-    // Validate categoryId exists
-    const categoryExists = await CourseCategory.findById(categoryId)
+    const categoryExists = await CourseCategory.findById(categoryId).lean()
     if (!categoryExists) {
       return NextResponse.json(
         { error: 'Invalid category ID' },
@@ -67,8 +77,7 @@ export const POST = auth(async function (req) {
       )
     }
 
-    // Check duplicates
-    const existingCourse = await Course.findOne({ name })
+    const existingCourse = await Course.findOne({ name }).lean()
     if (existingCourse) {
       return NextResponse.json(
         { error: 'A course with this name already exists.' },
@@ -76,7 +85,6 @@ export const POST = auth(async function (req) {
       )
     }
 
-    // Build Course object
     const newCourse = new Course({
       name: name.trim(),
       code: code.trim(),
@@ -84,7 +92,7 @@ export const POST = auth(async function (req) {
       duration: duration.trim(),
       isOpen: typeof isOpen === 'boolean' ? isOpen : true,
       categoryId,
-      qualification, // optional
+      qualification,
       level,
       modules: modules ?? {},
       creditTotals: creditTotals ?? {},

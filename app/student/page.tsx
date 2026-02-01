@@ -3,10 +3,10 @@ import { redirect } from 'next/navigation'
 import ProfileCard from '@/components/sections/students/ProfileCard'
 import ApplicationStatusCard from '@/components/sections/students/ApplicationStatusCard'
 import NewApplicationCard from '@/components/sections/students/NewApplicationCard'
-export const dynamic = 'force-dynamic'
+
+export const revalidate = 30
 
 export default async function StudentPage() {
-  // Authenticate user
   let session
   try {
     session = await auth()
@@ -24,19 +24,15 @@ export default async function StudentPage() {
   }
 
   if (session.user?.role !== 'USER') {
-    redirect('/dashboard') // Admin goes to admin dashboard
+    redirect('/dashboard')
   }
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
       <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Profile Section */}
         <ProfileCard />
-
-        {/* Applications Status Section */}
         <ApplicationStatusCard />
       </div>
-      {/* New Application Section */}
       <NewApplicationCard />
     </div>
   )

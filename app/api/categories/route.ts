@@ -2,14 +2,13 @@ import { NextResponse, NextRequest } from 'next/server'
 import dbConnect from '@/lib/mongodb'
 import CourseCategory from '@/models/CourseCategory'
 
-// GET all categories
 export async function GET() {
   try {
     await dbConnect()
-    const categories = await CourseCategory.find()
+    const categories = await CourseCategory.find().lean()
     return NextResponse.json(categories, {
       headers: {
-        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60',
+        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
       },
     })
   } catch (error) {
@@ -21,7 +20,6 @@ export async function GET() {
   }
 }
 
-// POST create a new category
 export async function POST(req: NextRequest) {
   try {
     await dbConnect()
@@ -34,7 +32,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const existing = await CourseCategory.findOne({ name })
+    const existing = await CourseCategory.findOne({ name }).lean()
     if (existing)
       return NextResponse.json(
         { error: 'Category name already exists' },
@@ -52,7 +50,6 @@ export async function POST(req: NextRequest) {
   } catch (error: unknown) {
     console.error('POST /categories error:', error)
 
-    // Type narrowing is required when using 'unknown'
     let errorMessage = 'Internal server error'
     if (error instanceof Error) {
       errorMessage = error.message
@@ -61,7 +58,6 @@ export async function POST(req: NextRequest) {
       error !== null &&
       'message' in error
     ) {
-      // Fallback for non-standard error objects from Mongoose/MongoDB
       errorMessage = (error as { message: string }).message
     }
 

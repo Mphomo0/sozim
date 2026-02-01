@@ -6,7 +6,7 @@ import { auth } from '@/auth'
 
 export const GET = auth(async function (
   req,
-  { params }: { params: Promise<{ id: string }> } // The 'id' comes from the [id] folder name
+  { params }: { params: Promise<{ id: string }> }
 ) {
   if (!req.auth) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -14,7 +14,7 @@ export const GET = auth(async function (
   try {
     await dbConnect()
 
-    const { id } = await params // Get the ID from the URL path
+    const { id } = await params
 
     if (!id) {
       return NextResponse.json(
@@ -23,8 +23,9 @@ export const GET = auth(async function (
       )
     }
 
-    // Find the user by ID and explicitly exclude the password field
-    const user = await User.findById(id).select('-password')
+    const user = await User.findById(id)
+      .select('firstName lastName email phone alternativeNumber dob idNumber nationality address role applications createdAt updatedAt')
+      .lean()
 
     if (!user) {
       return NextResponse.json({ message: 'User not found' }, { status: 404 })
@@ -60,31 +61,23 @@ export const PATCH = auth(async function (
       )
     }
 
-    // Get the update data from the request body
     const data = await req.json()
 
-    // 🔑 Hashing the password if it's included in the update data
     if (data.password) {
       const salt = await bcrypt.genSalt(10)
       data.password = await bcrypt.hash(data.password, salt)
     }
 
-    // Find and update the user, { new: true } returns the updated document
     const updatedUser = await User.findByIdAndUpdate(id, data, {
       new: true,
       runValidators: true,
-    })
+    }).select('firstName lastName email phone alternativeNumber dob idNumber nationality address role applications createdAt updatedAt')
 
     if (!updatedUser) {
       return NextResponse.json({ message: 'User not found' }, { status: 404 })
     }
 
-    // Optional: Omit sensitive fields like password before sending the response
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password: _password, ...userWithoutPassword } =
-      updatedUser.toObject()
-
-    return NextResponse.json(userWithoutPassword, { status: 200 })
+    return NextResponse.json(updatedUser, { status: 200 })
   } catch (error) {
     console.error('Failed to update user:', error)
     return NextResponse.json(

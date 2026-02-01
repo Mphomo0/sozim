@@ -39,6 +39,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         await dbConnect()
         const user = await User.findOne({ email: credentials.email })
+          .select('firstName lastName email phone alternativeNumber dob idNumber nationality address password role')
 
         if (!user) throw new Error('No account found')
 
@@ -47,7 +48,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         )
         if (!isValid) throw new Error('Incorrect password')
 
-        // ✅ Convert Date to String here to satisfy 'User' type
         return {
           id: user._id.toString(),
           firstName: user.firstName,
