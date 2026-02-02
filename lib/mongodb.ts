@@ -29,7 +29,12 @@ export default async function dbConnect(): Promise<Mongoose> {
 
   if (!cached.promise) {
     cached.promise = mongoose
-      .connect(MONGODB_URI as string, { bufferCommands: false })
+      .connect(MONGODB_URI as string, {
+        bufferCommands: false,
+        maxPoolSize: 10,
+        serverSelectionTimeoutMS: 5000,
+        socketTimeoutMS: 45000,
+      })
       .then((mongooseInstance) => {
         console.log('MongoDB connected')
         return mongooseInstance

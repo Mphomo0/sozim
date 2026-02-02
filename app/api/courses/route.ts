@@ -4,7 +4,7 @@ import Course from '@/models/Course'
 import CourseCategory from '@/models/CourseCategory'
 import { auth } from '@/auth'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 60 // revalidate every 60 seconds
 
 export async function GET() {
   try {
