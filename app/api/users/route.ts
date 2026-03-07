@@ -87,14 +87,25 @@ export const GET = auth(async function (req) {
     const { searchParams } = new URL(req.url)
     const page = Number(searchParams.get('page')) || 1
     const limit = Number(searchParams.get('limit')) || 10
+    const search = searchParams.get('search') || ''
 
     const skip = (page - 1) * limit
 
-    // Get total count (without pagination)
-    const totalUsers = await User.countDocuments()
+    // Build query
+    const query: any = {}
+    if (search) {
+      query.$or = [
+        { firstName: { $regex: search, $options: 'i' } },
+        { lastName: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+      ]
+    }
 
-    // Apply pagination
-    const users = await User.find().select('-password').skip(skip).limit(limit)
+    // Get total count
+    const totalUsers = await User.countDocuments(query)
+
+    // Apply pagination and search
+    const users = await User.find(query).select('-password').skip(skip).limit(limit)
 
     const totalPages = Math.ceil(totalUsers / limit)
 

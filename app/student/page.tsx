@@ -4,7 +4,7 @@ import ProfileCard from '@/components/sections/students/ProfileCard'
 import ApplicationStatusCard from '@/components/sections/students/ApplicationStatusCard'
 import NewApplicationCard from '@/components/sections/students/NewApplicationCard'
 
-export const revalidate = 30
+export const dynamic = 'force-dynamic'
 
 export default async function StudentPage() {
   let session

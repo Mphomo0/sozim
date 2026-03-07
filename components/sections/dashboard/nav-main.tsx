@@ -1,6 +1,7 @@
 'use client'
 
 import { ChevronRight, type LucideIcon } from 'lucide-react'
+import { usePathname } from 'next/navigation'
 
 import {
   Collapsible,
@@ -18,6 +19,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from '@/components/ui/sidebar'
+import Link from 'next/link'
 
 export function NavMain({
   items,
@@ -33,45 +35,61 @@ export function NavMain({
     }[]
   }[]
 }) {
+  const pathname = usePathname()
+
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Platform</SidebarGroupLabel>
+      <SidebarGroupLabel className="text-xs font-semibold text-indigo-900/50 uppercase tracking-wider mb-2">Management</SidebarGroupLabel>
       <SidebarMenu>
-        {items.map((item) => (
-          <Collapsible key={item.title} asChild defaultOpen={item.isActive}>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip={item.title}>
-                <a href={item.url}>
-                  <item.icon />
-                  <span>{item.title}</span>
-                </a>
-              </SidebarMenuButton>
-              {item.items?.length ? (
-                <>
-                  <CollapsibleTrigger asChild>
-                    <SidebarMenuAction className="data-[state=open]:rotate-90">
-                      <ChevronRight />
-                      <span className="sr-only">Toggle</span>
-                    </SidebarMenuAction>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent>
-                    <SidebarMenuSub>
-                      {item.items?.map((subItem) => (
-                        <SidebarMenuSubItem key={subItem.title}>
-                          <SidebarMenuSubButton asChild>
-                            <a href={subItem.url}>
-                              <span>{subItem.title}</span>
-                            </a>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                      ))}
-                    </SidebarMenuSub>
-                  </CollapsibleContent>
-                </>
-              ) : null}
-            </SidebarMenuItem>
-          </Collapsible>
-        ))}
+        {items.map((item) => {
+          // Check if any sub-item is active to keep collapsible open
+          const isItemActive = item.items?.some(subItem => pathname.startsWith(subItem.url))
+          
+          return (
+            <Collapsible key={item.title} asChild defaultOpen={item.isActive || isItemActive}>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild tooltip={item.title} className="hover:bg-indigo-50 hover:text-indigo-800 transition-colors">
+                  <a href={item.url}>
+                    <item.icon className="text-indigo-600" />
+                    <span className="font-medium">{item.title}</span>
+                  </a>
+                </SidebarMenuButton>
+                {item.items?.length ? (
+                  <>
+                    <CollapsibleTrigger asChild>
+                      <SidebarMenuAction className="data-[state=open]:rotate-90 hover:bg-indigo-100 hover:text-indigo-900 text-gray-500 transition-colors">
+                        <ChevronRight />
+                        <span className="sr-only">Toggle</span>
+                      </SidebarMenuAction>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <SidebarMenuSub className="border-l-indigo-100 pr-0 mr-0">
+                        {item.items?.map((subItem) => {
+                          // Exact match or starting with for sub-routes
+                          const isSubActive = pathname === subItem.url || (subItem.url !== '/dashboard/admin' && pathname.startsWith(subItem.url + '/'))
+                          
+                          return (
+                            <SidebarMenuSubItem key={subItem.title}>
+                              <SidebarMenuSubButton 
+                                asChild 
+                                isActive={isSubActive}
+                                className={`transition-all mt-1 ${isSubActive ? 'bg-indigo-50 text-indigo-700 font-semibold' : 'text-gray-500 hover:text-indigo-700 hover:bg-indigo-50/50 font-medium'}`}
+                              >
+                                <Link href={subItem.url}>
+                                  <span>{subItem.title}</span>
+                                </Link>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          )
+                        })}
+                      </SidebarMenuSub>
+                    </CollapsibleContent>
+                  </>
+                ) : null}
+              </SidebarMenuItem>
+            </Collapsible>
+          )
+        })}
       </SidebarMenu>
     </SidebarGroup>
   )

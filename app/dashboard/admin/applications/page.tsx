@@ -1,23 +1,11 @@
-import { AppSidebar } from '@/components/sections/dashboard/app-sidebar'
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb'
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from '@/components/ui/sidebar'
-import Link from 'next/link'
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import ListApplications from '@/components/sections/dashboard/admin/applications/ListApplications'
+import { DashboardPageLayout } from '@/components/sections/dashboard/DashboardPageLayout'
+import { Button } from '@/components/ui/button'
+import { Plus } from 'lucide-react'
+
 export const dynamic = 'force-dynamic'
 
 export default async function ApplicationAdminPage() {
@@ -29,7 +17,7 @@ export default async function ApplicationAdminPage() {
     console.error('Authentication error:', error)
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 px-4">
-        <p className="text-xl text-red-600">
+        <p className="text-xl text-red-600 font-medium">
           Authentication error. Please try again.
         </p>
       </div>
@@ -39,9 +27,9 @@ export default async function ApplicationAdminPage() {
   if (!session) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 px-4">
-        <p className="text-xl text-gray-700">You are not authenticated.</p>
+        <p className="text-xl text-gray-700 font-medium">You are not authenticated.</p>
         <Link href="/login" passHref>
-          <Button className="mt-4 bg-black text-white hover:bg-gray-800 transition duration-200">
+          <Button className="mt-6 bg-primary text-primary-foreground hover:opacity-90 transition-all duration-200 shadow-lg">
             Login
           </Button>
         </Link>
@@ -54,40 +42,27 @@ export default async function ApplicationAdminPage() {
   }
 
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2">
-          <div className="flex items-center gap-2 px-4">
-            <SidebarTrigger className="-ml-1" />
-            <Separator
-              orientation="vertical"
-              className="mr-2 data-[orientation=vertical]:h-4"
-            />
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="/dashboard">
-                    Sozim Dashboard
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator className="hidden md:block" />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>Applications</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
-          </div>
-        </header>
-
-        <div className="p-4 pt-0">
-          <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min">
-            <div className="py-2 p-8">
-              <ListApplications />
-            </div>
-          </div>
+    <DashboardPageLayout
+      title="Applications"
+      description="Review and manage all student applications."
+      breadcrumbs={[
+        { label: 'Admin', href: '/dashboard/admin/applications' },
+        { label: 'Applications' }
+      ]}
+      action={
+        <Link href="/dashboard/admin/applications/new" passHref>
+          <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-md transition-all duration-200 ring-offset-2 focus-visible:ring-2 focus-visible:ring-blue-500">
+            <Plus className="w-4 h-4 mr-2" />
+            New Application
+          </Button>
+        </Link>
+      }
+    >
+      <div className="bg-white/70 backdrop-blur-sm rounded-3xl shadow-sm border border-gray-100 overflow-hidden transition-all hover:shadow-md">
+        <div className="p-8">
+          <ListApplications />
         </div>
-      </SidebarInset>
-    </SidebarProvider>
+      </div>
+    </DashboardPageLayout>
   )
 }

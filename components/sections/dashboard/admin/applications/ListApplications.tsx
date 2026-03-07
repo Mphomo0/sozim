@@ -3,9 +3,20 @@
 import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import { toast } from 'react-toastify'
-import { Edit, Trash2, FileText, Plus, Calendar } from 'lucide-react'
+import { Edit, Trash2, FileText, Plus, Calendar, Search } from 'lucide-react'
 import { Pagination } from '@/components/global/Pagination'
 import { format } from 'date-fns'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { Badge } from '@/components/ui/badge'
 
 interface DocumentsFile {
   fileId: string
@@ -49,13 +60,21 @@ export default function ListApplications() {
   const [currentPage, setCurrentPage] = useState(1)
   const [limit, setLimit] = useState(10)
   const [totalPages, setTotalPages] = useState(1)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
+
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchTerm), 500)
+    return () => clearTimeout(timer)
+  }, [searchTerm])
 
   // --- Fetch Data ---
   const fetchApplications = useCallback(async () => {
     setIsLoading(true)
     try {
       const res = await fetch(
-        `/api/applications?page=${currentPage}&limit=${limit}`
+        `/api/applications?page=${currentPage}&limit=${limit}&search=${debouncedSearch}`
       )
       if (!res.ok) throw new Error('Failed to fetch applications')
 
@@ -70,7 +89,7 @@ export default function ListApplications() {
     } finally {
       setIsLoading(false)
     }
-  }, [currentPage, limit])
+  }, [currentPage, limit, debouncedSearch])
 
   useEffect(() => {
     fetchApplications()
@@ -128,12 +147,12 @@ export default function ListApplications() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'APPROVED':
-        return 'bg-green-100 text-green-800'
+        return <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200">Approved</Badge>
       case 'REJECTED':
-        return 'bg-red-100 text-red-800'
+        return <Badge className="bg-rose-50 text-rose-700 border-rose-200">Rejected</Badge>
       case 'PENDING':
       default:
-        return 'bg-yellow-100 text-yellow-800'
+        return <Badge className="bg-amber-50 text-amber-700 border-amber-200">Pending</Badge>
     }
   }
 
@@ -149,98 +168,104 @@ export default function ListApplications() {
   }
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Applications</h1>
+    <div className="space-y-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="relative w-full md:w-96">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Input
+            placeholder="Search applications..."
+            className="pl-10 h-11 bg-gray-50/50 border-gray-200 focus:bg-white transition-all shadow-sm rounded-xl"
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value)
+              setCurrentPage(1)
+            }}
+          />
+        </div>
         <Link
           href="/dashboard/admin/applications/new"
-          className="bg-blue-600 text-white px-5 py-3 rounded-lg flex items-center gap-2 hover:bg-blue-700 transition"
+          className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 hover:bg-indigo-700 transition shadow-sm active:scale-95 font-medium"
         >
-          <Plus size={20} />
+          <Plus size={18} />
           New Application
         </Link>
       </div>
 
-      <div className="bg-white shadow-md rounded-lg overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-gray-50 border-b">
-              <tr>
-                <th className="p-4 font-semibold text-gray-700">Applicant</th>
-                <th className="p-4 font-semibold text-gray-700">Course</th>
-                <th className="p-4 font-semibold text-gray-700">Status</th>
-                <th className="p-4 font-semibold text-gray-700">Documents</th>
-                <th className="p-4 font-semibold text-gray-700">Submitted</th>
-                <th className="p-4 font-semibold text-gray-700 text-right">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {applications.length > 0 ? (
-                applications.map((app) => (
-                  <tr key={app._id} className="hover:bg-gray-50 transition">
-                    <td className="p-4 font-medium text-gray-900">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
+        {applications.length === 0 ? (
+          <div className="p-12 text-center text-gray-500">
+            <FileText className="w-12 h-12 text-gray-200 mx-auto mb-4" />
+            <p className="text-lg font-medium text-gray-900">No applications found</p>
+            <p className="text-gray-500 mt-1">No results match your current search.</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader className="bg-gray-50/50">
+                <TableRow>
+                  <TableHead className="font-bold text-gray-900 h-14 pl-8">Applicant</TableHead>
+                  <TableHead className="font-bold text-gray-900 h-14">Course</TableHead>
+                  <TableHead className="font-bold text-gray-900 h-14">Status</TableHead>
+                  <TableHead className="font-bold text-gray-900 h-14">Docs</TableHead>
+                  <TableHead className="font-bold text-gray-900 h-14">Submitted</TableHead>
+                  <TableHead className="text-right font-bold text-gray-900 h-14 pr-8">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {applications.map((app) => (
+                  <TableRow key={app._id} className="hover:bg-gray-50/50 transition-colors group">
+                    <TableCell className="pl-8 py-4 font-medium text-gray-900">
                       {getApplicantName(app)}
-                    </td>
-                    <td className="p-4 text-gray-700">{getCourseName(app)}</td>
-                    <td className="p-4">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusBadge(
-                          app.status
-                        )}`}
-                      >
-                        {app.status}
-                      </span>
-                    </td>
-                    <td className="p-4">
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <FileText size={16} />
-                        <span className="font-medium">
-                          {app.documents?.length || 0}
-                        </span>
+                    </TableCell>
+                    <TableCell className="text-gray-700 font-medium">
+                      {getCourseName(app)}
+                    </TableCell>
+                    <TableCell>
+                      {getStatusBadge(app.status)}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1.5 text-gray-500 text-sm font-medium bg-gray-50 px-2 py-1 rounded inline-flex">
+                        <FileText size={14} className="text-gray-400" />
+                        {app.documents?.length || 0}
                       </div>
-                    </td>
-                    <td className="p-4 text-gray-600">
-                      <div className="flex items-center gap-2">
-                        <Calendar size={16} />
+                    </TableCell>
+                    <TableCell className="text-gray-500 text-sm">
+                      <div className="flex items-center gap-1.5">
+                        <Calendar size={14} className="text-gray-400" />
                         {format(new Date(app.createdAt), 'dd MMM yyyy')}
                       </div>
-                    </td>
-                    <td className="p-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <Link
-                          href={`/dashboard/admin/applications/edit/${app._id}`}
-                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
-                          title="Edit"
-                        >
-                          <Edit size={18} />
+                    </TableCell>
+                    <TableCell className="text-right pr-6">
+                      <div className="flex items-center justify-end gap-1 transition-opacity translate-x-2 duration-300">
+                        <Link href={`/dashboard/admin/applications/edit/${app._id}`} passHref>
+                           <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-lg"
+                          >
+                            <Edit size={18} />
+                          </Button>
                         </Link>
-                        <button
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           onClick={() => handleDelete(app._id)}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
-                          title="Delete"
+                          className="text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded-lg"
                         >
                           <Trash2 size={18} />
-                        </button>
+                        </Button>
                       </div>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={6} className="p-12 text-center text-gray-500">
-                    No applications found.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="border-t px-6 py-4 bg-gray-50">
+          <div className="p-6 border-t border-gray-50 bg-gray-50/30 mt-auto">
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}

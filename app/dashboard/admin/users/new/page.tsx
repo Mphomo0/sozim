@@ -1,26 +1,14 @@
-import { AppSidebar } from '@/components/sections/dashboard/app-sidebar'
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb'
-import { Separator } from '@/components/ui/separator'
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from '@/components/ui/sidebar'
-import { Button } from '@/components/ui/button'
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import NewUser from '@/components/sections/dashboard/admin/usersComponents/NewUser'
+import { DashboardPageLayout } from '@/components/sections/dashboard/DashboardPageLayout'
+import { Button } from '@/components/ui/button'
+import { ChevronLeft } from 'lucide-react'
+
 export const dynamic = 'force-dynamic'
 
-export default async function DashboardPage() {
+export default async function NewUserPage() {
   let session
 
   try {
@@ -29,7 +17,7 @@ export default async function DashboardPage() {
     console.error('Authentication error:', error)
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 px-4">
-        <p className="text-xl text-red-600">
+        <p className="text-xl text-red-600 font-medium">
           Authentication error. Please try again.
         </p>
       </div>
@@ -39,9 +27,9 @@ export default async function DashboardPage() {
   if (!session) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 px-4">
-        <p className="text-xl text-gray-700">You are not authenticated.</p>
+        <p className="text-xl text-gray-700 font-medium">You are not authenticated.</p>
         <Link href="/login" passHref>
-          <Button className="mt-4 bg-black text-white hover:bg-gray-800 transition duration-200">
+          <Button className="mt-6 bg-primary text-primary-foreground hover:opacity-90 transition-all duration-200 shadow-lg">
             Login
           </Button>
         </Link>
@@ -54,51 +42,28 @@ export default async function DashboardPage() {
   }
 
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2">
-          <div className="flex items-center gap-2 px-4">
-            <SidebarTrigger className="-ml-1" />
-            <Separator
-              orientation="vertical"
-              className="mr-2 data-[orientation=vertical]:h-4"
-            />
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="/dashboard">
-                    Sozim Dashboard
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator className="hidden md:block" />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>Add New User</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
-          </div>
-        </header>
-
-        <div className="p-4 pt-0">
-          <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min">
-            <div className="py-2 p-8">
-              <div className="flex justify-between items-center w-3/4 mx-auto mt-8">
-                <h1 className="text-2xl font-bold mt-16 mb-16">
-                  Admin: Add User
-                </h1>
-                <Link
-                  href={'/dashboard/admin/users'}
-                  className="px-4 py-2 bg-blue-900 font-semibold text-white rounded"
-                >
-                  Back to Users
-                </Link>
-              </div>
-              <NewUser />
-            </div>
-          </div>
+    <DashboardPageLayout
+      title="Add User"
+      description="Register a new user account with specific roles and access."
+      breadcrumbs={[
+        { label: 'Admin', href: '/dashboard/admin/users' },
+        { label: 'Users', href: '/dashboard/admin/users' },
+        { label: 'Add New' }
+      ]}
+      action={
+        <Link href="/dashboard/admin/users" passHref>
+          <Button variant="outline" className="group flex items-center gap-2 border-primary/20 hover:bg-primary/5 transition-all">
+            <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+            Back to Users
+          </Button>
+        </Link>
+      }
+    >
+      <div className="bg-white/70 backdrop-blur-sm rounded-3xl shadow-sm border border-gray-100 overflow-hidden transition-all hover:shadow-md">
+        <div className="p-8">
+          <NewUser />
         </div>
-      </SidebarInset>
-    </SidebarProvider>
+      </div>
+    </DashboardPageLayout>
   )
 }

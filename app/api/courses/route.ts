@@ -6,11 +6,21 @@ import { auth } from '@/auth'
 
 export const revalidate = 60 // revalidate every 60 seconds
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
-    await dbConnect()
+    const { searchParams } = new URL(req.url)
+    const search = searchParams.get('search') || ''
 
-    const courses = await Course.find()
+    // Build query
+    const query: any = {}
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { code: { $regex: search, $options: 'i' } },
+      ]
+    }
+
+    const courses = await Course.find(query)
       .select('name code description duration isOpen categoryId level qualification')
       .populate('categoryId', 'name')
       .lean()
