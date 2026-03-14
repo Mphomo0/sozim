@@ -11,9 +11,11 @@ export const dynamic = 'force-dynamic'
 export default async function NewCategoryPage() {
   const session = await auth()
 
-  if (!session || session.user?.role !== 'ADMIN') {
-    redirect('/login')
+  if (session?.user?.role !== 'ADMIN') {
+    redirect('/student')
   }
+
+
 
   return (
     <DashboardPageLayout

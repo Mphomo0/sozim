@@ -1,6 +1,14 @@
 'use client'
 
 import Image from 'next/image'
+import Link from 'next/link'
+import { motion } from 'motion/react'
+import { Heart, ShoppingBag, ArrowRight } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent } from '@/components/ui/card'
+import { useState, useEffect } from 'react'
+
 
 export default function ProductsGrid() {
   const products = [
@@ -32,56 +40,125 @@ export default function ProductsGrid() {
       name: 'White Hoodie',
       price: '699.95',
       image:
-        'https://ik.imagekit.io/vzofqg2fg/images/store/whitehoodie.jpg?updatedAt=1766078080543',
+        'https://ik.imagekit.io/vzofqg2fg/images/store/whitehoodie.jpg?updatedAt=1766080543',
     },
   ]
 
+  const [favorites, setFavorites] = useState<string[]>([])
+
+  useEffect(() => {
+    const stored = localStorage.getItem('shopFavorites')
+    if (stored) {
+      setFavorites(JSON.parse(stored))
+    }
+  }, [])
+
+  const toggleFavorite = (productName: string) => {
+    const updated = favorites.includes(productName)
+      ? favorites.filter(f => f !== productName)
+      : [...favorites, productName]
+    setFavorites(updated)
+    localStorage.setItem('shopFavorites', JSON.stringify(updated))
+  }
+
+  const isFavorite = (productName: string) => favorites.includes(productName)
+
   return (
-    <div className="p-4 mt-16 mb-18">
-      <div className="mx-auto lg:max-w-5xl max-w-2xl">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+    <div className="py-24 bg-slate-50">
+      <div className="container mx-auto px-4">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center mb-16 space-y-4"
+        >
+          <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight text-slate-900">
+            Premium <span className="text-blue-600">Apparel & Gear</span>
+          </h2>
+          <p className="text-slate-500 font-medium max-w-2xl mx-auto text-lg">
+            High-quality merchandise designed for comfort and style. Support Sozim in style.
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {products.map((product, index) => (
-            <div
+            <motion.div
               key={index}
-              className="bg-white border border-gray-200 shadow-sm overflow-hidden rounded-2xl hover:border-blue-600 transition-all relative"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: index * 0.1 }}
+              viewport={{ once: true }}
+              className="group relative"
             >
-              <a className="block">
-                <div className="aspect-[281/218] text-center bg-gray-50 overflow-hidden mx-auto rounded-b-2xl">
+              <Card className="h-full border-slate-200/60 bg-white overflow-hidden rounded-[32px] transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 group">
+                {/* Image Container */}
+                <div className="relative aspect-square bg-slate-100/50 overflow-hidden flex items-center justify-center group-hover:scale-[1.02] transition-transform duration-700">
                   <Image
                     src={product.image}
                     alt={product.name}
-                    className="w-5/6 h-full object-contain inline-block"
-                    width={440}
-                    height={500}
+                    className="w-4/5 h-4/5 object-contain transition-transform duration-700 group-hover:scale-110"
+                    width={600}
+                    height={600}
                   />
-                </div>
-              </a>
-
-              <div className="p-4">
-                <h3 className="text-sm sm:text-base font-semibold text-slate-900">
-                  {product.name}
-                </h3>
-
-                <div className="flex items-center justify-between gap-2 mt-6">
-                  {/* Favorite icon */}
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gray-100 flex items-center justify-center rounded-full cursor-pointer">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="18px"
-                      className="fill-slate-800 inline-block"
-                      viewBox="0 0 64 64"
+                  
+                  {/* Overlay Actions */}
+                  <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4">
+                    <Button 
+                      size="icon" 
+                      variant="secondary" 
+                      className="rounded-full h-12 w-12 shadow-xl hover:scale-110 transition-transform"
+                      onClick={() => toggleFavorite(product.name)}
                     >
-                      <path d="M45.5 4A18.53 18.53 0 0 0 32 9.86 18.5 18.5 0 0 0 0 22.5C0 40.92 29.71 59 31 59.71a2 2 0 0 0 2.06 0C34.29 59 64 40.92 64 22.5A18.52 18.52 0 0 0 45.5 4ZM32 55.64C26.83 52.34 4 36.92 4 22.5a14.5 14.5 0 0 1 26.36-8.33 2 2 0 0 0 3.27 0A14.5 14.5 0 0 1 60 22.5c0 14.41-22.83 29.83-28 33.14Z"></path>
-                    </svg>
+                      <Heart className={`h-5 w-5 ${isFavorite(product.name) ? 'fill-red-500 text-red-500' : 'text-red-500'}`} />
+                    </Button>
+                    <Link href="/contact">
+                      <Button size="icon" variant="default" className="rounded-full h-12 w-12 bg-white text-slate-900 shadow-xl hover:scale-110 transition-transform">
+                        <ShoppingBag className="h-5 w-5" />
+                      </Button>
+                    </Link>
                   </div>
 
-                  <h4 className="text-sm sm:text-base text-slate-900 font-bold">
-                    R{product.price}
-                  </h4>
+                  <Badge className="absolute top-6 right-6 bg-white/90 backdrop-blur-sm text-slate-900 border-0 font-bold px-3 py-1 rounded-full shadow-sm">
+                    NEW ARRIVAL
+                  </Badge>
                 </div>
-              </div>
-            </div>
+
+                {/* Content */}
+                <CardContent className="p-8">
+                   <div className="flex justify-between items-start mb-4">
+                     <div>
+                       <h3 className="text-xl font-bold text-slate-900 mb-1 group-hover:text-blue-600 transition-colors">
+                         {product.name}
+                       </h3>
+                       <p className="text-sm font-medium text-slate-500 uppercase tracking-widest">
+                         SOZIM OFFICIAL
+                       </p>
+                     </div>
+                     <div className="text-right">
+                       <p className="text-xl font-extrabold text-slate-900">
+                         R{product.price}
+                       </p>
+                     </div>
+                   </div>
+
+                   <Link href="/contact" className="w-full">
+                     <Button className="w-full h-14 rounded-2xl bg-slate-900 text-white font-bold group/btn shadow-xl hover:shadow-blue-500/20 transition-all duration-300">
+                       Purchase Now
+                       <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
+                     </Button>
+                   </Link>
+                </CardContent>
+              </Card>
+            </motion.div>
           ))}
+        </div>
+
+        <div className="mt-20 text-center flex flex-col sm:flex-row items-center justify-center gap-4">
+           <p className="text-slate-400 font-medium">Looking for bulk orders? <a href="/contact" className="text-blue-600 font-bold hover:underline">Contact our sales team</a></p>
+           <Link href="/favorites" className="text-slate-400 font-medium hover:text-red-500 flex items-center gap-2">
+             <Heart className="h-4 w-4" />
+             View Favorites
+           </Link>
         </div>
       </div>
     </div>

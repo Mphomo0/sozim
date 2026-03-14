@@ -265,29 +265,15 @@ export async function fetchWithRetry(
 
       const text = await res.text()
 
-      if (/^\s*<!DOCTYPE html>|<html[\s>]/i.test(text)) {
-        console.log(
-          '   fetchWithRetry warning: HTML content received from',
-          url
-        )
-      }
-
       return text
     } catch (err) {
       lastError = err as Error
-      console.log(
-        `   fetchWithRetry error (attempt ${attempt + 1}/${retries + 1}):`,
-        lastError.message
-      )
       if (attempt === retries) break
       await sleep(backoffMs * (attempt + 1))
       attempt++
     }
   }
 
-  if (lastError) {
-    console.log('   fetchWithRetry giving up:', lastError.message)
-  }
   return null
 }
 

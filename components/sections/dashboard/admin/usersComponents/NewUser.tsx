@@ -61,9 +61,14 @@ const newUserSchema = z.object({
 
 type NewUserFormData = z.infer<typeof newUserSchema>
 
+import { useMutation } from 'convex/react'
+import { api } from '@/convex/_generated/api'
+import { createUserInClerk } from '@/app/actions/user.actions'
+
 export default function NewUser() {
   const [showPassword, setShowPassword] = useState(false)
   const router = useRouter()
+  const createUserConvex = useMutation(api.users.createUser)
 
   const {
     register,
@@ -75,26 +80,30 @@ export default function NewUser() {
 
   const onSubmit = async (data: NewUserFormData) => {
     try {
-      const res = await fetch('/api/users', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
+      // 1. Create in Clerk First
+      const clerkRes = await createUserInClerk({
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        password: data.password,
       })
 
-      const result = await res.json()
-
-      if (!res.ok) {
-        alert(result.error || 'Failed to create user')
+      if (!clerkRes.success || !clerkRes.clerkId) {
+        toast.error(clerkRes.error || 'Failed to create user in Clerk Authentication')
         return
       }
 
-      toast.success(result.message || 'User created successfully!')
+      // 2. Create in Convex with the returned clerkId
+      await createUserConvex({
+        ...data,
+        clerkId: clerkRes.clerkId,
+      })
+      
+      toast.success('User created successfully in DB and Auth!')
       router.push('/dashboard/admin/users')
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error:', error)
-      toast.error('Something went wrong')
+      toast.error(error.message || 'Something went wrong')
     }
   }
 

@@ -9,37 +9,12 @@ import { ChevronLeft } from 'lucide-react'
 export const dynamic = 'force-dynamic'
 
 export default async function NewUserPage() {
-  let session
+  const session = await auth()
 
-  try {
-    session = await auth()
-  } catch (error) {
-    console.error('Authentication error:', error)
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 px-4">
-        <p className="text-xl text-red-600 font-medium">
-          Authentication error. Please try again.
-        </p>
-      </div>
-    )
-  }
-
-  if (!session) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 px-4">
-        <p className="text-xl text-gray-700 font-medium">You are not authenticated.</p>
-        <Link href="/login" passHref>
-          <Button className="mt-6 bg-primary text-primary-foreground hover:opacity-90 transition-all duration-200 shadow-lg">
-            Login
-          </Button>
-        </Link>
-      </div>
-    )
-  }
-
-  if (session.user?.role !== 'ADMIN') {
+  if (session?.user?.role !== 'ADMIN') {
     redirect('/student')
   }
+
 
   return (
     <DashboardPageLayout

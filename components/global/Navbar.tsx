@@ -1,14 +1,20 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useSession, signOut } from 'next-auth/react'
-import { usePathname } from 'next/navigation'
+import { useClerk, useUser, SignInButton, UserButton } from '@clerk/nextjs'
+import { usePathname, useRouter } from 'next/navigation'
+import { useQuery } from 'convex/react'
+import { api } from '@/convex/_generated/api'
+import { Search, X } from 'lucide-react'
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const [searchActive, setSearchActive] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [showResults, setShowResults] = useState(false)
+  const [favoritesCount, setFavoritesCount] = useState(0)
   const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>(
     {}
   )
@@ -17,7 +23,80 @@ export default function Navbar() {
   >({})
 
   const pathname = usePathname()
-  const { data: session } = useSession()
+  const router = useRouter()
+  const { user } = useUser()
+  const { signOut } = useClerk()
+  
+  const coursesReq = useQuery(api.courses.getCourses)
+  const courses = coursesReq || []
+  
+  const convexUser = useQuery(
+    api.users.getUserByClerkId,
+    user?.id ? { clerkId: user.id } : "skip"
+  )
+
+  useEffect(() => {
+    const stored = localStorage.getItem('shopFavorites')
+    if (stored) {
+      const favs = JSON.parse(stored)
+      setFavoritesCount(favs.length)
+    }
+  }, [])
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const stored = localStorage.getItem('shopFavorites')
+      if (stored) {
+        const favs = JSON.parse(stored)
+        setFavoritesCount(favs.length)
+      } else {
+        setFavoritesCount(0)
+      }
+    }
+    window.addEventListener('storage', handleStorageChange)
+    
+    const checkFavorites = () => {
+      const stored = localStorage.getItem('shopFavorites')
+      if (stored) {
+        const favs = JSON.parse(stored)
+        setFavoritesCount(favs.length)
+      } else {
+        setFavoritesCount(0)
+      }
+    }
+    
+    window.addEventListener('focus', checkFavorites)
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+      window.removeEventListener('focus', checkFavorites)
+    }
+  }, [])
+
+  const filteredResults = useMemo(() => {
+    if (searchQuery.trim() === '') return []
+    const query = searchQuery.toLowerCase()
+    return courses.filter((course: any) => 
+      course.title?.toLowerCase().includes(query) ||
+      course.description?.toLowerCase().includes(query)
+    ).slice(0, 5)
+  }, [searchQuery, courses])
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      router.push(`/courses?search=${encodeURIComponent(searchQuery)}`)
+      setSearchActive(false)
+      setSearchQuery('')
+      setShowResults(false)
+    }
+  }
+
+  const handleResultClick = (courseId: string) => {
+    router.push(`/courses/${courseId}`)
+    setSearchActive(false)
+    setSearchQuery('')
+    setShowResults(false)
+  }
 
   const topMenuItems = [
     { label: 'Apply Now', href: '/student' },
@@ -27,7 +106,7 @@ export default function Navbar() {
   ]
 
   const mainMenuItems = [
-    { label: 'Home', href: '/home' },
+    { label: 'Home', href: '/' },
     { label: 'About Us', href: '/about' },
     {
       label: 'Academic Schools',
@@ -37,7 +116,7 @@ export default function Navbar() {
           links: [
             {
               label: 'Occupational Certificate in Library Assistant',
-              href: '/courses/692ea8739f5f634ccd8948a9',
+              href: '/courses/jd7aetgjc0qs1p2x65b4dz8nax82e1dp',
             },
           ],
         },
@@ -46,11 +125,11 @@ export default function Navbar() {
           links: [
             {
               label: 'Learning and Development Facilitator',
-              href: '/courses/692eaac59f5f634ccd8948bb',
+              href: '/courses/jd73pdzr7by2fg8npqb4zvw5mh82fsw1',
             },
             {
               label: 'Assessment Practitioner',
-              href: '/courses/692eabb39f5f634ccd8948c9',
+              href: '/courses/jd74ajdjhj01hdrg48whbak7fd82ezzm',
             },
           ],
         },
@@ -59,15 +138,15 @@ export default function Navbar() {
           links: [
             {
               label: 'Outcome-Based Assessment',
-              href: '/courses/692eacec9f5f634ccd8948df',
+              href: '/courses/jd7brhpjdrhzhnpb4kkyjpfnbs82fxmm',
             },
             {
               label: 'Facilitation Using Given Methodologies',
-              href: '//courses/692ead479f5f634ccd8948e3',
+              href: '/courses/jd722pky3b0ykj0km73xnpkdd982frsa',
             },
             {
               label: 'Conduct Outcome-Based Moderation',
-              href: '/courses/692ead929f5f634ccd8948e7',
+              href: '/courses/jd76nnzgs03836p1z0fes73dh582fhz1',
             },
           ],
         },
@@ -78,6 +157,7 @@ export default function Navbar() {
     { label: 'Campus', href: '/campus' },
     { label: 'Career Pathways', href: '/career-pathway' },
     { label: 'Sozim Store', href: '/shop' },
+    ...(favoritesCount > 0 ? [{ label: `Favorites (${favoritesCount})`, href: '/favorites' }] : []),
   ]
 
   const toggleDropdown = (label: string) => {
@@ -150,65 +230,87 @@ export default function Navbar() {
 
         {/* Right Section: Login + Search */}
         <div className="flex items-center ml-auto space-x-4 lg:absolute lg:right-10">
-          {session ? (
-            <div className="flex items-center space-x-3">
+          {user ? (
+            <div className="flex items-center space-x-4">
               <Link
-                href="/dashboard"
-                className="px-4 py-2 text-[15px] font-medium text-white bg-blue-900 rounded-full hover:bg-blue-700"
+                href={convexUser?.role === 'ADMIN' ? '/dashboard' : '/student'}
+                className="px-4 py-2 text-[15px] font-medium text-white bg-blue-900 rounded-full hover:bg-blue-700 transition"
               >
-                Dashboard
+                {convexUser?.role === 'ADMIN' ? 'Dashboard' : 'Student Link'}
               </Link>
-
-              <button
-                onClick={() => signOut({ redirectTo: '/' })}
-                className="px-4 py-2 text-[15px] font-medium text-white bg-red-600 rounded-full hover:bg-red-700"
-              >
-                Logout
-              </button>
+              <UserButton
+                appearance={{
+                  elements: {
+                    userButtonAvatarBox: 'w-10 h-10',
+                  },
+                }}
+              />
             </div>
           ) : (
-            <Link
-              href="/login"
-              className="px-4 py-2 text-[15px] font-medium text-white bg-blue-900 rounded-full hover:bg-blue-700"
-            >
-              Student Login
-            </Link>
+            <SignInButton mode="modal">
+              <button className="px-4 py-2 text-[15px] font-medium text-white bg-blue-900 rounded-full hover:bg-blue-700">
+                Student Login
+              </button>
+            </SignInButton>
           )}
 
           {/* Expandable Search */}
           <div
             className={`relative transition-all duration-300 ${
-              searchActive ? 'w-60' : 'w-10'
+              searchActive ? 'w-72' : 'w-10'
             }`}
           >
-            <input
-              id="search"
-              type="text"
-              placeholder="Search..."
-              className={`absolute left-0 top-0 h-10 w-full py-1.5 pl-10 pr-3 text-[14px] rounded-full border border-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-900 transition-all duration-300 ${
-                searchActive ? 'opacity-100' : 'opacity-0 pointer-events-none'
-              }`}
-              onFocus={() => setSearchActive(true)}
-              onBlur={() => setTimeout(() => setSearchActive(false), 150)}
-            />
+            <form onSubmit={handleSearchSubmit}>
+              <input
+                id="search"
+                type="text"
+                placeholder="Search courses..."
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value)
+                  setShowResults(true)
+                }}
+                onFocus={() => {
+                  setSearchActive(true)
+                  setShowResults(true)
+                }}
+                className={`absolute left-0 top-0 h-10 w-full py-1.5 pl-10 pr-3 text-[14px] rounded-full border border-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-900 transition-all duration-300 ${
+                  searchActive ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                }`}
+              />
+            </form>
+            {searchActive && filteredResults.length > 0 && showResults && (
+              <div className="absolute top-full mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-xl z-50 max-h-64 overflow-y-auto">
+                {filteredResults.map((course: any) => (
+                  <button
+                    key={course._id}
+                    onClick={() => handleResultClick(course._id)}
+                    className="w-full text-left px-4 py-3 hover:bg-slate-50 border-b border-gray-100 last:border-b-0 transition"
+                  >
+                    <p className="text-sm font-medium text-slate-900 line-clamp-1">
+                      {course.title}
+                    </p>
+                    <p className="text-xs text-slate-500 line-clamp-1">
+                      {course.description?.substring(0, 60)}...
+                    </p>
+                  </button>
+                ))}
+              </div>
+            )}
             <button
-              onClick={() => setSearchActive(true)}
+              onClick={() => {
+                if (searchQuery) {
+                  router.push(`/courses?search=${encodeURIComponent(searchQuery)}`)
+                  setSearchActive(false)
+                  setSearchQuery('')
+                } else {
+                  setSearchActive(true)
+                }
+              }}
               aria-label="Search"
               className="w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 bg-white hover:border-blue-500 transition"
             >
-              <svg
-                className="w-5 h-5 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M21 21l-4.35-4.35M11 18a7 7 0 100-14 7 7 0 000 14z"
-                />
-              </svg>
+              <Search className="w-5 h-5 text-gray-400" />
             </button>
           </div>
         </div>
@@ -241,12 +343,34 @@ export default function Navbar() {
           <ul className="lg:flex lg:justify-center gap-x-8 max-lg:space-y-3">
             <li className="mb-6 hidden max-lg:block">
               <Image
-                src="/images/logo/sozimLogo.webp"
+                src="https://ik.imagekit.io/vzofqg2fg/images/SozimLogo.webp"
                 alt="logo"
                 width={144}
                 height={30}
                 className="w-auto h-auto"
+                priority
+                unoptimized
               />
+            </li>
+
+            {/* Mobile Top Menu Links (Appears only on mobile/tablet) */}
+            <li className="lg:hidden">
+              <div className="flex flex-col gap-2 mb-4 p-4 bg-slate-50 rounded-xl border border-slate-100">
+                {topMenuItems.map((item) => (
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    onClick={() => setIsOpen(false)}
+                    className={`block text-[14px] font-semibold transition py-1.5 ${
+                      isActive(item.href)
+                        ? 'text-blue-900'
+                        : 'text-slate-600 hover:text-blue-700'
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
             </li>
 
             {mainMenuItems.map((item) =>

@@ -143,10 +143,6 @@ export function makeRecordFromBlock(block: string, id: string): RecordType {
 
   const url = extractBestUrl(block)
 
-  if (!url || url.trim() === '') {
-    console.log(`   ⚠️ No URL found for record: ${title}`)
-  }
-
   const identifier = url.split('/').filter(Boolean).pop() || url
 
   let identifierType: IdentifierType = 'ID'
@@ -183,14 +179,11 @@ export function makeRecordFromBlock(block: string, id: string): RecordType {
     record.source = 'Dryad Digital Repository'
   }
 
-  console.log(`   Record: ${title} → URL: ${url || 'NONE'} (${identifierType})`)
-
   return record
 }
 
 export function parseOai(xml: string, id: string): OAIParseResult {
   if (!xml || xml.length < 200) {
-    console.log(`   parseOai: No XML to parse for ${id}`)
     return { records: [], next: null }
   }
 
@@ -199,8 +192,6 @@ export function parseOai(xml: string, id: string): OAIParseResult {
       .match(/<resumptionToken[^>]*>([\s\S]*?)<\/resumptionToken>/i)?.[1]
       ?.trim() || null
   const recs: RecordType[] = []
-
-  console.log(`   parseOai for ${id}, resumptionToken: ${next ? 'yes' : 'no'}`)
 
   const hasOAI = /<OAI-PMH/i.test(xml) || /<record>/i.test(xml)
   if (hasOAI) {
@@ -215,13 +206,11 @@ export function parseOai(xml: string, id: string): OAIParseResult {
         count++
       }
     }
-    console.log(`   parseOai found ${count} records using record regex`)
     return { records: recs, next }
   }
 
   const altRegex = /<oai_dc:dc[\s\S]*?<\/oai_dc:dc>/gi
   const blocks = xml.match(altRegex) || []
-  console.log(`   parseOai found ${blocks.length} blocks using alt regex`)
   for (const b of blocks) {
     const record = makeRecordFromBlock(b, id)
     if (record && record.title && record.title !== 'Untitled') recs.push(record)

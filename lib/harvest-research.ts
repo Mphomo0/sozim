@@ -1,4 +1,4 @@
-import { Record } from '@/models/Record'
+import { convexClient, api } from './convex-client'
 import type { Record as RecordType, ResearchSource } from '@/lib/types'
 import {
   RESEARCH_DATA_SOURCES,
@@ -65,12 +65,9 @@ export async function fetchResearchSource(
         }&page[number]=${page}`
       }
 
-      console.log(`   Fetching from ${source.name}, page ${page}: ${url}`)
-
       if (source.name === 'dryad') {
         const data = await fetchJSON<DryadData>(url)
         if (!data) {
-          console.log(`   No JSON data from ${source.name}, stopping`)
           break
         }
 
@@ -82,7 +79,6 @@ export async function fetchResearchSource(
           []
 
         if (!results.length) {
-          console.log('   dryad: no results in JSON')
           break
         }
 
@@ -136,12 +132,9 @@ export async function fetchResearchSource(
 
           out.push(record)
         }
-
-        console.log(`   dryad returned ${out.length} records`)
       } else if (source.name === 'zenodo') {
         const data = await fetchJSON<ZenodoData>(url)
         if (!data) {
-          console.log(`   No JSON data from ${source.name}, stopping`)
           break
         }
 
@@ -181,7 +174,6 @@ export async function fetchResearchSource(
       } else if (source.name === 'mendeley') {
         const data = await fetchJSON<MendeleyData>(url)
         if (!data) {
-          console.log(`   No JSON data from ${source.name}, stopping`)
           break
         }
 
@@ -236,26 +228,16 @@ export async function fetchResearchSource(
     )
   }
 
-  console.log(`   ${source.name} returned ${out.length} records`)
   return out
 }
 
 export async function harvestResearchData(): Promise<number> {
   const allResearch: RecordType[] = []
-  const existingResearch = (await Record.find({
-    category: 'research',
-  }).lean()) as unknown as RecordType[]
-
-  console.log(
-    `🔬 Harvesting research data from ${RESEARCH_DATA_SOURCES.length} sources`
-  )
-
+  
   for (const source of RESEARCH_DATA_SOURCES) {
     try {
-      console.log(`   ${source.displayName}`)
       const recs = await fetchResearchSource(source, '', RECORDS_PER_REPOSITORY)
       allResearch.push(...recs)
-      console.log(`   ✅ ${source.name}: ${recs.length} records`)
     } catch (err) {
       console.error(`   ❌ ${source.name} failed:`, (err as Error).message)
       await logError('Research:' + source.name, err as Error)
@@ -263,17 +245,13 @@ export async function harvestResearchData(): Promise<number> {
     await sleep(1200)
   }
 
-  const mergedResearch = accumulativeDedupe([
-    ...existingResearch,
-    ...allResearch,
-  ])
+  // Deduplicate the fresh harvest among itself then replace the entire category
+  const mergedResearch = accumulativeDedupe(allResearch)
 
-  await Record.deleteMany({ category: 'research' })
-  await Record.insertMany(
-    mergedResearch.map((r) => ({ ...r, category: 'research' }))
-  )
-
-  console.log(`🎉 Research: ${allResearch.length} new records`)
+  const inserted = await convexClient.mutation(api.records.bulkUpsertRecords, {
+    records: mergedResearch.map(r => ({ ...r, category: 'research' })),
+    clearCategory: 'research'
+  })
 
   return allResearch.length
 }
@@ -282,17 +260,15 @@ export async function harvestResearchDataIncremental(
   limit: number = 10
 ): Promise<number> {
   let totalNewRecords = 0
-  let existingResearch = (await Record.find({
+  
+  const searchResult = await convexClient.query(api.records.getRecords, {
     category: 'research',
-  }).lean()) as unknown as RecordType[]
-
-  console.log(
-    `🔬 Incremental harvesting research data from ${RESEARCH_DATA_SOURCES.length} sources`
-  )
+    pageSize: 1000
+  })
+  const existingResearch = searchResult.results as unknown as RecordType[]
 
   for (const source of RESEARCH_DATA_SOURCES) {
     try {
-      console.log(`   ${source.displayName} incremental harvest`)
       const recs = await fetchResearchSource(source, '', limit)
 
       const newRecs = recs.filter(
@@ -304,11 +280,11 @@ export async function harvestResearchDataIncremental(
       )
 
       if (newRecs.length > 0) {
-        await Record.insertMany(
-          newRecs.map((r) => ({ ...r, category: 'research' }))
-        )
-        existingResearch = [...existingResearch, ...newRecs]
-        console.log(`   ✅ ${source.name}: Added ${newRecs.length} new records`)
+        const recordsToInsert = newRecs.map((r) => ({ ...r, category: 'research' }))
+        await convexClient.mutation(api.records.bulkUpsertRecords, {
+           records: recordsToInsert
+        })
+        
         totalNewRecords += newRecs.length
       }
     } catch (err) {

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useSession } from 'next-auth/react'
+import { useUser } from '@clerk/nextjs'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -81,8 +81,9 @@ interface UserProfile {
 }
 
 export default function ProfileCard() {
-  const { data: session } = useSession()
-  const userId = session?.user?.id
+  const { user: clerkUser, isLoaded } = useUser()
+  // Eventually we'll map clerkUser.id directly in convex! For now we fetch by mongo ID proxy if necessary or let Mongoose handle.
+  const userId = clerkUser?.id
 
   const [user, setUser] = useState<UserProfile | null>(null)
   const [open, setOpen] = useState(false)
@@ -108,12 +109,12 @@ export default function ProfileCard() {
         setUser(data)
 
         reset({
-          firstName: data.firstName || '',
-          lastName: data.lastName || '',
-          email: data.email || '',
+          firstName: data.firstName || clerkUser?.firstName || '',
+          lastName: data.lastName || clerkUser?.lastName || '',
+          email: data.email || clerkUser?.primaryEmailAddress?.emailAddress || '',
           phone: data.phone || '',
           alternativeNumber: data.alternativeNumber || '',
-          dob: data.dob ? data.dob.substring(0, 10) : '',
+          dob: data.dob ? String(data.dob).substring(0, 10) : '',
           address: data.address || '',
           idNumber: data.idNumber || '',
           nationality: data.nationality || '',
@@ -125,10 +126,11 @@ export default function ProfileCard() {
       }
     }
     loadUser()
-  }, [userId, reset])
+  }, [userId, reset, clerkUser])
 
-  if (!session) return <p>Loading session...</p>
-  if (!user) return <p>Loading profile...</p>
+  if (!isLoaded) return <p>Loading session...</p>
+  if (!user && clerkUser) return <p>Loading profile...</p>
+  if (!user) return <p>Unauthorized</p>
 
   const onSubmit = async (values: ProfileForm) => {
     setLoading(true)

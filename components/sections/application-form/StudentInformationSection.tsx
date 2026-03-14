@@ -10,12 +10,18 @@ type Props = {
   isLoggedIn?: boolean
 }
 
-export default function StudentInformationSection({ form }: Props) {
+export default function StudentInformationSection({ form, isLoggedIn }: Props) {
   return (
     <div className='space-y-6 p-6 border rounded-xl bg-gray-50'>
       <h2 className='font-bold text-3xl text-primary border-b pb-2'>
         Student Information
       </h2>
+
+      {isLoggedIn && (
+        <p className='text-sm text-blue-600 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2'>
+          Some fields are pre-filled from your account and cannot be edited here.
+        </p>
+      )}
 
       <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
         <Field>
@@ -23,6 +29,8 @@ export default function StudentInformationSection({ form }: Props) {
           <Input
             id='user.firstName'
             placeholder='Enter first name'
+            readOnly={isLoggedIn}
+            className={isLoggedIn ? 'bg-gray-100 cursor-not-allowed' : ''}
             {...form.register('user.firstName')}
           />
           <FieldError>
@@ -35,6 +43,8 @@ export default function StudentInformationSection({ form }: Props) {
           <Input
             id='user.lastName'
             placeholder='Enter last name'
+            readOnly={isLoggedIn}
+            className={isLoggedIn ? 'bg-gray-100 cursor-not-allowed' : ''}
             {...form.register('user.lastName')}
           />
           <FieldError>
@@ -98,6 +108,8 @@ export default function StudentInformationSection({ form }: Props) {
           <Input
             id='user.email'
             placeholder='Enter email'
+            readOnly={isLoggedIn}
+            className={isLoggedIn ? 'bg-gray-100 cursor-not-allowed' : ''}
             {...form.register('user.email')}
           />
           <FieldError>{form.formState.errors.user?.email?.message}</FieldError>

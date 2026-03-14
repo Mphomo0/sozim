@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { UseFormReturn } from 'react-hook-form'
-import { useSession } from 'next-auth/react'
+import { useUser } from '@clerk/nextjs'
 import { FormValues } from '@/lib/schema'
 import { Field, FieldLabel, FieldError } from '@/components/ui/field'
 import {
@@ -23,26 +23,19 @@ interface Course {
   name: string
 }
 
+import { useQuery } from 'convex/react'
+import { api } from '@/convex/_generated/api'
+
 export default function NewProgrammeDetailsSection({ form }: Props) {
-  const [courses, setCourses] = useState<Course[]>([])
+  const { user, isLoaded } = useUser()
 
-  const { data: session, status } = useSession()
+  const isAdmin = 
+    isLoaded && 
+    user && 
+    (user.publicMetadata?.role === 'ADMIN' || user.publicMetadata?.role === 'MODERATOR')
 
-  const isAdmin = status === 'authenticated' && session?.user?.role === 'ADMIN'
-
-  const fetchCourses = async () => {
-    try {
-      const response = await fetch('/api/courses')
-      const data = await response.json()
-      setCourses(data.data)
-    } catch (error) {
-      console.error(error)
-    }
-  }
-
-  useEffect(() => {
-    fetchCourses()
-  }, [])
+  const coursesRaw = useQuery(api.courses.getCourses)
+  const courses = coursesRaw || []
 
   return (
     <div className="space-y-6 p-6 border rounded-xl bg-gray-50">

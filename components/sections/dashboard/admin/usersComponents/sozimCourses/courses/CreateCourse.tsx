@@ -7,11 +7,14 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { courseSchema, CourseInput } from './types'
 import { toast } from 'react-toastify'
 import { CourseForm } from './CourseForm'
+import { useMutation } from 'convex/react'
+import { api } from '@/convex/_generated/api'
 import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
 
 export function CreateCourse() {
   const router = useRouter()
+  const createCourse = useMutation(api.courses.createCourse)
   const {
     register,
     control,
@@ -51,19 +54,12 @@ export function CreateCourse() {
           [],
       }
 
-      const res = await fetch('/api/courses', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...data,
-          modules: cleanedModules,
-        }),
+      const createCourse = useMutation(api.courses.createCourse)
+      await createCourse({
+        ...data,
+        modules: cleanedModules,
+        categoryId: data.categoryId as any,
       })
-
-      if (!res.ok) {
-        const err = await res.json()
-        throw new Error(err.error || 'Failed to create')
-      }
 
       toast.success('Course created successfully')
       router.push('/dashboard/admin/courses')

@@ -16,6 +16,8 @@ import SpecialNeedsSection from '@/components/sections/application-form/SpecialN
 import StudentInformationSection from '@/components/sections/application-form/StudentInformationSection'
 import { v4 as uuidv4 } from 'uuid'
 import { upload } from '@imagekit/next'
+import { useMutation } from 'convex/react'
+import { api } from '@/convex/_generated/api'
 
 function disabilityPath(key: DisabilityKey) {
   return `disabilities.${key}` as const
@@ -24,6 +26,8 @@ function disabilityPath(key: DisabilityKey) {
 export default function CreateApplication() {
   const [selectedFiles, setSelectedFiles] = useState<File[] | null>(null)
   const [isUploading, setIsUploading] = useState(false)
+  const createUser = useMutation(api.users.createUser)
+  const createApplication = useMutation(api.applications.createApplication)
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -48,6 +52,7 @@ export default function CreateApplication() {
         email: '',
         address: '',
         nationality: '',
+        dob: null,
       },
     },
   })
@@ -62,7 +67,10 @@ export default function CreateApplication() {
   // Fetch ImageKit auth params
   const getAuthParams = async () => {
     const res = await fetch('/api/images/upload-auth')
-    if (!res.ok) throw new Error('Failed to fetch upload auth')
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}))
+      throw new Error(errorData.error || 'Failed to fetch upload auth')
+    }
     return res.json()
   }
 
@@ -77,6 +85,13 @@ export default function CreateApplication() {
 
   async function onSubmit(values: FormValues) {
     try {
+      const courseIdObj = (values as any).programmeDetails?.courseId || (values as any).courseId
+      
+      if (!courseIdObj) {
+        toast.error('Please select a programme.')
+        return
+      }
+
       if (!selectedFiles || selectedFiles.length === 0) {
         toast.error('Please select at least one document.')
         return
@@ -87,10 +102,13 @@ export default function CreateApplication() {
       const uploadedDocs: { url: string; fileId: string }[] = []
 
       for (const file of selectedFiles) {
-        const { token, signature, publicKey, expire } = await getAuthParams()
-        const uniqueFileName = `${uuidv4()}_${file.name}`
-
         try {
+          const authParams = await getAuthParams()
+          console.log('Auth params received:', authParams)
+          
+          const { token, signature, publicKey, expire } = authParams
+          const uniqueFileName = `${uuidv4()}_${file.name}`
+
           const res = await upload({
             file,
             fileName: uniqueFileName,
@@ -101,8 +119,10 @@ export default function CreateApplication() {
             expire,
           })
 
+          console.log('Upload response:', res)
+
           if (!res?.url || !res?.fileId) {
-            throw new Error('Upload failed')
+            throw new Error('Upload failed - no URL or fileId returned')
           }
 
           uploadedDocs.push({
@@ -110,8 +130,8 @@ export default function CreateApplication() {
             fileId: res.fileId,
           })
         } catch (err) {
-          console.error(err)
-          toast.error(`Failed to upload ${file.name}`)
+          console.error('Upload error:', err)
+          toast.error(`Failed to upload ${file.name}: ${err instanceof Error ? err.message : 'Unknown error'}`)
         }
       }
 
@@ -122,38 +142,67 @@ export default function CreateApplication() {
       }
 
       // Create user
-      const userRes = await fetch('/api/users', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(values.user),
-      })
+      const newUserId = await createUser({
+        firstName: values.user.firstName,
+        lastName: values.user.lastName,
+        email: values.user.email,
+        phone: values.user.phone,
+        alternativeNumber: values.user.alternativeNumber,
+        address: values.user.address,
+        idNumber: values.user.idNumber,
+        nationality: values.user.nationality,
+      } as any)
 
-      const userData = await userRes.json()
-
-      if (!userRes.ok) {
-        throw new Error(userData.message || 'Failed to create user')
+      if (!newUserId) {
+        throw new Error('Failed to create user')
       }
 
-      const finalValues = {
-        ...values,
-        documents: uploadedDocs,
+      const applicationData = {
+        fullNameCompany: values.fullNameCompany,
+        sponsor: values.sponsor,
+        companyReg: values.companyReg,
+        sponsorEmail: values.sponsorEmail,
+        homeAddress: values.homeAddress,
+        phoneNumber: values.phoneNumber,
+        alternativeNumber: values.alternativeNumber,
+        genderDebtor: values.genderDebtor,
+        nationality: values.nationality,
+        employmentStatus: values.employmentStatus,
+        employerName: values.employerName,
+        employmentSector: values.employmentSector,
+        employerAddress: values.employerAddress,
+        maritalStatus: values.maritalStatus,
+        deliveryAddress: values.deliveryAddress,
+        provinceDelivery: values.provinceDelivery,
+        postalCodeDelivery: values.postalCodeDelivery,
+        deliveryMethod: values.deliveryMethod,
+        highestGradeAchieved: values.highestGradeAchieved,
+        highestGradeOther: values.highestGradeOther,
+        yearCompleted: values.yearCompleted,
+        schoolAttended: values.schoolAttended,
+        schoolProvince: values.schoolProvince,
+        qualifications: values.qualifications,
+        qualificationType: values.qualificationType,
+        courseId: courseIdObj,
+        socioEconomicStatus: values.socioEconomicStatus,
+        homeLanguage: values.homeLanguage,
+        homeLanguageOther: values.homeLanguageOther,
+        gender: values.gender,
+        race: values.race,
+        raceOther: values.raceOther,
+        specialNeeds: values.specialNeeds,
+        disabilities: values.disabilities,
+        examRequirements: values.examRequirements,
+        status: 'PENDING',
       }
 
       // Create application
-      const appRes = await fetch('/api/applications', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...finalValues,
-          applicantId: userData._id,
-        }),
+      await createApplication({
+        applicantId: newUserId,
+        courseId: courseIdObj as any,
+        documents: uploadedDocs,
+        data: applicationData,
       })
-
-      const appData = await appRes.json()
-
-      if (!appRes.ok) {
-        throw new Error(appData.message || 'Failed to create application')
-      }
 
       toast.success('Application submitted successfully')
     } catch (error) {

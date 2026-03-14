@@ -30,13 +30,14 @@ const team = [
 
 export default function Leadership() {
   return (
-    <section className="bg-muted/50 py-20">
-      <div className="container mx-auto px-4">
-        <div className="mb-12 text-center">
-          <h2 className="mb-4 text-3xl font-bold md:text-4xl">
+    <section className="bg-slate-50 py-24 relative overflow-hidden">
+      <div className="absolute top-0 left-0 w-full h-full bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
+      <div className="container relative z-10 mx-auto px-4">
+        <div className="mb-16 text-center">
+          <h2 className="mb-4 text-4xl font-extrabold tracking-tight md:text-5xl text-slate-900">
             Leadership Team
           </h2>
-          <p className="text-lg text-muted-foreground">
+          <p className="text-xl font-light text-muted-foreground">
             Meet the dedicated professionals leading Sozim forward
           </p>
         </div>
@@ -44,16 +45,19 @@ export default function Leadership() {
           {team.map((member, index) => (
             <Card
               key={index}
-              className="text-center transition-all hover:shadow-lg"
+              className="group text-center border-slate-200/60 bg-white/80 backdrop-blur-sm transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 hover:shadow-blue-500/10 overflow-hidden"
             >
-              <CardContent className="p-6">
-                <div className="mb-4 flex justify-center">
-                  <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary text-2xl font-bold text-primary-foreground">
+              <div className="absolute inset-0 bg-gradient-to-t from-blue-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <CardContent className="p-8 relative z-10">
+                <div className="mb-6 flex justify-center">
+                  <div className="flex h-28 w-28 items-center justify-center rounded-full bg-gradient-to-br from-slate-900 to-blue-800 text-3xl font-extrabold tracking-tight text-white shadow-lg shadow-blue-900/20 group-hover:scale-110 transition-transform duration-500 group-hover:from-blue-600 group-hover:to-sky-400">
                     {member.image}
                   </div>
                 </div>
-                <h3 className="mb-1 text-xl font-semibold">{member.name}</h3>
-                <p className="text-sm text-muted-foreground">{member.role}</p>
+                <h3 className="mb-2 text-xl font-bold tracking-tight text-slate-900 group-hover:text-blue-700 transition-colors duration-300">
+                  {member.name}
+                </h3>
+                <p className="text-sm font-medium text-slate-500 uppercase tracking-wider">{member.role}</p>
               </CardContent>
             </Card>
           ))}

@@ -35,11 +35,8 @@ async function fetchOpenAlexDatasets(
 
   const url = `${OPENALEX_LIVE_SOURCE.apiUrl}?filter=${filter}&per-page=${perPage}&page=${page}`
 
-  console.log('   OpenAlex URL:', url)
-
   const data = await fetchJSON<OpenAlexResponse>(url)
   if (!data || !Array.isArray(data.results)) {
-    console.log('   OpenAlex: no results or unexpected JSON')
     return { records: [], total: 0, hasMore: false }
   }
 
@@ -125,10 +122,6 @@ async function fetchOpenAlexDatasets(
     data.meta?.next_cursor || data.meta?.next_page || false,
   )
 
-  console.log(
-    `   OpenAlex live search mapped ${mapped.length} records (total meta: ${total})`,
-  )
-
   return { records: mapped, total, hasMore }
 }
 
@@ -149,8 +142,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         { status: 400 },
       )
     }
-
-    console.log(`🔍 OpenAlex Live Search: "${trimmedQuery}" (datasets only)`)
 
     const { records, total, hasMore } = await fetchOpenAlexDatasets(
       trimmedQuery,

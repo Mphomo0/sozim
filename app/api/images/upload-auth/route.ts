@@ -23,12 +23,6 @@ export const GET = auth(async function (req) {
       .digest('hex')
       .toLowerCase() // Must be lowercase!
 
-    console.log('Generated auth:', {
-      token,
-      expire,
-      signatureString,
-      signature,
-    })
     return NextResponse.json({
       token,
       expire, // send as number (client will .toString() it)

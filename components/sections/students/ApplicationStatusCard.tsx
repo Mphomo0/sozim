@@ -1,84 +1,37 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useSession } from 'next-auth/react'
+import { useState } from 'react'
+import { useUser } from '@clerk/nextjs'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-
-interface Course {
-  _id: string
-  name: string
-  code?: string
-}
-
-interface User {
-  _id: string
-  firstName: string
-  lastName: string
-  email: string
-}
-
-interface Application {
-  _id: string
-  status: string
-  createdAt: string
-  applicantId: User | string
-  courseId: Course | string
-}
-
-interface PaginationData {
-  page: number
-  limit: number
-  total: number
-  totalPages: number
-  hasNextPage: boolean
-  hasPrevPage: boolean
-}
+import { useQuery } from 'convex/react'
+import { api } from '@/convex/_generated/api'
 
 export default function ApplicationStatusCard() {
-  const [applications, setApplications] = useState<Application[]>([])
-  const [pagination, setPagination] = useState<PaginationData>({
-    page: 1,
-    limit: 10,
-    total: 0,
-    totalPages: 0,
-    hasNextPage: false,
-    hasPrevPage: false,
-  })
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [page, setPage] = useState(1)
+  const limit = 10
 
-  const { data: session, status } = useSession()
+  const { user, isLoaded } = useUser()
 
-  const fetchApplications = async (page = 1) => {
-    setLoading(true)
-    setError(null)
-    try {
-      const res = await fetch(
-        `/api/applications/loggedinUser?page=${page}&limit=10`
-      )
-      if (!res.ok) throw new Error('Failed to fetch applications')
-      const data = await res.json()
-      setApplications(data.data || [])
-      setPagination(data.pagination)
-    } catch (err) {
-      console.error(err)
-      setError('Failed to fetch applications')
-    } finally {
-      setLoading(false)
-    }
-  }
+  const applicationsRaw = useQuery(
+    api.applications.getApplicationsByUserId,
+    user ? { clerkId: user.id } : 'skip'
+  )
+  const coursesRaw = useQuery(api.courses.getCourses)
 
-  useEffect(() => {
-    if (session?.user) {
-      fetchApplications(1)
-    }
-  }, [session])
+  const loading = applicationsRaw === undefined
+  const errorState = null
 
-  const getCourseName = (courseId: Course | string) => {
-    if (typeof courseId === 'object' && courseId !== null) {
-      return courseId.code ? `${courseId.name}` : courseId.name
-    }
-    return courseId as string
+  const applications = applicationsRaw || []
+  const totalPages = Math.ceil(applications.length / limit) || 1
+  const currentPage = page > totalPages ? totalPages : page
+  const startIndex = (currentPage - 1) * limit
+  const currentApplications = applications.slice(startIndex, startIndex + limit)
+
+  const getCourseName = (courseId: string) => {
+    const course = (coursesRaw || []).find(
+      (c) => c._id === courseId || c.mongoId === courseId
+    )
+    return course ? (course.code ? `${course.name}` : course.name) : courseId
   }
 
   const getStatusBadge = (status: string) => {
@@ -116,12 +69,12 @@ export default function ApplicationStatusCard() {
   }
 
   const handlePageChange = (newPage: number) => {
-    if (newPage >= 1 && newPage <= pagination.totalPages) {
-      fetchApplications(newPage)
+    if (newPage >= 1 && newPage <= totalPages) {
+      setPage(newPage)
     }
   }
 
-  if (status === 'loading') {
+  if (!isLoaded) {
     return (
       <div className="bg-white p-6 rounded-xl shadow-md">
         <div className="flex items-center justify-center py-8">
@@ -132,7 +85,7 @@ export default function ApplicationStatusCard() {
     )
   }
 
-  if (!session) {
+  if (isLoaded && !user) {
     return (
       <div className="bg-white p-6 rounded-xl shadow-md">
         <div className="text-center py-8">
@@ -155,13 +108,13 @@ export default function ApplicationStatusCard() {
     )
   }
 
-  if (error) {
+  if (errorState) {
     return (
       <div className="bg-white p-6 rounded-xl shadow-md">
         <div className="text-center py-8">
-          <p className="text-red-500 font-medium">{error}</p>
+          <p className="text-red-500 font-medium">{errorState}</p>
           <button
-            onClick={() => fetchApplications(1)}
+            onClick={() => setPage(1)}
             className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
             Try Again
@@ -176,8 +129,8 @@ export default function ApplicationStatusCard() {
       <div className="p-6 border-b">
         <h2 className="text-xl font-semibold text-gray-900">My Applications</h2>
         <p className="text-sm text-gray-500 mt-1">
-          {pagination.total}{' '}
-          {pagination.total === 1 ? 'application' : 'applications'} total
+          {applications.length}{' '}
+          {applications.length === 1 ? 'application' : 'applications'} total
         </p>
       </div>
 
@@ -205,71 +158,82 @@ export default function ApplicationStatusCard() {
         </div>
       ) : (
         <>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Application ID
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Course
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Submitted On
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {applications.map((app) => (
-                  <tr
-                    key={app._id}
-                    className="hover:bg-gray-50 transition-colors"
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
-                        #{app._id.slice(-8).toUpperCase()}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-gray-900 max-w-xs">
-                        {getCourseName(app.courseId)}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {getStatusBadge(app.status)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-500">
-                        {new Date(app.createdAt).toLocaleDateString('en-ZA', {
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric',
-                        })}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          {/* Desktop Table Header */}
+          <div className="hidden md:grid md:grid-cols-4 gap-4 px-6 py-3 bg-gray-50 border-b">
+            <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">Application ID</div>
+            <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">Course</div>
+            <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">Status</div>
+            <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">Submitted On</div>
+          </div>
+
+          {/* Applications List */}
+          <div className="divide-y divide-gray-200">
+            {currentApplications.map((app) => (
+              <div
+                key={app._id}
+                className="p-4 hover:bg-gray-50 transition-colors"
+              >
+                {/* Mobile View */}
+                <div className="md:hidden space-y-3">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="text-xs text-gray-500">Application ID</p>
+                      <p className="text-sm font-medium text-gray-900">#{app._id.slice(-8).toUpperCase()}</p>
+                    </div>
+                    {getStatusBadge(app.status || 'PENDING')}
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500">Course</p>
+                    <p className="text-sm text-gray-900">{getCourseName(app.courseId)}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500">Submitted On</p>
+                    <p className="text-sm text-gray-500">
+                      {app._creationTime ? new Date(app._creationTime).toLocaleDateString('en-ZA', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                      }) : ''}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Desktop View */}
+                <div className="hidden md:grid md:grid-cols-4 gap-4 items-center">
+                  <div className="text-sm font-medium text-gray-900">
+                    #{app._id.slice(-8).toUpperCase()}
+                  </div>
+                  <div className="text-sm text-gray-900 truncate">
+                    {getCourseName(app.courseId)}
+                  </div>
+                  <div>
+                    {getStatusBadge(app.status || 'PENDING')}
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    {app._creationTime ? new Date(app._creationTime).toLocaleDateString('en-ZA', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                    }) : ''}
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
 
           {/* Pagination */}
-          {pagination.totalPages > 1 && (
-            <div className="px-6 py-4 border-t bg-gray-50 flex items-center justify-between">
-              <div className="text-sm text-gray-700">
+          {totalPages > 1 && (
+            <div className="px-4 py-4 border-t bg-gray-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="text-sm text-gray-700 text-center sm:text-left">
                 Showing page{' '}
-                <span className="font-medium">{pagination.page}</span> of{' '}
-                <span className="font-medium">{pagination.totalPages}</span>
+                <span className="font-medium">{currentPage}</span> of{' '}
+                <span className="font-medium">{totalPages}</span>
               </div>
 
-              <div className="flex gap-2">
+              <div className="flex gap-2 justify-center">
                 <button
-                  onClick={() => handlePageChange(pagination.page - 1)}
-                  disabled={!pagination.hasPrevPage}
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage <= 1}
                   className="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
                 >
                   <ChevronLeft size={16} />
@@ -277,8 +241,8 @@ export default function ApplicationStatusCard() {
                 </button>
 
                 <button
-                  onClick={() => handlePageChange(pagination.page + 1)}
-                  disabled={!pagination.hasNextPage}
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage >= totalPages}
                   className="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
                 >
                   Next

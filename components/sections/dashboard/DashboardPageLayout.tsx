@@ -3,6 +3,7 @@
 import React from 'react'
 import { DashboardHeader } from '@/components/sections/dashboard/DashboardHeader'
 import { cn } from '@/lib/utils'
+import { motion } from 'framer-motion'
 
 interface BreadcrumbStep {
   label: string
@@ -27,25 +28,27 @@ export function DashboardPageLayout({
   className,
 }: DashboardPageLayoutProps) {
   return (
-    <div className="flex flex-col min-h-screen relative overflow-hidden">
-      {/* Background Texture Overlay */}
-      <div 
-        className="absolute inset-0 pointer-events-none opacity-[0.03] z-[-1]"
-        style={{ 
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` 
-        }}
-      />
+    <div className="flex flex-col min-h-screen relative overflow-hidden bg-slate-50/50 dark:bg-slate-950/50">
+      {/* Background Decor */}
+      <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-blue-600/5 to-transparent pointer-events-none z-[-1]" />
+      <div className="absolute -top-24 -right-24 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none z-[-1]" />
+      <div className="absolute top-1/2 -left-24 w-72 h-72 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none z-[-1]" />
 
       <DashboardHeader breadcrumbs={breadcrumbs} />
 
-      <main className={cn("flex-1 p-6 md:p-8 space-y-8 max-w-7xl mx-auto w-full", className)}>
+      <motion.main 
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className={cn("flex-1 p-6 md:p-8 space-y-8 max-w-7xl mx-auto w-full", className)}
+      >
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight text-gray-900 drop-shadow-sm">
+          <div className="space-y-1">
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-50">
               {title}
             </h1>
             {description && (
-              <p className="text-gray-500 mt-1 font-medium italic">
+              <p className="text-slate-500 dark:text-slate-400 font-medium max-w-2xl">
                 {description}
               </p>
             )}
@@ -57,8 +60,10 @@ export function DashboardPageLayout({
           )}
         </div>
 
-        {children}
-      </main>
+        <div className="relative">
+          {children}
+        </div>
+      </motion.main>
     </div>
   )
 }

@@ -34,11 +34,13 @@ type EditFormValues = Omit<FormValues, 'user'> & {
   user?: FormValues['user']
 }
 
+import { useQuery, useMutation } from 'convex/react'
+import { api } from '@/convex/_generated/api'
+import { Id } from '@/convex/_generated/dataModel'
+
 export default function EditApplication() {
-  const [isLoadingData, setIsLoadingData] = useState(true)
   const [isUploading, setIsUploading] = useState(false)
   const [newFiles, setNewFiles] = useState<File[]>([])
-  const [user, setUser] = useState<User | null>(null)
 
   const { id } = useParams()
   const router = useRouter()
@@ -63,57 +65,30 @@ export default function EditApplication() {
   const disabilityPath = (key: keyof NonNullable<FormValues['disabilities']>) =>
     `disabilities.${key}` as const
 
-  // --- Fetch Application Data ---
+  // Convex Queries & Mutations
+  const appId = typeof id === 'string' ? (id as Id<'applications'>) : undefined
+  const appData = useQuery(api.applications.getApplicationById, appId ? { id: appId } : 'skip')
+  
+  // user info is now joined in appData
+  const user = (appData as any)?.user
+  const applicantIdRaw = appData?.actualApplicantId || appData?.applicantId
+  const applicantIdStr = typeof applicantIdRaw === 'string' ? applicantIdRaw : undefined
+  
+  const updateApplication = useMutation(api.applications.updateApplication)
+
+  // --- Populate Form Data ---
   useEffect(() => {
-    const fetchApplication = async () => {
-      if (!id) return
-
-      try {
-        const res = await fetch(`/api/applications/${id}`)
-        if (!res.ok) throw new Error('Failed to fetch application')
-
-        const appData = await res.json()
-
-        // Extract applicantId (could be populated object or just ID)
-        const applicantId =
-          typeof appData.applicantId === 'object'
-            ? appData.applicantId._id
-            : appData.applicantId
-
-        // Fetch user data if applicantId exists
-        if (applicantId) {
-          try {
-            const userRes = await fetch(`/api/users/${applicantId}`)
-            if (userRes.ok) {
-              const userData = await userRes.json()
-              setUser(userData)
-            }
-          } catch (error) {
-            console.error('Failed to fetch user data:', error)
-          }
-        }
-
-        // Populate form with application data only (no user fields)
-        form.reset({
-          ...appData,
-          // Handle populated refs
-          courseId:
-            typeof appData.courseId === 'object'
-              ? appData.courseId._id
-              : appData.courseId,
-          applicantId: applicantId,
-        })
-      } catch (error) {
-        console.error(error)
-        toast.error('Failed to load application')
-        router.push('/dashboard/admin/applications')
-      } finally {
-        setIsLoadingData(false)
-      }
+    if (appData) {
+      form.reset({
+        ...appData,
+        courseId:
+          typeof appData.courseId === 'object'
+            ? (appData.courseId as any)?._id || appData.courseId
+            : appData.courseId,
+        applicantId: applicantIdStr,
+      } as any)
     }
-
-    fetchApplication()
-  }, [id, form, router])
+  }, [appData, applicantIdStr, form])
 
   // --- File Upload Helpers ---
   const getAuthParams = async () => {
@@ -137,6 +112,8 @@ export default function EditApplication() {
   }
 
   const onSubmit = async (data: EditFormValues) => {
+    if (!appId) return
+
     try {
       setIsUploading(true)
 
@@ -173,24 +150,19 @@ export default function EditApplication() {
       // Remove user from data before sending (we don't update user)
       const { user: _, ...applicationData } = data
 
-      // Update application (user is NOT updated)
-      const res = await fetch(`/api/applications/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...applicationData,
-          documents: finalDocuments,
-        }),
+      // Update application via Convex
+      await updateApplication({
+        id: appId,
+        status: applicationData.status,
+        data: {
+            ...applicationData,
+            documents: finalDocuments,
+        }
       })
 
-      if (res.ok) {
-        toast.success('Application updated successfully!')
-        router.push('/dashboard/admin/applications')
-        router.refresh()
-      } else {
-        const err = await res.json()
-        toast.error(err.error || 'Failed to update application')
-      }
+      toast.success('Application updated successfully!')
+      router.push('/dashboard/admin/applications')
+      router.refresh()
     } catch (error) {
       console.error(error)
       toast.error('Something went wrong')
@@ -199,7 +171,7 @@ export default function EditApplication() {
     }
   }
 
-  if (isLoadingData) {
+  if (appData === undefined) {
     return (
       <div className="container mx-auto p-8 flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin mr-3" />
@@ -235,6 +207,11 @@ export default function EditApplication() {
               <div>
                 <span className="text-gray-600">ID Number:</span>{' '}
                 <span className="font-medium">{user.idNumber}</span>
+              </div>
+              <div className="col-span-2 mt-2 pt-2 border-t border-blue-100 flex items-center gap-2">
+                 <span className="text-[10px] text-indigo-600 font-mono uppercase bg-white px-2 py-0.5 rounded border border-blue-100">
+                    CLERK ID: {user.clerkId || 'N/A'}
+                 </span>
               </div>
             </div>
           </div>

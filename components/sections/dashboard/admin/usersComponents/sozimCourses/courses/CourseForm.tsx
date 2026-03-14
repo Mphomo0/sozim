@@ -12,6 +12,8 @@ import { Trash2, X, Plus, BookOpen, Clock, Settings, ShieldAlert, GraduationCap,
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
+import { useQuery } from 'convex/react'
+import { api } from '@/convex/_generated/api'
 
 type Category = {
   _id: string
@@ -25,25 +27,9 @@ type CourseFormProps = {
 }
 
 export function CourseForm({ register, errors, control }: CourseFormProps) {
-  const [categories, setCategories] = useState<Category[]>([])
-  const [loading, setLoading] = useState(true)
-
-  // Fetch categories
-  useEffect(() => {
-    async function fetchCategories() {
-      try {
-        const res = await fetch('/api/categories')
-        if (!res.ok) throw new Error('Failed to fetch categories')
-        const data: Category[] = await res.json()
-        setCategories(data)
-      } catch (err) {
-        console.error('Failed to fetch categories', err)
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchCategories()
-  }, [])
+  const categoriesReq = useQuery(api.categories.getCategories)
+  const loading = categoriesReq === undefined
+  const categories = categoriesReq || []
 
   // Field arrays
   const knowledgeFA = useFieldArray({

@@ -1,9 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useSession } from 'next-auth/react'
+import { useUser } from '@clerk/nextjs'
 import { toast } from 'react-toastify'
 import { v4 as uuidv4 } from 'uuid'
 import {
@@ -17,6 +17,9 @@ import {
 
 import { Form } from '@/components/ui/form'
 import { Button } from '@/components/ui/button'
+import { useMutation, useQuery } from 'convex/react'
+import { api } from '@/convex/_generated/api'
+import { Id } from '@/convex/_generated/dataModel'
 
 import { formSchema, FormValues, DisabilityKey } from '@/lib/schema'
 
@@ -34,8 +37,13 @@ function disabilityPath(key: DisabilityKey) {
 
 type FileStatus = 'waiting' | 'uploading' | 'success' | 'error'
 
-export default function CreateApplication() {
-  const { data: session, status } = useSession()
+type Props = {
+  onSuccess?: () => void
+}
+
+export default function CreateApplication({ onSuccess }: Props) {
+  const { user, isLoaded } = useUser()
+  const hasPrefilledRef = useRef(false)
 
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [isUploading, setIsUploading] = useState(false)
@@ -79,30 +87,20 @@ export default function CreateApplication() {
   const watchSpecialNeeds = form.watch('specialNeeds')
 
   useEffect(() => {
-    if (status !== 'authenticated' || !session?.user) return
+    if (!isLoaded || !user || hasPrefilledRef.current) return
+    hasPrefilledRef.current = true
 
-    const dob =
-      session.user.dob instanceof Date
-        ? session.user.dob
-        : session.user.dob
-        ? new Date(session.user.dob)
-        : null
-
-    form.reset((prev) => ({
-      ...prev,
-      user: {
-        firstName: session.user.firstName ?? '',
-        lastName: session.user.lastName ?? '',
-        email: session.user.email ?? '',
-        phone: session.user.phone ?? '',
-        dob: session.user.dob ?? null,
-        idNumber: session.user.idNumber ?? '',
-        address: session.user.address ?? '',
-        nationality: session.user.nationality ?? '',
-        alternativeNumber: session.user.alternativeNumber ?? '',
-      },
-    }))
-  }, [session, status, form])
+    form.setValue('user.firstName', user.firstName ?? '')
+    form.setValue('user.lastName', user.lastName ?? '')
+    form.setValue('user.email', user.primaryEmailAddress?.emailAddress ?? '')
+    form.setValue('user.phone', (user.publicMetadata?.phone as string) ?? '')
+    form.setValue('user.idNumber', (user.publicMetadata?.idNumber as string) ?? '')
+    form.setValue('user.address', (user.publicMetadata?.address as string) ?? '')
+    form.setValue('user.nationality', (user.publicMetadata?.nationality as string) ?? '')
+    form.setValue('user.alternativeNumber', (user.publicMetadata?.alternativeNumber as string) ?? '')
+    form.setValue('user.dob', null)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, isLoaded])
 
   const getAuthParams = async () => {
     try {
@@ -156,7 +154,11 @@ export default function CreateApplication() {
       throw new Error(errorText || 'Upload failed')
     }
 
-    return await response.json()
+    const result = await response.json()
+    return {
+      url: result.url,
+      fileId: result.fileId,
+    }
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -207,10 +209,50 @@ export default function CreateApplication() {
     toast.info('File removed')
   }
 
+  const createApplication = useMutation(api.applications.createApplication)
+  const getUserByClerkId = useQuery(
+    api.users.getUserByClerkId,
+    user?.id ? { clerkId: user.id } : 'skip'
+  )
+  const courseIdValue = form.watch('courseId')
+  const checkExistingApplication = useQuery(
+    api.applications.checkExistingApplication,
+    getUserByClerkId && courseIdValue
+      ? { applicantId: getUserByClerkId._id, courseId: courseIdValue }
+      : 'skip'
+  )
+
   async function onSubmit(values: FormValues) {
     try {
       if (!selectedFiles.length) {
         toast.error('Please select at least one document.')
+        return
+      }
+
+      if (!user?.id) {
+        toast.error('You must be logged in to submit an application.')
+        return
+      }
+
+      // Resolve convex user from Clerk ID
+      if (!getUserByClerkId) {
+        toast.error(
+          'Your profile is not set up yet. Please click your user icon in the top-right corner to update your profile before applying.'
+        )
+        return
+      }
+
+      const convexUserId = getUserByClerkId._id
+
+      const courseId = values.courseId
+      if (!courseId) {
+        toast.error('Please select a programme/course.')
+        return
+      }
+
+      // Check for existing application before uploading files
+      if (checkExistingApplication) {
+        toast.error('You have already applied for this course. You cannot apply for the same course twice.')
         return
       }
 
@@ -233,42 +275,60 @@ export default function CreateApplication() {
         }
       }
 
-      let applicantId: string
-      if (session?.user?.id) {
-        applicantId = session.user.id
-      } else {
-        const userRes = await fetch('/api/users', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(values.user),
-        })
-
-        const userData = await userRes.json()
-        if (!userRes.ok) throw new Error(userData.message)
-        applicantId = userData._id
-      }
-
-      const appRes = await fetch('/api/applications', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...values,
-          documents: uploadedDocs,
-          applicantId,
-        }),
+      await createApplication({
+        applicantId: convexUserId,
+        courseId: courseId,
+        documents: uploadedDocs,
+        data: {
+          fullNameCompany: values.fullNameCompany,
+          sponsor: values.sponsor,
+          companyReg: values.companyReg,
+          sponsorEmail: values.sponsorEmail,
+          homeAddress: values.homeAddress,
+          phoneNumber: values.phoneNumber,
+          alternativeNumber: values.alternativeNumber,
+          genderDebtor: values.genderDebtor,
+          nationality: values.nationality,
+          employmentStatus: values.employmentStatus,
+          employerName: values.employerName,
+          employmentSector: values.employmentSector,
+          employerAddress: values.employerAddress,
+          maritalStatus: values.maritalStatus,
+          deliveryAddress: values.deliveryAddress,
+          provinceDelivery: values.provinceDelivery,
+          postalCodeDelivery: values.postalCodeDelivery,
+          deliveryMethod: values.deliveryMethod,
+          highestGradeAchieved: values.highestGradeAchieved,
+          highestGradeOther: values.highestGradeOther,
+          yearCompleted: values.yearCompleted,
+          schoolAttended: values.schoolAttended,
+          schoolProvince: values.schoolProvince,
+          qualifications: values.qualifications,
+          qualificationType: values.qualificationType,
+          socioEconomicStatus: values.socioEconomicStatus,
+          homeLanguage: values.homeLanguage,
+          homeLanguageOther: values.homeLanguageOther,
+          gender: values.gender,
+          race: values.race,
+          raceOther: values.raceOther,
+          specialNeeds: values.specialNeeds,
+          disabilities: values.disabilities,
+          examRequirements: values.examRequirements,
+          status: 'PENDING',
+        },
       })
-
-      if (!appRes.ok) {
-        const err = await appRes.json()
-        throw new Error(err.message)
-      }
 
       toast.success('Application submitted successfully')
       form.reset()
       setSelectedFiles([])
       setFileStatuses({})
+      
+      if (onSuccess) {
+        onSuccess()
+      }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Submission failed')
+      const message = err instanceof Error ? err.message : 'Submission failed'
+      toast.error(message)
     } finally {
       setIsUploading(false)
     }
@@ -292,6 +352,14 @@ export default function CreateApplication() {
             remove={remove}
           />
 
+          {checkExistingApplication && (
+            <div className='p-4 bg-amber-50 border border-amber-200 rounded-lg'>
+              <p className='text-amber-800 font-medium'>
+                You have already applied for this course. You cannot apply for the same course twice.
+              </p>
+            </div>
+          )}
+
           <NewProgrammeDetailsSection form={form} />
           <DemographicsSection form={form} />
 
@@ -303,7 +371,7 @@ export default function CreateApplication() {
 
           <StudentInformationSection
             form={form}
-            isLoggedIn={status === 'authenticated'}
+            isLoggedIn={isLoaded && !!user}
           />
 
           <div className='space-y-4'>
@@ -401,7 +469,7 @@ export default function CreateApplication() {
 
           <Button
             type='submit'
-            disabled={isUploading || selectedFiles.length === 0}
+            disabled={isUploading || selectedFiles.length === 0 || checkExistingApplication}
             className='w-full text-lg'
           >
             {isUploading ? (
@@ -409,6 +477,8 @@ export default function CreateApplication() {
                 <Loader2 className='mr-2 h-5 w-5 animate-spin' />
                 Uploading Files...
               </>
+            ) : checkExistingApplication ? (
+              'Already Applied'
             ) : (
               'Submit Application'
             )}

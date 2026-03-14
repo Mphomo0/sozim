@@ -89,40 +89,45 @@ export default function ContactForm() {
   }
 
   return (
-    <div>
-      <Card>
-        <CardHeader>
-          <CardTitle>Send us a Message</CardTitle>
-          <CardDescription>
+    <div className="h-full">
+      <Card className="h-full border-slate-200/60 bg-white/80 backdrop-blur-md shadow-2xl rounded-3xl overflow-hidden relative group">
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-600 to-sky-400" />
+        <CardHeader className="pb-4">
+          <CardTitle className="text-3xl font-extrabold tracking-tight text-slate-900">
+            Send us a Message
+          </CardTitle>
+          <CardDescription className="text-lg text-slate-500 font-light">
             Fill out the form below and we&lsquo;ll get back to you within 24
             hours
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-4">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-6 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="firstName">First Name *</Label>
+                <Label htmlFor="firstName" className="text-sm font-bold text-slate-700 ml-1 uppercase tracking-wider">First Name *</Label>
                 <Input
                   id="firstName"
-                  placeholder="Enter your first name"
+                  placeholder="John"
+                  className="h-12 bg-slate-50/50 border-slate-200 rounded-xl focus:ring-blue-500 focus:border-blue-500 transition-all"
                   {...register('firstName')}
                 />
                 {errors.firstName && (
-                  <p className="text-sm text-red-500">
+                  <p className="text-xs font-bold text-red-500 mt-1 ml-1 animate-pulse">
                     {errors.firstName.message}
                   </p>
                 )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="lastName">Last Name *</Label>
+                <Label htmlFor="lastName" className="text-sm font-bold text-slate-700 ml-1 uppercase tracking-wider">Last Name *</Label>
                 <Input
                   id="lastName"
-                  placeholder="Enter your last name"
+                  placeholder="Doe"
+                  className="h-12 bg-slate-50/50 border-slate-200 rounded-xl focus:ring-blue-500 focus:border-blue-500 transition-all"
                   {...register('lastName')}
                 />
                 {errors.lastName && (
-                  <p className="text-sm text-red-500">
+                  <p className="text-xs font-bold text-red-500 mt-1 ml-1 animate-pulse">
                     {errors.lastName.message}
                   </p>
                 )}
@@ -130,42 +135,44 @@ export default function ContactForm() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email Address *</Label>
+              <Label htmlFor="email" className="text-sm font-bold text-slate-700 ml-1 uppercase tracking-wider">Email Address *</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="your.email@example.com"
+                placeholder="john.doe@example.com"
+                className="h-12 bg-slate-50/50 border-slate-200 rounded-xl focus:ring-blue-500 focus:border-blue-500 transition-all"
                 {...register('email')}
               />
               {errors.email && (
-                <p className="text-sm text-red-500">{errors.email.message}</p>
+                <p className="text-xs font-bold text-red-500 mt-1 ml-1 animate-pulse">{errors.email.message}</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="phone">Phone Number</Label>
+              <Label htmlFor="phone" className="text-sm font-bold text-slate-700 ml-1 uppercase tracking-wider">Phone Number</Label>
               <Input
                 id="phone"
                 type="tel"
                 placeholder="+27 XX XXX XXXX"
+                className="h-12 bg-slate-50/50 border-slate-200 rounded-xl focus:ring-blue-500 focus:border-blue-500 transition-all"
                 {...register('phone')}
               />
               {errors.phone && (
-                <p className="text-sm text-red-500">{errors.phone.message}</p>
+                <p className="text-xs font-bold text-red-500 mt-1 ml-1 animate-pulse">{errors.phone.message}</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="subject">Subject *</Label>
+              <Label htmlFor="subject" className="text-sm font-bold text-slate-700 ml-1 uppercase tracking-wider">Subject *</Label>
               <Controller
                 name="subject"
                 control={control}
                 render={({ field }) => (
                   <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger id="subject" className="w-full">
+                    <SelectTrigger id="subject" className="w-full h-12 bg-slate-50/50 border-slate-200 rounded-xl focus:ring-blue-500 focus:border-blue-500 transition-all">
                       <SelectValue placeholder="Select a subject" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="rounded-xl">
                       <SelectItem value="general">General Inquiry</SelectItem>
                       <SelectItem value="admissions">Admissions</SelectItem>
                       <SelectItem value="programs">
@@ -178,29 +185,29 @@ export default function ContactForm() {
                 )}
               />
               {errors.subject && (
-                <p className="text-sm text-red-500">{errors.subject.message}</p>
+                <p className="text-xs font-bold text-red-500 mt-1 ml-1 animate-pulse">{errors.subject.message}</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="message">Message *</Label>
+              <Label htmlFor="message" className="text-sm font-bold text-slate-700 ml-1 uppercase tracking-wider">Message *</Label>
               <Textarea
                 id="message"
                 placeholder="Tell us how we can help you..."
-                className="h-60"
+                className="min-h-[160px] bg-slate-50/50 border-slate-200 rounded-xl focus:ring-blue-500 focus:border-blue-500 transition-all"
                 {...register('message')}
               />
               {errors.message && (
-                <p className="text-sm text-red-500">{errors.message.message}</p>
+                <p className="text-xs font-bold text-red-500 mt-1 ml-1 animate-pulse">{errors.message.message}</p>
               )}
             </div>
 
             <Button
               type="submit"
-              className="w-full bg-gradient-to-r from-slate-950 to-sky-700"
+              className="w-full h-14 text-lg font-bold rounded-2xl bg-gradient-to-r from-slate-900 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white shadow-xl hover:shadow-blue-500/20 hover:-translate-y-0.5 transition-all duration-300"
               disabled={isSubmitting}
             >
-              <Send className="mr-2 h-4 w-4" />
+              <Send className="mr-3 h-5 w-5" />
               {isSubmitting ? 'Sending...' : 'Send Message'}
             </Button>
           </form>

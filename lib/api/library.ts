@@ -1,13 +1,6 @@
-import type {
-  Record as RecordType,
-  HarvestRequest,
-  HarvestResponse,
-  HealthResponse,
-  Facets,
-} from '@/lib/types'
-import { api } from './client'
-
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || '/api'
+import { convexClient } from '@/lib/convex-client'
+import { api } from '@/convex/_generated/api'
+import type { Record as RecordType, HarvestResponse, Facets } from '@/lib/types'
 
 export interface SearchParams {
   category?: 'all' | 'theses' | 'articles' | 'research'
@@ -35,24 +28,42 @@ export interface ResearchLiveSearchParams {
 }
 
 export const libraryApi = {
-  // Main harvest/search endpoint
   search: async (params: SearchParams): Promise<HarvestResponse> => {
-    return api.post<HarvestResponse>('/harvest', params)
+    const result = await convexClient.query(api.records.getRecords, {
+      category: params.category,
+      query: params.query,
+      page: params.page || 1,
+      pageSize: params.pageSize || 24,
+      filters: params.filters,
+    })
+    return {
+      results: result.results || [],
+      total: result.total || 0,
+      page: result.page || 1,
+      pageSize: result.pageSize || 24,
+      hasMore: result.hasMore || false,
+      facets: result.facets || null,
+    }
   },
 
-  // E-LIS live search
   searchElis: async (params: ElisSearchParams) => {
-    return api.post('/elis-live-search', params)
+    return convexClient.query(api.records.searchElis, {
+      query: params.query,
+      page: params.page || 1,
+      pageSize: params.pageSize || 24,
+    })
   },
 
-  // OpenAlex live search
   searchResearchLive: async (params: ResearchLiveSearchParams) => {
-    return api.post('/research-live', params)
+    return convexClient.query(api.records.searchResearchLive, {
+      query: params.query,
+      page: params.page || 1,
+      pageSize: params.pageSize || 24,
+    })
   },
 
-  // Export records as RIS
   exportRIS: async (records: RecordType[]): Promise<Blob> => {
-    const response = await fetch(`${API_BASE}/ris`, {
+    const response = await fetch('/api/ris', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -67,18 +78,37 @@ export const libraryApi = {
     return response.blob()
   },
 
-  // Get system health/stats
-  getHealth: async (): Promise<HealthResponse> => {
-    return api.get<HealthResponse>('/health')
+  getHealth: async () => {
+    const meta = await convexClient.query(api.records.getLibraryMeta, { key: 'main' })
+    return {
+      ok: true,
+      service: 'library',
+      version: '1.0.0',
+      timestamp: new Date().toISOString(),
+      repositories: {
+        academic: 9,
+        research_data: 3,
+        includes_elis: true,
+        includes_openalex_live: false,
+      },
+      data: {
+        total_records: meta?.counts?.total || 0,
+        theses: meta?.counts?.theses || 0,
+        articles: meta?.counts?.articles || 0,
+        research: meta?.counts?.research || 0,
+      },
+      harvest: {
+        last_harvest: meta?.lastHarvest ? new Date(meta.lastHarvest).toISOString() : 'Never',
+        next_harvest: 'Not scheduled',
+      },
+    }
   },
 
-  // Trigger incremental harvest
   harvestIncremental: async (category: string = 'all') => {
-    return api.post('/harvest-incremental', { category })
+    return convexClient.action(api.records.harvestIncremental, { category })
   },
 
-  // Trigger manual harvest
   harvestNow: async () => {
-    return api.post('/harvest-now')
+    return convexClient.action(api.records.harvestFull, {})
   },
 }

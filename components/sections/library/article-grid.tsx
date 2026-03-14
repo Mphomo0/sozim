@@ -78,13 +78,13 @@ export function ArticleGrid({
               onClick={onClearSelection}
               variant="outline"
               size="sm"
-              className="text-sm"
+              className="text-sm max-sm:w-auto"
             >
               Clear Selection
             </Button>
             <Button
               onClick={onExportSelected}
-              className="bg-blue-900 hover:bg-blue-800 text-white text-sm"
+              className="bg-blue-900 hover:bg-blue-800 text-white text-sm max-sm:w-auto"
               size="sm"
             >
               <FileText className="w-4 h-4 mr-2" />
@@ -222,7 +222,7 @@ export function ArticleGrid({
                     onClick={() =>
                       window.open(record.url, '_blank', 'noopener,noreferrer')
                     }
-                    className="bg-gradient-to-r from-blue-900 to-blue-800 hover:from-blue-800 hover:to-blue-700 text-white text-sm px-5 font-medium shadow-sm hover:shadow-md transition-all duration-200"
+                    className="bg-gradient-to-r from-blue-900 to-blue-800 hover:from-blue-800 hover:to-blue-700 text-white text-sm px-5 font-medium shadow-sm hover:shadow-md transition-all duration-200 max-sm:w-auto"
                   >
                     <ExternalLink className="w-4 h-4 mr-2" />
                     Read Full Article
@@ -230,7 +230,7 @@ export function ArticleGrid({
                 ) : (
                   <Button
                     disabled
-                    className="bg-gray-200 text-gray-400 text-sm px-5 font-medium cursor-not-allowed"
+                    className="bg-gray-200 text-gray-400 text-sm px-5 font-medium cursor-not-allowed max-sm:w-auto"
                   >
                     <FileText className="w-4 h-4 mr-2" />
                     No Link Available

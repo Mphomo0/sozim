@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { useForm, Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -9,11 +9,13 @@ import { toast } from 'react-toastify'
 import { CourseForm } from './CourseForm'
 import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
+import { useQuery, useMutation } from 'convex/react'
+import { api } from '@/convex/_generated/api'
+import { Id } from '@/convex/_generated/dataModel'
 
 export function EditCourse() {
   const router = useRouter()
   const { id } = useParams()
-  const [loading, setLoading] = useState(true)
   
   const {
     register,
@@ -42,47 +44,36 @@ export function EditCourse() {
     },
   })
 
+  // Convex queries structure
+  const courseId = typeof id === 'string' ? (id as Id<'courses'>) : undefined
+  const course = useQuery(api.courses.getCourseById, courseId ? { id: courseId } : "skip")
+  const updateCourseMut = useMutation(api.courses.updateCourse)
+
   useEffect(() => {
-    async function fetchCourse() {
-      if (!id) return
-      try {
-        const res = await fetch(`/api/courses/${id}`)
-        if (!res.ok) throw new Error('Failed to fetch course')
-        const data = await res.json()
-        const course: Course = data.data || data
-        
-        reset({
-          name: course.name,
-          code: course.code,
-          description: course.description || '',
-          duration: course.duration || '',
-          isOpen: course.isOpen ?? true,
-          qualification: course.qualification || '',
-          level: course.level || '',
-          categoryId:
-            typeof course.categoryId === 'string'
-              ? course.categoryId
-              : course.categoryId?._id || '',
-          modules: {
-            knowledgeModules: course.modules?.knowledgeModules || [],
-            practicalSkillModules: course.modules?.practicalSkillModules || [],
-            workExperienceModules: course.modules?.workExperienceModules || [],
-          },
-          creditTotals: course.creditTotals || {},
-          entryRequirements: course.entryRequirements || [],
-        })
-      } catch (err) {
-        console.error(err)
-        toast.error('Failed to load course')
-        router.push('/dashboard/admin/courses')
-      } finally {
-        setLoading(false)
-      }
+    if (course) {
+      reset({
+        name: course.name,
+        code: course.code,
+        description: course.description || '',
+        duration: course.duration || '',
+        isOpen: course.isOpen ?? true,
+        qualification: course.qualification || '',
+        level: course.level || '',
+        categoryId: typeof course.categoryId === 'string' ? course.categoryId : course.actualCategoryId || '',
+        modules: {
+          knowledgeModules: course.modules?.knowledgeModules || [],
+          practicalSkillModules: course.modules?.practicalSkillModules || [],
+          workExperienceModules: course.modules?.workExperienceModules || [],
+        },
+        creditTotals: course.creditTotals || {},
+        entryRequirements: course.entryRequirements || [],
+      })
     }
-    fetchCourse()
-  }, [id, reset, router])
+  }, [course, reset])
 
   const onSubmit = async (data: CourseInput) => {
+    if (!courseId) return
+
     try {
       const cleanedModules = {
         knowledgeModules:
@@ -95,19 +86,12 @@ export function EditCourse() {
           [],
       }
 
-      const res = await fetch(`/api/courses/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      await updateCourseMut({
+          id: courseId,
           ...data,
           modules: cleanedModules,
-        }),
+          categoryId: data.categoryId as any,
       })
-
-      if (!res.ok) {
-        const err = await res.json()
-        throw new Error(err.error || 'Failed to update')
-      }
 
       toast.success('Course updated successfully')
       router.push('/dashboard/admin/courses')
@@ -118,7 +102,7 @@ export function EditCourse() {
     }
   }
 
-  if (loading) {
+  if (course === undefined) {
     return (
       <div className="flex items-center justify-center p-12">
         <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />

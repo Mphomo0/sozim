@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { ChevronRight, type LucideIcon } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 
@@ -36,14 +37,21 @@ export function NavMain({
   }[]
 }) {
   const pathname = usePathname()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   return (
     <SidebarGroup>
       <SidebarGroupLabel className="text-xs font-semibold text-indigo-900/50 uppercase tracking-wider mb-2">Management</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => {
-          // Check if any sub-item is active to keep collapsible open
-          const isItemActive = item.items?.some(subItem => pathname.startsWith(subItem.url))
+          // Check if any sub-item is active to keep collapsible open, only on client to prevent hydration mismatch
+          const isItemActive = mounted 
+            ? item.items?.some(subItem => pathname.startsWith(subItem.url))
+            : false
           
           return (
             <Collapsible key={item.title} asChild defaultOpen={item.isActive || isItemActive}>
@@ -65,8 +73,10 @@ export function NavMain({
                     <CollapsibleContent>
                       <SidebarMenuSub className="border-l-indigo-100 pr-0 mr-0">
                         {item.items?.map((subItem) => {
-                          // Exact match or starting with for sub-routes
-                          const isSubActive = pathname === subItem.url || (subItem.url !== '/dashboard/admin' && pathname.startsWith(subItem.url + '/'))
+                          // Exact match or starting with for sub-routes, only calculate on client
+                          const isSubActive = mounted 
+                            ? (pathname === subItem.url || (subItem.url !== '/dashboard/admin' && pathname.startsWith(subItem.url + '/')))
+                            : false
                           
                           return (
                             <SidebarMenuSubItem key={subItem.title}>

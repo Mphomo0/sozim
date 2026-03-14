@@ -1,9 +1,9 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import { toast } from 'react-toastify'
-import { Edit, Trash2, FileText, Plus, Calendar, Search } from 'lucide-react'
+import { Edit, Trash2, FileText, Plus, Calendar, Search, Download } from 'lucide-react'
 import { Pagination } from '@/components/global/Pagination'
 import { format } from 'date-fns'
 import { Input } from '@/components/ui/input'
@@ -17,94 +17,49 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
+import { useQuery, useMutation } from 'convex/react'
+import { api } from '@/convex/_generated/api'
+import { Id } from '@/convex/_generated/dataModel'
 
 interface DocumentsFile {
   fileId: string
   url: string
 }
 
-interface Applicant {
-  firstName: string
-  lastName: string
-  email: string
-}
-
-interface Course {
-  name: string
-}
-
-interface Application {
-  _id: string
-  applicantId: Applicant | string
-  courseId: Course | string
-  status: 'PENDING' | 'APPROVED' | 'REJECTED'
-  documents: DocumentsFile[]
-  createdAt: string
-}
-
-interface ApplicationsResponse {
-  data: Application[]
-  pagination: {
-    totalPages: number
-    page: number
-    limit: number
-    total: number
-    hasNextPage: boolean
-    hasPrevPage: boolean
-  }
-}
-
 export default function ListApplications() {
-  const [applications, setApplications] = useState<Application[]>([])
-  const [isLoading, setIsLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
   const [limit, setLimit] = useState(10)
-  const [totalPages, setTotalPages] = useState(1)
   const [searchTerm, setSearchTerm] = useState('')
-  const [debouncedSearch, setDebouncedSearch] = useState('')
 
-  // Debounce search input
-  useEffect(() => {
-    const timer = setTimeout(() => setDebouncedSearch(searchTerm), 500)
-    return () => clearTimeout(timer)
-  }, [searchTerm])
+  const applicationsRaw = useQuery(api.applications.getApplications, {})
+  const deleteAppMut = useMutation(api.applications.deleteApplication)
 
-  // --- Fetch Data ---
-  const fetchApplications = useCallback(async () => {
-    setIsLoading(true)
-    try {
-      const res = await fetch(
-        `/api/applications?page=${currentPage}&limit=${limit}&search=${debouncedSearch}`
-      )
-      if (!res.ok) throw new Error('Failed to fetch applications')
+  const isLoading = applicationsRaw === undefined
+  const allApplications = applicationsRaw || []
 
-      const data: ApplicationsResponse = await res.json()
-      setApplications(data.data)
-      setTotalPages(data.pagination.totalPages)
-    } catch (error: unknown) {
-      console.error(error)
-      const message =
-        error instanceof Error ? error.message : 'Failed to load applications'
-      toast.error(message)
-    } finally {
-      setIsLoading(false)
-    }
-  }, [currentPage, limit, debouncedSearch])
+  // Ensure data aligns with legacy typing for rendering
+  const result = searchTerm
+    ? allApplications.filter((app: any) => {
+        const userName = app.user ? `${app.user.firstName} ${app.user.lastName} ${app.user.clerkId}` : ''
+        const searchTarget = `${app.status} ${app.courseId} ${userName}`.toLowerCase()
+        return searchTarget.includes(searchTerm.toLowerCase())
+      })
+    : allApplications
 
-  useEffect(() => {
-    fetchApplications()
-  }, [fetchApplications])
+  const totalPages = Math.ceil(result.length / limit) || 1
+  const validPage = currentPage > totalPages ? totalPages : currentPage
+  const startIndex = (validPage - 1) * limit
+  const applications = result.slice(startIndex, startIndex + limit)
 
   // --- Delete Functionality ---
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: Id<'applications'>) => {
     if (!confirm('Are you sure you want to delete this application?')) return
 
     try {
-      const res = await fetch(`/api/applications/${id}`, { method: 'DELETE' })
-      if (!res.ok) throw new Error('Failed to delete application')
-
-      const data: Application = await res.json()
-      const fileIds = data.documents?.map((doc) => doc.fileId) || []
+      await deleteAppMut({ id })
+      // Keep ImageKit cleanup logic loosely (but missing file IDs without finding the matching app)
+      const targetApp = allApplications.find((a: any) => a._id === id)
+      const fileIds = (targetApp?.documents as any[])?.map((doc: any) => doc.fileId) || []
 
       if (fileIds.length > 0) {
         const delRes = await fetch('/api/images/delete-files', {
@@ -113,35 +68,47 @@ export default function ListApplications() {
           body: JSON.stringify({ fileIds }),
         })
         if (!delRes.ok) {
-          const err = await delRes.json()
-          console.warn('Failed to delete some files from ImageKit:', err)
-          // Continue anyway — application is deleted
+           console.warn('Failed to delete some files from ImageKit')
         }
       }
 
       toast.success('Application deleted successfully')
-      fetchApplications()
     } catch (error: unknown) {
       console.error(error)
-      const message =
-        error instanceof Error ? error.message : 'Error deleting application'
-      toast.error(message)
+      toast.error('Error deleting application')
     }
   }
 
   // --- Helpers ---
-  const getApplicantName = (app: Application) => {
-    if (typeof app.applicantId === 'object' && app.applicantId) {
-      return `${app.applicantId.firstName} ${app.applicantId.lastName}`
+  const renderApplicantInfo = (app: any) => {
+    if (app.user) {
+      return (
+        <div className="flex flex-col">
+          <span className="font-bold text-gray-900 tracking-tight">
+            {app.user.firstName} {app.user.lastName}
+          </span>
+          <span className="text-[10px] text-indigo-500 font-mono mt-1 uppercase bg-indigo-50 px-1.5 py-0.5 rounded w-fit">
+            CLERK: {app.user.clerkId || 'N/A'}
+          </span>
+        </div>
+      )
     }
-    return 'Unknown Applicant'
+    
+    // Fallback for cases where join failed or legacy string ID
+    const displayId = typeof app.applicantId === 'string' ? app.applicantId : 'Unknown'
+    return (
+      <div className="flex flex-col">
+        <span className="font-medium text-gray-500">Unknown Applicant</span>
+        <span className="text-[10px] text-gray-400 font-mono mt-1 uppercase">ID: {displayId.slice(-8)}</span>
+      </div>
+    )
   }
 
-  const getCourseName = (app: Application) => {
+  const getCourseName = (app: any) => {
     if (typeof app.courseId === 'object' && app.courseId) {
       return app.courseId.name
     }
-    return 'Unknown Course'
+    return app.courseId || 'Unknown Course'
   }
 
   const getStatusBadge = (status: string) => {
@@ -182,13 +149,14 @@ export default function ListApplications() {
             }}
           />
         </div>
-        <Link
-          href="/dashboard/admin/applications/new"
-          className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 hover:bg-indigo-700 transition shadow-sm active:scale-95 font-medium"
-        >
-          <Plus size={18} />
-          New Application
-        </Link>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <a href="/api/export/applications" download>
+            <Button variant="outline" className="h-11 px-4 rounded-xl border-gray-200 text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-sm">
+              <Download className="h-4 w-4 mr-2 hidden sm:inline" />
+              Export
+            </Button>
+          </a>
+        </div>
       </div>
 
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
@@ -199,68 +167,113 @@ export default function ListApplications() {
             <p className="text-gray-500 mt-1">No results match your current search.</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader className="bg-gray-50/50">
-                <TableRow>
-                  <TableHead className="font-bold text-gray-900 h-14 pl-8">Applicant</TableHead>
-                  <TableHead className="font-bold text-gray-900 h-14">Course</TableHead>
-                  <TableHead className="font-bold text-gray-900 h-14">Status</TableHead>
-                  <TableHead className="font-bold text-gray-900 h-14">Docs</TableHead>
-                  <TableHead className="font-bold text-gray-900 h-14">Submitted</TableHead>
-                  <TableHead className="text-right font-bold text-gray-900 h-14 pr-8">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {applications.map((app) => (
-                  <TableRow key={app._id} className="hover:bg-gray-50/50 transition-colors group">
-                    <TableCell className="pl-8 py-4 font-medium text-gray-900">
-                      {getApplicantName(app)}
-                    </TableCell>
-                    <TableCell className="text-gray-700 font-medium">
-                      {getCourseName(app)}
-                    </TableCell>
-                    <TableCell>
-                      {getStatusBadge(app.status)}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1.5 text-gray-500 text-sm font-medium bg-gray-50 px-2 py-1 rounded inline-flex">
-                        <FileText size={14} className="text-gray-400" />
-                        {app.documents?.length || 0}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-gray-500 text-sm">
-                      <div className="flex items-center gap-1.5">
-                        <Calendar size={14} className="text-gray-400" />
-                        {format(new Date(app.createdAt), 'dd MMM yyyy')}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right pr-6">
-                      <div className="flex items-center justify-end gap-1 transition-opacity translate-x-2 duration-300">
-                        <Link href={`/dashboard/admin/applications/edit/${app._id}`} passHref>
-                           <Button
+          <>
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto">
+              <Table>
+                <TableHeader className="bg-gray-50/50">
+                  <TableRow>
+                    <TableHead className="font-bold text-gray-900 h-14 pl-8">Applicant</TableHead>
+                    <TableHead className="font-bold text-gray-900 h-14">Course</TableHead>
+                    <TableHead className="font-bold text-gray-900 h-14">Status</TableHead>
+                    <TableHead className="font-bold text-gray-900 h-14">Docs</TableHead>
+                    <TableHead className="font-bold text-gray-900 h-14">Submitted</TableHead>
+                    <TableHead className="text-right font-bold text-gray-900 h-14 pr-8">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {applications.map((app) => (
+                    <TableRow key={app._id} className="hover:bg-gray-50/50 transition-colors group">
+                      <TableCell className="pl-8 py-4 font-medium text-gray-900">
+                        {renderApplicantInfo(app)}
+                      </TableCell>
+                      <TableCell className="text-gray-700 font-medium">
+                        {getCourseName(app)}
+                      </TableCell>
+                      <TableCell>
+                        {getStatusBadge(app.status || 'PENDING')}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1.5 text-gray-500 text-sm font-medium bg-gray-50 px-2 py-1 rounded inline-flex">
+                          <FileText size={14} className="text-gray-400" />
+                          {((app.documents as any[]) || []).length}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-gray-500 text-sm">
+                        <div className="flex items-center gap-1.5">
+                          <Calendar size={14} className="text-gray-400" />
+                          {app._creationTime ? format(new Date(app._creationTime), 'dd MMM yyyy') : ''}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right pr-6">
+                        <div className="flex items-center justify-end gap-1 transition-opacity translate-x-2 duration-300">
+                          <Link href={`/dashboard/admin/applications/edit/${app._id}`} passHref>
+                             <Button
+                              variant="ghost"
+                              size="icon"
+                              className="text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-lg"
+                            >
+                              <Edit size={18} />
+                            </Button>
+                          </Link>
+                          <Button
                             variant="ghost"
                             size="icon"
-                            className="text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-lg"
+                            onClick={() => handleDelete(app._id)}
+                            className="text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded-lg"
                           >
-                            <Edit size={18} />
+                            <Trash2 size={18} />
                           </Button>
-                        </Link>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDelete(app._id)}
-                          className="text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded-lg"
-                        >
-                          <Trash2 size={18} />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+            
+            {/* Mobile Card View */}
+            <div className="md:hidden flex flex-col divide-y divide-gray-100">
+              {applications.map((app) => (
+                <div key={app._id} className="p-4 space-y-4 hover:bg-gray-50/50 transition-colors">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <div className="mb-1">{renderApplicantInfo(app)}</div>
+                      <p className="text-sm font-medium text-gray-600 mt-1">{getCourseName(app)}</p>
+                    </div>
+                    <div>{getStatusBadge(app.status || 'PENDING')}</div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between text-sm text-gray-500 bg-gray-50 p-3 rounded-lg border border-gray-100">
+                     <div className="flex items-center gap-2">
+                       <FileText size={14} className="text-gray-400" />
+                       <span className="font-medium">{((app.documents as any[]) || []).length} Docs</span>
+                     </div>
+                     <div className="flex items-center gap-2">
+                       <Calendar size={14} className="text-gray-400" />
+                       <span>{app._creationTime ? format(new Date(app._creationTime), 'MMM dd, yyyy') : ''}</span>
+                     </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-end gap-2 pt-3 border-t border-gray-100">
+                    <Link href={`/dashboard/admin/applications/edit/${app._id}`} passHref className="flex-1">
+                      <Button variant="outline" className="w-full h-10 text-indigo-600 hover:text-indigo-800 border-indigo-100 hover:border-indigo-200 hover:bg-indigo-50 rounded-xl transition-all active:scale-[0.98]">
+                        <Edit size={16} className="mr-2" /> Edit
+                      </Button>
+                    </Link>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-10 w-10 text-rose-600 hover:text-rose-800 border-rose-100 hover:border-rose-200 hover:bg-rose-50 rounded-xl transition-all active:scale-95"
+                      onClick={() => handleDelete(app._id)}
+                    >
+                      <Trash2 size={16} />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
         )}
 
         {/* Pagination */}

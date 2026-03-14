@@ -26,10 +26,6 @@ const data = {
       isActive: true,
       items: [
         {
-          title: 'Add New',
-          url: '/dashboard/admin/applications/new',
-        },
-        {
           title: 'View All',
           url: '/dashboard/admin/applications',
         },
@@ -40,11 +36,6 @@ const data = {
       url: '#',
       icon: CircleUser,
       items: [
-        {
-          title: 'Add New',
-          url: '/dashboard/admin/users/new',
-        },
-
         {
           title: 'View Users',
           url: '/dashboard/admin/users',

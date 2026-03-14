@@ -10,8 +10,13 @@ import { CategoryForm } from './CategoryForm'
 import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
 
+import { useMutation } from 'convex/react'
+import { api } from '@/convex/_generated/api'
+
 export function CreateCategory() {
   const router = useRouter()
+  const createCategory = useMutation(api.categories.createCategory)
+  
   const {
     register,
     handleSubmit,
@@ -23,20 +28,11 @@ export function CreateCategory() {
 
   const onSubmit = async (data: CourseCategoryInput) => {
     try {
-      const res = await fetch('/api/categories', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: data.name.trim(),
-          code: data.code.trim(),
-          description: data.description?.trim() || undefined,
-        }),
+      await createCategory({
+        name: data.name.trim(),
+        code: data.code.trim(),
+        description: data.description?.trim() || undefined,
       })
-
-      if (!res.ok) {
-        const err = await res.json()
-        throw new Error(err.error || 'Creation failed')
-      }
 
       toast.success('Category created successfully')
       router.push('/dashboard/admin/courses/category')

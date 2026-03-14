@@ -14,10 +14,13 @@ import { CategoryForm } from './CategoryForm'
 import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
 
+import { useQuery, useMutation } from 'convex/react'
+import { api } from '@/convex/_generated/api'
+import { Id } from '@/convex/_generated/dataModel'
+
 export function EditCategory() {
   const router = useRouter()
   const { id } = useParams()
-  const [loading, setLoading] = useState(true)
 
   const {
     register,
@@ -28,41 +31,30 @@ export function EditCategory() {
     resolver: zodResolver(courseCategorySchema),
   })
 
+  const categoryId = typeof id === 'string' ? (id as Id<'courseCategories'>) : undefined
+  const category = useQuery(api.categories.getCategoryById, categoryId ? { id: categoryId } : "skip")
+  const updateCategory = useMutation(api.categories.updateCategory)
+
   useEffect(() => {
-    async function fetchCategory() {
-      if (!id) return
-      try {
-        const res = await fetch(`/api/categories/${id}`)
-        if (!res.ok) throw new Error('Failed to fetch category')
-        const data = await res.json()
-        reset(data)
-      } catch (err) {
-        console.error(err)
-        toast.error('Failed to load category')
-        router.push('/dashboard/admin/courses/category')
-      } finally {
-        setLoading(false)
-      }
+    if (category) {
+      reset({
+        name: category.name,
+        code: category.code,
+        description: category.description || '',
+      })
     }
-    fetchCategory()
-  }, [id, reset, router])
+  }, [category, reset])
 
   const onSubmit = async (data: CourseCategoryInput) => {
-    try {
-      const res = await fetch(`/api/categories/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: data.name.trim(),
-          code: data.code.trim(),
-          description: data.description?.trim() || undefined,
-        }),
-      })
+    if (!categoryId) return
 
-      if (!res.ok) {
-        const err = await res.json()
-        throw new Error(err.error || 'Update failed')
-      }
+    try {
+      await updateCategory({
+        id: categoryId,
+        name: data.name.trim(),
+        code: data.code.trim(),
+        description: data.description?.trim() || undefined,
+      })
 
       toast.success('Category updated successfully')
       router.push('/dashboard/admin/courses/category')
@@ -73,7 +65,7 @@ export function EditCategory() {
     }
   }
 
-  if (loading) {
+  if (category === undefined) {
     return (
       <div className="flex items-center justify-center p-12">
         <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />

@@ -55,22 +55,22 @@ async function chooseElisEndpointForSearch(): Promise<ElisEndpointChoice> {
     const url = `${ELIS_PRIMARY}?verb=ListRecords${smallQuery}`
     const xml = await fetchWithRetry(url)
     if (xml && xml.length > 200 && /<record>/i.test(xml)) {
-      console.log('   E-LIS primary endpoint OK for search')
+      
       return { endpoint: ELIS_PRIMARY, used: 'primary' }
     }
   } catch (e) {
-    console.log('   E-LIS primary search test failed:', (e as Error).message)
+    // Primary endpoint failed, trying backup
   }
 
   try {
     const url = `${ELIS_BACKUP}?verb=ListRecords${smallQuery}`
     const xml = await fetchWithRetry(url)
     if (xml && xml.length > 200 && /<record>/i.test(xml)) {
-      console.log('   E-LIS backup endpoint OK for search')
+    
       return { endpoint: ELIS_BACKUP, used: 'backup' }
     }
   } catch (e) {
-    console.log('   E-LIS backup search test failed:', (e as Error).message)
+    // Backup endpoint also failed
   }
 
   return { endpoint: null, used: null }
@@ -85,14 +85,12 @@ async function searchEliSDirectly(
 
   const resolved = await chooseElisEndpointForSearch()
   if (!resolved.endpoint) {
-    console.log('   E-LIS live search: no working endpoint')
+   
     return { results: [], endpointUsed: null }
   }
 
   const endpoint = resolved.endpoint
-  console.log(
-    `   E-LIS live search using ${resolved.used} endpoint: ${endpoint}`,
-  )
+
 
   const parsed = parseSearchQuery(query)
   const limitTotal = page * pageSize
@@ -107,23 +105,20 @@ async function searchEliSDirectly(
         ? `${endpoint}?verb=ListRecords&resumptionToken=${encodeURIComponent(token)}`
         : `${endpoint}?verb=ListRecords&metadataPrefix=oai_dc`
 
-      console.log(
-        `   Fetching E-LIS page ${pages + 1}, token: ${token ? 'yes' : 'no'}`,
-      )
-
+    
       const xml = await fetchWithRetry(searchUrl)
       if (!xml || xml.length < 200) break
 
       if (xml.includes('<error code=')) {
         const errorMatch = xml.match(/<error code="([^"]*)">([^<]*)<\/error>/)
         if (errorMatch) {
-          console.log(`   E-LIS error: ${errorMatch[1]} - ${errorMatch[2]}`)
+         
           if (errorMatch[1] === 'noRecordsMatch') break
         }
       }
 
       const { records, next } = parseOai(xml, 'elis')
-      console.log(`   E-LIS page ${pages + 1} found ${records.length} records`)
+      
 
       for (const record of records) {
         const haystack = buildSearchHaystack(record)
@@ -140,9 +135,7 @@ async function searchEliSDirectly(
       await sleep(800)
     }
 
-    console.log(
-      `   E-LIS search completed: ${allMatches.length} matching records`,
-    )
+   
 
     const offset = (page - 1) * pageSize
     const slice = allMatches.slice(offset, offset + pageSize)
@@ -178,9 +171,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       })
     }
 
-    console.log(
-      `🔍 E-LIS Live Search: "${trimmedQuery}" (page ${page}, pageSize ${pageSize})`,
-    )
+ 
     const { results, endpointUsed } = await searchEliSDirectly(
       trimmedQuery,
       page,

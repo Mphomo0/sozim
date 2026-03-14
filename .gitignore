@@ -50,3 +50,5 @@ PROFESSIONAL_LIBRARY_SUMMARY.md
 URL_FIX_COMPLETE.md
 URL_FIX.md
 VERCEL_DEPLOYMENT.md
+# clerk configuration (can include secrets)
+/.clerk/

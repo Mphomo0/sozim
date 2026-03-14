@@ -19,17 +19,17 @@ export interface Record {
   id: string
   title: string
   authors: string[]
-  description: string
+  description?: string
   keywords: string[]
   year?: number
   source: string
-  type: RecordType
-  identifier: string
-  identifierType: IdentifierType
-  url: string
-  category?: RecordCategory
-  createdAt?: Date
-  updatedAt?: Date
+  type: string
+  identifier?: string
+  identifierType?: string
+  url?: string
+  category?: string
+  importDate?: number
+  _id?: string
 }
 
 export interface MetaData {
@@ -76,6 +76,7 @@ export interface Facets {
   authors: FacetItem[]
   repositories: FacetItem[]
   types: FacetItem[]
+  categories: FacetItem[]
 }
 
 export interface FacetItem {
@@ -99,13 +100,13 @@ export interface HarvestRequest {
 }
 
 export interface HarvestResponse {
-  success: boolean
+  success?: boolean
   results: Record[]
   total: number
   page: number
   pageSize: number
   hasMore: boolean
-  facets: Facets
+  facets?: Facets | null
 }
 
 export interface ElisSearchResult {

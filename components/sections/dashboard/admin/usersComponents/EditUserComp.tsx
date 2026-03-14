@@ -14,6 +14,10 @@ import {
   EyeOff,
   MapPin,
 } from 'lucide-react'
+import { useQuery, useMutation } from 'convex/react'
+import { api } from '@/convex/_generated/api'
+import { Id } from '@/convex/_generated/dataModel'
+import { updateUserInClerk } from '@/app/actions/user.actions'
 
 interface FormValues {
   firstName: string
@@ -30,7 +34,6 @@ interface FormValues {
 }
 
 export default function EditUserComp() {
-  const [loading, setLoading] = useState(true)
   const [showPassword, setShowPassword] = useState(false)
 
   const router = useRouter()
@@ -44,44 +47,36 @@ export default function EditUserComp() {
     formState: { errors, isSubmitting },
   } = useForm<FormValues>()
 
-  // Load user data
-  async function loadUser() {
-    try {
-      const res = await fetch(`/api/users/${_id}`)
-      if (!res.ok) throw new Error('Failed to load user')
-      const data = await res.json()
-      reset({
-        firstName: data.firstName || '',
-        lastName: data.lastName || '',
-        email: data.email || '',
-        phone: data.phone || '',
-        alternativeNumber: data.alternativeNumber || '',
-        dob: data.dob ? new Date(data.dob).toISOString().split('T')[0] : '',
-        address: data.address || '',
-        idNumber: data.idNumber || '',
-        nationality: data.nationality || '',
-        role: data.role || 'USER',
-      })
-    } catch (error) {
-      console.error(error)
-      toast.error('Failed to load user')
-    } finally {
-      setLoading(false)
-    }
-  }
+  const userId = typeof _id === 'string' ? (_id as Id<'users'>) : undefined
+  const user = useQuery(api.users.getUserById, userId ? { id: userId } : 'skip')
+  const updateUser = useMutation(api.users.updateUser)
 
   useEffect(() => {
-    if (_id) loadUser()
-  }, [_id])
+    if (user) {
+      reset({
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        alternativeNumber: user.alternativeNumber || '',
+        dob: user.dob ? new Date(user.dob).toISOString().split('T')[0] : '',
+        address: user.address || '',
+        idNumber: user.idNumber || '',
+        nationality: user.nationality || '',
+        role: (user.role as any) || 'USER',
+      })
+    }
+  }, [user, reset])
 
   // Submit handler
   async function onSubmit(form: FormValues) {
+    if (!userId || !user) return
     try {
-      const payload: Partial<FormValues> = {}
+      const payload: any = {}
 
       Object.entries(form).forEach(([key, value]) => {
         if (value !== undefined && value !== '') {
-          payload[key as keyof FormValues] = value
+          payload[key] = value
         }
       })
 
@@ -90,15 +85,22 @@ export default function EditUserComp() {
         return
       }
 
-      const res = await fetch(`/api/users/${_id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      })
+      // If user is stored in Clerk, sync profile/password there first
+      if (user.clerkId && (payload.firstName || payload.lastName || payload.password)) {
+        const clerkRes = await updateUserInClerk(user.clerkId, {
+          firstName: payload.firstName,
+          lastName: payload.lastName,
+          password: payload.password
+        })
 
-      if (!res.ok) throw new Error('Failed to update user')
+        if (!clerkRes.success) {
+           toast.error(clerkRes.error || "Failed updating authentication layer")
+           return
+        }
+      }
 
-      await res.json()
+      await updateUser({ id: userId, ...payload })
+
       toast.success('User updated successfully')
       router.push('/dashboard/admin/users')
     } catch (error) {
@@ -107,7 +109,7 @@ export default function EditUserComp() {
     }
   }
 
-  if (loading) return <p className="p-5 text-center">Loading user...</p>
+  if (user === undefined) return <p className="p-5 text-center">Loading user...</p>
 
   return (
     <form
