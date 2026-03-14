@@ -29,12 +29,8 @@ export function useResearchLiveSearch(): UseResearchLiveSearchResult {
     setError(null)
 
     try {
-      const response = await libraryApi.searchResearchLive(params) as {
-        results: RecordType[]
-        total: number
-        hasMore: boolean
-      }
-      setRecords(response.results)
+      const response = await libraryApi.searchResearchLive(params)
+      setRecords(response.records)
       setTotal(response.total)
       setHasMore(response.hasMore)
     } catch (err) {

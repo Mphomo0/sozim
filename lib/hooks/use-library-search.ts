@@ -45,7 +45,7 @@ export function useLibrarySearch(
       setTotal(response.total)
       setPage(response.page)
       setHasMore(response.hasMore)
-      setFacets(response.facets)
+      setFacets(response.facets ?? null)
       setSearchParams(params)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Search failed')

@@ -158,7 +158,7 @@ export interface HealthResponse {
     articles: number
     research: number
   }
-  meta: MetaData | object
+  meta?: MetaData | object
   harvest: {
     last_harvest: string
     next_harvest: string

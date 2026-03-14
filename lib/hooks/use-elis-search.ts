@@ -29,14 +29,9 @@ export function useElisSearch(): UseElisSearchResult {
     setError(null)
 
     try {
-      const response = await libraryApi.searchElis(params) as {
-        results: RecordType[]
-        total: number
-        endpoint_used?: string | null
-      }
+      const response = await libraryApi.searchElis(params)
       setRecords(response.results)
-      setTotal(response.total)
-      setEndpointUsed(response.endpoint_used || null)
+      setEndpointUsed(response.endpointUsed)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'E-LIS search failed')
       setRecords([])
