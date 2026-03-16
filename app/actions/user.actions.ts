@@ -1,6 +1,7 @@
 'use server'
 
 import { clerkClient } from '@clerk/nextjs/server'
+import { convexClient, api } from '@/lib/convex-client'
 
 export async function createUserInClerk(data: {
   firstName: string;
@@ -78,5 +79,15 @@ export async function deleteUserInClerk(clerkId: string) {
        return { success: true }
     }
     return { success: false, error: error.errors?.[0]?.longMessage || error.message || 'Failed to delete user in authentication provider' }
+  }
+}
+
+export async function cleanupDuplicateUsers(email: string, clerkId: string) {
+  try {
+    const result = await convexClient.mutation(api.migration.cleanupDuplicateUsers, { email, clerkId })
+    return result
+  } catch (error: any) {
+    console.error('Error cleaning up duplicate users:', error)
+    return { success: false, error: error.message || 'Failed to cleanup duplicates' }
   }
 }

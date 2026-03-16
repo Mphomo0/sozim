@@ -75,3 +75,40 @@ export const setClerkId = mutation({
     return false;
   }
 });
+
+export const cleanupDuplicateUsers = mutation({
+  args: { email: v.string(), clerkId: v.string() },
+  handler: async (ctx, args) => {
+    const convexUsers = await ctx.db
+      .query("users")
+      .withIndex("by_email", (q) => q.eq("email", args.email))
+      .collect();
+
+    if (convexUsers.length <= 1) {
+      return { success: true, message: "No duplicates found", users: convexUsers };
+    }
+
+    const usersWithCorrectClerkId = convexUsers.filter((u) => u.clerkId === args.clerkId);
+    const duplicateUsers = convexUsers.filter((u) => u.clerkId !== args.clerkId);
+
+    let adminUser = usersWithCorrectClerkId.find((u) => u.role === "ADMIN");
+    
+    if (!adminUser && usersWithCorrectClerkId.length > 0) {
+      adminUser = usersWithCorrectClerkId[0];
+      await ctx.db.patch(adminUser._id, { role: "ADMIN" });
+    }
+
+    for (const dup of duplicateUsers) {
+      if (dup.role === "ADMIN" && adminUser) {
+        await ctx.db.patch(adminUser._id, { role: "ADMIN" });
+      }
+      await ctx.db.delete(dup._id);
+    }
+
+    return {
+      success: true,
+      message: `Cleaned up ${duplicateUsers.length} duplicate(s). Kept user with clerkId: ${args.clerkId}`,
+      remainingUser: adminUser,
+    };
+  },
+});
