@@ -1,15 +1,13 @@
 'use client'
 
-import { useState, useEffect, useMemo, useRef } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useClerk, useUser, SignInButton, UserButton } from '@clerk/nextjs'
 import { usePathname, useRouter } from 'next/navigation'
 import { useQuery } from 'convex/react'
 import { api } from '@/convex/_generated/api'
-import { Search, X, Upload, Loader2 } from 'lucide-react'
-import { importUsersFromCSV } from '@/app/actions/import-users.action'
-import { updateConvexUsersWithClerkIds } from '@/app/actions/update-convex-clerk-ids'
+import { Search, X } from 'lucide-react'
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
@@ -17,12 +15,6 @@ export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState('')
   const [showResults, setShowResults] = useState(false)
   const [favoritesCount, setFavoritesCount] = useState(0)
-  const [importing, setImporting] = useState(false)
-  const [importResult, setImportResult] = useState<{success: boolean; created: number; linked: number; errors: string[]} | null>(null)
-  const [linkingClerk, setLinkingClerk] = useState(false)
-  const [linkResult, setLinkResult] = useState<{success: boolean; updated: number; errors: string[]} | null>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const linkFileInputRef = useRef<HTMLInputElement>(null)
   const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>(
     {}
   )
@@ -238,111 +230,6 @@ export default function Navbar() {
 
         {/* Right Section: Login + Search */}
         <div className="flex items-center ml-auto space-x-4 lg:absolute lg:right-10">
-          <input
-            type="file"
-            ref={fileInputRef}
-            accept=".csv"
-            className="hidden"
-            onChange={async (e) => {
-              const file = e.target.files?.[0]
-              if (!file) return
-              
-              setImporting(true)
-              setImportResult(null)
-              
-              try {
-                const text = await file.text()
-                const result = await importUsersFromCSV(text)
-                setImportResult(result)
-              } catch (error: any) {
-                setImportResult({ success: false, created: 0, linked: 0, errors: [error.message] })
-              } finally {
-                setImporting(false)
-                if (fileInputRef.current) {
-                  fileInputRef.current.value = ''
-                }
-              }
-            }}
-          />
-          
-          {importResult && (
-            <div className={`text-sm px-3 py-1.5 rounded-full ${
-              importResult.success ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-            }`}>
-              Created: {importResult.created}, Linked: {importResult.linked}
-              {importResult.errors.length > 0 && (
-                <span className="ml-2 cursor-pointer" title={importResult.errors.slice(0, 5).join('\n')}>
-                  ({importResult.errors.length} errors)
-                </span>
-              )}
-            </div>
-          )}
-          
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            disabled={importing}
-            className="flex items-center gap-2 px-3 py-2 text-[14px] font-medium text-slate-700 bg-gray-100 rounded-full hover:bg-gray-200 transition disabled:opacity-50"
-          >
-            {importing ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Upload className="w-4 h-4" />
-            )}
-            <span className="max-sm:hidden">Import</span>
-          </button>
-          
-          <input
-            type="file"
-            ref={linkFileInputRef}
-            accept=".csv"
-            className="hidden"
-            onChange={async (e) => {
-              const file = e.target.files?.[0]
-              if (!file) return
-              
-              setLinkingClerk(true)
-              setLinkResult(null)
-              
-              try {
-                const text = await file.text()
-                const result = await updateConvexUsersWithClerkIds(text)
-                setLinkResult(result)
-              } catch (error: any) {
-                setLinkResult({ success: false, updated: 0, errors: [error.message] })
-              } finally {
-                setLinkingClerk(false)
-                if (linkFileInputRef.current) {
-                  linkFileInputRef.current.value = ''
-                }
-              }
-            }}
-          />
-          
-          {linkResult && (
-            <div className={`text-sm px-3 py-1.5 rounded-full ${
-              linkResult.success ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800'
-            }`}>
-              Linked: {linkResult.updated}
-              {linkResult.errors.length > 0 && (
-                <span className="ml-2 cursor-pointer" title={linkResult.errors.slice(0, 5).join('\n')}>
-                  ({linkResult.errors.length} errors)
-                </span>
-              )}
-            </div>
-          )}
-          
-          <button
-            onClick={() => linkFileInputRef.current?.click()}
-            disabled={linkingClerk}
-            className="flex items-center gap-2 px-3 py-2 text-[14px] font-medium text-slate-700 bg-blue-50 rounded-full hover:bg-blue-100 transition disabled:opacity-50"
-          >
-            {linkingClerk ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Upload className="w-4 h-4" />
-            )}
-            <span className="max-sm:hidden">Link Clerk</span>
-          </button>
           {user ? (
             <div className="flex items-center space-x-4">
               <Link
