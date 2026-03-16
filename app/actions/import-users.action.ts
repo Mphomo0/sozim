@@ -5,12 +5,12 @@ import { convexClient } from '@/lib/convex-client'
 import { api } from '@/convex/_generated/api'
 
 interface CSVRow {
-  email_address: string
+  id: string
   first_name: string
   last_name: string
-  password_hash?: string
+  primary_email_address: string
+  password_digest?: string
   password_hasher?: string
-  external_id?: string
 }
 
 function parseCSV(content: string): CSVRow[] {
@@ -18,11 +18,12 @@ function parseCSV(content: string): CSVRow[] {
   if (lines.length < 2) return []
 
   const delimiter = lines[0].includes('\t') ? '\t' : ','
-  const headers = lines[0].split(delimiter).map(h => h.trim().toLowerCase())
+  const headers = lines[0].split(delimiter).map(h => h.trim().toLowerCase().replace(/"/g, ''))
   const rows: CSVRow[] = []
 
   for (let i = 1; i < lines.length; i++) {
-    const values = lines[i].split(delimiter).map(v => v.trim())
+    const line = lines[i]
+    const values = line.split(delimiter).map(v => v.trim().replace(/"/g, ''))
     const row: any = {}
     headers.forEach((header, index) => {
       row[header] = values[index] || ''
@@ -56,9 +57,12 @@ export async function importUsersFromCSV(csvContent: string) {
 
   for (const row of parsed) {
     try {
-      const email = row.email_address?.trim()
+      const email = row.primary_email_address?.trim()
       const firstName = row.first_name?.trim() || ''
       const lastName = row.last_name?.trim() || ''
+      const passwordDigest = row.password_digest?.trim()
+      const passwordHasher = row.password_hasher?.trim()
+      const clerkIdFromCsv = row.id?.trim()
 
       if (!email) {
         results.errors.push(`Row skipped: missing email`)
@@ -76,17 +80,23 @@ export async function importUsersFromCSV(csvContent: string) {
         clerkUserId = existingClerkUsers.data[0].id
         results.created++
       } else {
-        const password = Math.random().toString(36).slice(-10) + 'A1!'
-
-        const clerkUser = await clerk.users.createUser({
+        const createData: any = {
           firstName,
           lastName,
           emailAddress: [email],
-          password,
-          skipPasswordChecks: true,
-          skipPasswordRequirement: true,
-          externalId: row.external_id || undefined,
-        })
+          externalId: clerkIdFromCsv || undefined,
+        }
+
+        if (passwordDigest && passwordHasher && passwordHasher.toLowerCase() === 'bcrypt') {
+          createData.passwordDigest = passwordDigest
+          createData.passwordHasher = 'bcrypt'
+        } else {
+          createData.password = Math.random().toString(36).slice(-10) + 'A1!'
+          createData.skipPasswordChecks = true
+          createData.skipPasswordRequirement = true
+        }
+
+        const clerkUser = await clerk.users.createUser(createData)
         clerkUserId = clerkUser.id
         results.created++
       }
@@ -103,7 +113,7 @@ export async function importUsersFromCSV(csvContent: string) {
 
     } catch (error: any) {
       console.error('Error importing user:', error)
-      results.errors.push(`Failed to import ${row.email_address}: ${error.message || 'Unknown error'}`)
+      results.errors.push(`Failed to import ${row.primary_email_address}: ${error.message || 'Unknown error'}`)
     }
   }
 
