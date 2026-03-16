@@ -17,11 +17,12 @@ function parseCSV(content: string): CSVRow[] {
   const lines = content.trim().split('\n')
   if (lines.length < 2) return []
 
-  const headers = lines[0].split(',').map(h => h.trim().toLowerCase())
+  const delimiter = lines[0].includes('\t') ? '\t' : ','
+  const headers = lines[0].split(delimiter).map(h => h.trim().toLowerCase())
   const rows: CSVRow[] = []
 
   for (let i = 1; i < lines.length; i++) {
-    const values = lines[i].split(',').map(v => v.trim())
+    const values = lines[i].split(delimiter).map(v => v.trim())
     const row: any = {}
     headers.forEach((header, index) => {
       row[header] = values[index] || ''

@@ -266,7 +266,11 @@ export default function Navbar() {
               importResult.success ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
             }`}>
               Created: {importResult.created}, Linked: {importResult.linked}
-              {importResult.errors.length > 0 && ` (${importResult.errors.length} errors)`}
+              {importResult.errors.length > 0 && (
+                <span className="ml-2 cursor-pointer" title={importResult.errors.slice(0, 5).join('\n')}>
+                  ({importResult.errors.length} errors)
+                </span>
+              )}
             </div>
           )}
           
