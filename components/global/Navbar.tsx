@@ -1,13 +1,14 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useClerk, useUser, SignInButton, UserButton } from '@clerk/nextjs'
 import { usePathname, useRouter } from 'next/navigation'
 import { useQuery } from 'convex/react'
 import { api } from '@/convex/_generated/api'
-import { Search, X } from 'lucide-react'
+import { Search, X, Upload, Loader2 } from 'lucide-react'
+import { importUsersFromCSV } from '@/app/actions/import-users.action'
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
@@ -15,6 +16,9 @@ export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState('')
   const [showResults, setShowResults] = useState(false)
   const [favoritesCount, setFavoritesCount] = useState(0)
+  const [importing, setImporting] = useState(false)
+  const [importResult, setImportResult] = useState<{success: boolean; created: number; linked: number; errors: string[]} | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>(
     {}
   )
@@ -230,6 +234,54 @@ export default function Navbar() {
 
         {/* Right Section: Login + Search */}
         <div className="flex items-center ml-auto space-x-4 lg:absolute lg:right-10">
+          <input
+            type="file"
+            ref={fileInputRef}
+            accept=".csv"
+            className="hidden"
+            onChange={async (e) => {
+              const file = e.target.files?.[0]
+              if (!file) return
+              
+              setImporting(true)
+              setImportResult(null)
+              
+              try {
+                const text = await file.text()
+                const result = await importUsersFromCSV(text)
+                setImportResult(result)
+              } catch (error: any) {
+                setImportResult({ success: false, created: 0, linked: 0, errors: [error.message] })
+              } finally {
+                setImporting(false)
+                if (fileInputRef.current) {
+                  fileInputRef.current.value = ''
+                }
+              }
+            }}
+          />
+          
+          {importResult && (
+            <div className={`text-sm px-3 py-1.5 rounded-full ${
+              importResult.success ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+            }`}>
+              Created: {importResult.created}, Linked: {importResult.linked}
+              {importResult.errors.length > 0 && ` (${importResult.errors.length} errors)`}
+            </div>
+          )}
+          
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={importing}
+            className="flex items-center gap-2 px-3 py-2 text-[14px] font-medium text-slate-700 bg-gray-100 rounded-full hover:bg-gray-200 transition disabled:opacity-50"
+          >
+            {importing ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Upload className="w-4 h-4" />
+            )}
+            <span className="max-sm:hidden">Import</span>
+          </button>
           {user ? (
             <div className="flex items-center space-x-4">
               <Link

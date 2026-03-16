@@ -53,6 +53,15 @@ export const getUserByClerkId = query({
   },
 })
 
+export const getUserByEmail = query({
+  args: { email: v.string() },
+  handler: async (ctx, args) => {
+    return await ctx.db.query('users')
+      .withIndex('by_email', q => q.eq('email', args.email))
+      .first()
+  },
+})
+
 export const createUser = mutation({
   args: {
     firstName: v.string(),
