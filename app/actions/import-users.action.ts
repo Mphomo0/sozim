@@ -59,33 +59,44 @@ export async function importUsersFromCSV(csvContent: string) {
       const email = row.email_address?.trim()
       const firstName = row.first_name?.trim() || ''
       const lastName = row.last_name?.trim() || ''
-      const passwordHasher = row.password_hasher?.trim()
 
       if (!email) {
         results.errors.push(`Row skipped: missing email`)
         continue
       }
 
-      const password = Math.random().toString(36).slice(-10) + 'A1!'
+      let clerkUserId: string
 
-      const clerkUser = await clerk.users.createUser({
-        firstName,
-        lastName,
+      const existingClerkUsers = await clerk.users.getUserList({
         emailAddress: [email],
-        password,
-        skipPasswordChecks: true,
-        skipPasswordRequirement: true,
-        externalId: row.external_id || undefined,
+        limit: 1,
       })
 
-      results.created++
+      if (existingClerkUsers.data.length > 0) {
+        clerkUserId = existingClerkUsers.data[0].id
+        results.created++
+      } else {
+        const password = Math.random().toString(36).slice(-10) + 'A1!'
+
+        const clerkUser = await clerk.users.createUser({
+          firstName,
+          lastName,
+          emailAddress: [email],
+          password,
+          skipPasswordChecks: true,
+          skipPasswordRequirement: true,
+          externalId: row.external_id || undefined,
+        })
+        clerkUserId = clerkUser.id
+        results.created++
+      }
 
       const existingUser = await convexClient.query(api.users.getUserByEmail, { email })
 
       if (existingUser) {
         await convexClient.mutation(api.users.updateUser, {
           id: existingUser._id,
-          clerkId: clerkUser.id,
+          clerkId: clerkUserId,
         })
         results.linked++
       }
