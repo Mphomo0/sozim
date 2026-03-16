@@ -26,26 +26,20 @@ export default function AllUsers() {
   const [limit, setLimit] = useState(10)
   const [searchTerm, setSearchTerm] = useState('')
 
-  const usersResponse = useQuery(api.users.getUsers, {})
+  const usersResponse = useQuery(api.users.getUsers, {
+    page: currentPage,
+    limit: limit,
+    search: searchTerm,
+  })
   const deleteUser = useMutation(api.users.deleteUser)
 
   const loading = usersResponse === undefined
-  const allUsers = usersResponse || []
+  const allUsers = usersResponse?.results || []
+  const total = usersResponse?.total || 0
 
-  const result = searchTerm
-    ? allUsers.filter(
-        (u) =>
-          u.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          u.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          u.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          u.clerkId?.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    : allUsers
+  const users = allUsers
 
-  const totalPages = Math.ceil(result.length / limit) || 1
-  const validPage = currentPage > totalPages ? totalPages : currentPage
-  const startIndex = (validPage - 1) * limit
-  const users = result.slice(startIndex, startIndex + limit)
+  const totalPages = Math.ceil(total / limit) || 1
 
   async function handleDeleteUser(id: Id<'users'>) {
     if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) return
