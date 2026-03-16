@@ -1,4 +1,4 @@
-import { query, mutation } from './_generated/server'
+import { query, mutation, internalMutation } from './_generated/server'
 import { v } from 'convex/values'
 
 export const getUsers = query({
@@ -132,10 +132,38 @@ export const updateUser = mutation({
   },
 })
 
-export const deleteUser = mutation({
-  args: { id: v.id('users') },
+export const updateUserRole = mutation({
+  args: {
+    clerkId: v.string(),
+    role: v.string(),
+  },
   handler: async (ctx, args) => {
-    await ctx.db.delete(args.id)
-    return true
+    const user = await ctx.db.query('users')
+      .withIndex('by_clerk_id', q => q.eq('clerkId', args.clerkId))
+      .first()
+    
+    if (user) {
+      await ctx.db.patch(user._id, { role: args.role })
+      return { success: true, userId: user._id }
+    }
+    return { success: false, message: 'User not found' }
+  },
+})
+
+export const internalUpdateUserRole = internalMutation({
+  args: {
+    clerkId: v.string(),
+    role: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const user = await ctx.db.query('users')
+      .withIndex('by_clerk_id', q => q.eq('clerkId', args.clerkId))
+      .first()
+    
+    if (user) {
+      await ctx.db.patch(user._id, { role: args.role })
+      return { success: true, userId: user._id }
+    }
+    return { success: false, message: 'User not found' }
   },
 })
