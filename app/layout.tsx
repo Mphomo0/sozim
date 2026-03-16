@@ -4,6 +4,7 @@ import './globals.css'
 import { ToastContainer } from 'react-toastify'
 import { SignInButton, SignUpButton, Show, UserButton } from "@clerk/nextjs"
 import ConvexClientProvider from '@/components/ConvexClientProvider'
+import { ClerkProvider } from '@clerk/nextjs'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -101,13 +102,15 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning
       >
-        <ConvexClientProvider>
-          <ClientLayoutWrapper>
-            <SyncUserWithConvex />
-            <ToastContainer />
-            {children}
-          </ClientLayoutWrapper>
-        </ConvexClientProvider>
+        <ClerkProvider>
+      <ConvexClientProvider>
+        <ClientLayoutWrapper>
+          <SyncUserWithConvex />
+          <ToastContainer />
+          {children}
+        </ClientLayoutWrapper>
+      </ConvexClientProvider>
+    </ClerkProvider>
       </body>
     </html>
   )
