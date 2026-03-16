@@ -89,19 +89,20 @@ export const getRecords = query({
   },
 });
 
-// Efficient category counts — never fetches record content, only counts.
+// Efficient category counts — uses indexes to avoid full table scan
 export const countByCategory = query({
   args: {},
   handler: async (ctx) => {
-    const counts = { thesis: 0, article: 0, research: 0, total: 0 };
-    const all = await ctx.db.query('records').collect();
-    for (const r of all) {
-      if (r.category === 'thesis') counts.thesis++;
-      else if (r.category === 'article') counts.article++;
-      else if (r.category === 'research') counts.research++;
-      counts.total++;
-    }
-    return counts;
+    const theses = await ctx.db.query('records').withIndex('by_category', q => q.eq('category', 'thesis')).collect();
+    const articles = await ctx.db.query('records').withIndex('by_category', q => q.eq('category', 'article')).collect();
+    const research = await ctx.db.query('records').withIndex('by_category', q => q.eq('category', 'research')).collect();
+    
+    return {
+      thesis: theses.length,
+      article: articles.length,
+      research: research.length,
+      total: theses.length + articles.length + research.length,
+    };
   },
 });
 

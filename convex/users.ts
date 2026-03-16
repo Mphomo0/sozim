@@ -8,7 +8,30 @@ export const getUsers = query({
     search: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    return await ctx.db.query('users').collect()
+    const search = args.search?.toLowerCase()
+    let users = await ctx.db.query('users').collect()
+
+    if (search) {
+      users = users.filter(u => 
+        u.firstName?.toLowerCase().includes(search) || 
+        u.lastName?.toLowerCase().includes(search) || 
+        u.email?.toLowerCase().includes(search) ||
+        u.clerkId?.toLowerCase().includes(search)
+      )
+    }
+
+    const total = users.length
+    const page = args.page || 1
+    const limit = args.limit || 10
+    const start = (page - 1) * limit
+    const results = users.slice(start, start + limit)
+
+    return {
+      results,
+      total,
+      page,
+      limit,
+    }
   },
 })
 
@@ -90,6 +113,7 @@ export const updateUser = mutation({
     id: v.id('users'),
     firstName: v.optional(v.string()),
     lastName: v.optional(v.string()),
+    email: v.optional(v.string()),
     phone: v.optional(v.string()),
     address: v.optional(v.string()),
     dob: v.optional(v.string()),

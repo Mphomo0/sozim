@@ -27,9 +27,9 @@ export default function SyncUserWithConvex() {
 
     const syncUser = async () => {
       const { id, firstName, lastName, primaryEmailAddress } = user
-      const clerkFirst = firstName || ""
-      const clerkLast = lastName || ""
-      const clerkEmail = primaryEmailAddress?.emailAddress || ""
+      const clerkFirst = (firstName || "").trim()
+      const clerkLast = (lastName || "").trim()
+      const clerkEmail = (primaryEmailAddress?.emailAddress || "").toLowerCase().trim()
 
       const existingUser = convexUser
 
@@ -41,6 +41,7 @@ export default function SyncUserWithConvex() {
             clerkId: id,
             firstName: clerkFirst,
             lastName: clerkLast,
+            email: clerkEmail,
           })
         } 
         // 2. If Convex doesn't have this user at all, create them
@@ -56,14 +57,16 @@ export default function SyncUserWithConvex() {
       }
       // 3. If Convex does have this user, check if their basic identity details diverged.
       else if (
-        existingUser.firstName !== clerkFirst ||
-        existingUser.lastName !== clerkLast ||
-        existingUser.email !== clerkEmail
+        (existingUser.firstName || "").trim() !== clerkFirst ||
+        (existingUser.lastName || "").trim() !== clerkLast ||
+        (existingUser.email || "").toLowerCase().trim() !== clerkEmail ||
+        existingUser.clerkId !== id
       ) {
         await updateUser({
           id: existingUser._id,
           firstName: clerkFirst,
           lastName: clerkLast,
+          email: clerkEmail,
           clerkId: id,
         })
       }
