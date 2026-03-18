@@ -86,11 +86,13 @@ export default function EditUserComp() {
       }
 
       // If user is stored in Clerk, sync profile/password there first
-      if (user.clerkId && (payload.firstName || payload.lastName || payload.password)) {
+      if (user.clerkId && (payload.firstName || payload.lastName || payload.password || payload.email || payload.phone)) {
         const clerkRes = await updateUserInClerk(user.clerkId, {
           firstName: payload.firstName,
           lastName: payload.lastName,
-          password: payload.password
+          email: payload.email,
+          phone: payload.phone,
+          password: payload.password,
         })
 
         if (!clerkRes.success) {

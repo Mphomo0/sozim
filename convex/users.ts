@@ -167,3 +167,20 @@ export const internalUpdateUserRole = internalMutation({
     return { success: false, message: 'User not found' }
   },
 })
+
+export const deleteUser = mutation({
+  args: { id: v.id('users') },
+  handler: async (ctx, args) => {
+    const applications = await ctx.db
+      .query('applications')
+      .withIndex('by_user', q => q.eq('actualApplicantId', args.id))
+      .collect()
+    
+    for (const app of applications) {
+      await ctx.db.delete(app._id)
+    }
+    
+    await ctx.db.delete(args.id)
+    return { success: true, applicationsDeleted: applications.length }
+  },
+})

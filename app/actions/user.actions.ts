@@ -38,6 +38,8 @@ export async function updateUserInClerk(
   data: {
     firstName?: string;
     lastName?: string;
+    email?: string;
+    phone?: string;
     password?: string;
   }
 ) {
@@ -53,6 +55,8 @@ export async function updateUserInClerk(
       updateData.password = data.password
       updateData.skipPasswordChecks = true
     }
+    if (data.email !== undefined) updateData.emailAddress = [{ email: data.email, toExistingAddressStrategy: 'update' }]
+    if (data.phone !== undefined) updateData.phoneNumbers = data.phone ? [{ phoneNumber: data.phone }] : []
 
     if (Object.keys(updateData).length > 0) {
       await client.users.updateUser(clerkId, updateData)
