@@ -53,7 +53,7 @@ export default function Featured() {
               <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               <CardContent className="p-8 relative z-10">
                 <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-400 to-blue-700 shadow-lg shadow-blue-500/30 group-hover:scale-110 transition-transform duration-500">
-                  <feature.icon className="h-7 w-7 text-white" />
+                  <feature.icon className="h-7 w-7 text-white" aria-hidden="true" />
                 </div>
                 <h3 className="mb-3 text-2xl font-semibold tracking-tight text-slate-900 group-hover:text-blue-700 transition-colors duration-300">
                   {feature.title}

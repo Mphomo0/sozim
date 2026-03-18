@@ -12,10 +12,34 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1.0,
     },
     {
+      url: `${baseUrl}/about`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.9,
+    },
+    {
       url: `${baseUrl}/courses`,
       lastModified,
       changeFrequency: 'weekly',
       priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/career-pathway`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/campus`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/library`,
+      lastModified,
+      changeFrequency: 'weekly',
+      priority: 0.7,
     },
     {
       url: `${baseUrl}/shop`,
@@ -24,33 +48,21 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/career-pathway`,
-      lastModified,
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/campus`,
-      lastModified,
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/about`,
-      lastModified,
-      priority: 0.7,
-    },
-    {
       url: `${baseUrl}/contact`,
       lastModified,
-      priority: 0.6,
+      changeFrequency: 'monthly',
+      priority: 0.7,
     },
     {
       url: `${baseUrl}/contact-learning`,
       lastModified,
-      priority: 0.6,
+      changeFrequency: 'monthly',
+      priority: 0.7,
     },
     {
       url: `${baseUrl}/call-me-back`,
       lastModified,
+      changeFrequency: 'yearly',
       priority: 0.5,
     },
   ]

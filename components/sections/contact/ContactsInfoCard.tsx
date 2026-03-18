@@ -51,7 +51,7 @@ export default function ContactsInfoCard() {
                   <div className="relative">
                     <div className="absolute inset-0 bg-blue-500/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100 scale-150" />
                     <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-900 to-blue-800 text-white shadow-xl group-hover:scale-110 group-hover:from-blue-600 group-hover:to-sky-400 transition-all duration-500">
-                      <info.icon className="h-8 w-8" />
+                      <info.icon className="h-8 w-8" aria-hidden="true" />
                     </div>
                   </div>
                 </div>

@@ -111,7 +111,7 @@ export async function POST(req: Request): Promise<NextResponse> {
       }
     }
 
-    const researchCount = await harvestResearchDataIncremental()
+    const researchCount = await harvestResearchDataIncremental(undefined)
     processedRepos++
 
     await updateProgress(jobId, 'research', processedRepos, totalRepos, {

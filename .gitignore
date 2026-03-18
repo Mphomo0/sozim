@@ -23,6 +23,11 @@
 # misc
 .DS_Store
 *.pem
+*.log
+
+# test files
+test-*.ts
+__tests__/
 
 # debug
 npm-debug.log*
@@ -45,10 +50,8 @@ next-env.d.ts
 /lib/generated/prisma
 
 
-OPEN_BUTTON_FIX.md
-PROFESSIONAL_LIBRARY_SUMMARY.md
-URL_FIX_COMPLETE.md
-URL_FIX.md
-VERCEL_DEPLOYMENT.md
+# backup files
+backup.zip
+*.backup
 # clerk configuration (can include secrets)
 /.clerk/

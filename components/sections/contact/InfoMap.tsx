@@ -40,6 +40,7 @@ export default function InfoMap() {
                   <div className="aspect-video overflow-hidden">
                     <iframe
                       src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3485.625462879269!2d26.217421500000004!3d-29.116736799999998!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1e8fc57e359898db%3A0x1748bde291c2fd64!2sSozim!5e0!3m2!1sen!2sza!4v1766078608106!5m2!1sen!2sza"
+                      title="Sozim Trading and Consultancy campus location on Google Maps — Shop 4, Sunday School Building, 154 Charlotte Maxeke Street, Bloemfontein, South Africa"
                       width="100%"
                       height="100%"
                       className="min-h-[400px]"

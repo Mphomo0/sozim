@@ -15,7 +15,24 @@ import {
   createRecordSignature,
   accumulativeDedupe,
 } from './harvest-utils'
-import { logError } from './harvest-dspace'
+import { logError, HarvestCtx } from './harvest-dspace'
+
+async function getRecords(ctx: HarvestCtx | undefined, category: string, pageSize: number) {
+  if (ctx?.runQuery) {
+    return await ctx.runQuery(api.records.getRecords, { category, pageSize })
+  }
+  if (!convexClient) throw new Error("No Convex client available")
+  return await convexClient.query(api.records.getRecords, { category, pageSize })
+}
+
+async function bulkUpsert(ctx: HarvestCtx | undefined, records: any[], clearCategory?: string) {
+  const args = { records, ...(clearCategory ? { clearCategory } : {}) }
+  if (ctx?.runMutation) {
+    return await ctx.runMutation(api.records.bulkUpsertRecords, args)
+  }
+  if (!convexClient) throw new Error("No Convex client available")
+  return await convexClient.mutation(api.records.bulkUpsertRecords, args)
+}
 
 interface DryadData {
   _embedded?: {
@@ -231,7 +248,7 @@ export async function fetchResearchSource(
   return out
 }
 
-export async function harvestResearchData(): Promise<number> {
+export async function harvestResearchData(ctx?: HarvestCtx): Promise<number> {
   const allResearch: RecordType[] = []
   
   for (const source of RESEARCH_DATA_SOURCES) {
@@ -240,31 +257,25 @@ export async function harvestResearchData(): Promise<number> {
       allResearch.push(...recs)
     } catch (err) {
       console.error(`   ❌ ${source.name} failed:`, (err as Error).message)
-      await logError('Research:' + source.name, err as Error)
+      await logError(ctx, 'Research:' + source.name, err as Error)
     }
     await sleep(1200)
   }
 
-  // Deduplicate the fresh harvest among itself then replace the entire category
   const mergedResearch = accumulativeDedupe(allResearch)
 
-  const inserted = await convexClient.mutation(api.records.bulkUpsertRecords, {
-    records: mergedResearch.map(r => ({ ...r, category: 'research' })),
-    clearCategory: 'research'
-  })
+  await bulkUpsert(ctx, mergedResearch.map(r => ({ ...r, category: 'research' })), 'research')
 
   return allResearch.length
 }
 
 export async function harvestResearchDataIncremental(
+  ctx: HarvestCtx | undefined,
   limit: number = 10
 ): Promise<number> {
   let totalNewRecords = 0
   
-  const searchResult = await convexClient.query(api.records.getRecords, {
-    category: 'research',
-    pageSize: 1000
-  })
+  const searchResult = await getRecords(ctx, 'research', 1000)
   const existingResearch = searchResult.results as unknown as RecordType[]
 
   for (const source of RESEARCH_DATA_SOURCES) {
@@ -280,10 +291,8 @@ export async function harvestResearchDataIncremental(
       )
 
       if (newRecs.length > 0) {
-        const recordsToInsert = newRecs.map((r) => ({ ...r, category: 'research' }))
-        await convexClient.mutation(api.records.bulkUpsertRecords, {
-           records: recordsToInsert
-        })
+        await bulkUpsert(ctx, newRecs.map((r) => ({ ...r, category: 'research' }))
+        )
         
         totalNewRecords += newRecs.length
       }
@@ -292,7 +301,7 @@ export async function harvestResearchDataIncremental(
         `   ❌ ${source.name} incremental harvest failed:`,
         (err as Error).message
       )
-      await logError('ResearchIncremental:' + source.name, err as Error)
+      await logError(ctx, 'ResearchIncremental:' + source.name, err as Error)
     }
     await sleep(800)
   }

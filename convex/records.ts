@@ -1,4 +1,4 @@
-import { query, mutation, action } from "./_generated/server";
+import { query, mutation, internalMutation, internalQuery, action } from "./_generated/server";
 import { v } from "convex/values";
 
 // --- Queries ---
@@ -262,3 +262,106 @@ export const searchResearchLive = query({
     }
   },
 })
+
+export const bulkUpsertRecordsInternal = internalMutation({
+  args: {
+    records: v.array(v.object({
+      id: v.string(),
+      title: v.string(),
+      authors: v.array(v.string()),
+      description: v.optional(v.string()),
+      keywords: v.array(v.string()),
+      year: v.optional(v.number()),
+      source: v.string(),
+      type: v.string(),
+      identifier: v.optional(v.string()),
+      identifierType: v.optional(v.string()),
+      url: v.optional(v.string()),
+      category: v.string(),
+    })),
+    clearCategory: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const importDate = Date.now();
+
+    if (args.clearCategory) {
+      const existing = await ctx.db.query("records")
+        .withIndex("by_category", q => q.eq("category", args.clearCategory!))
+        .collect();
+      for (const r of existing) {
+        await ctx.db.delete(r._id);
+      }
+    }
+
+    let inserted = 0;
+    for (const rec of args.records) {
+      if (args.clearCategory) {
+        await ctx.db.insert("records", { ...rec, importDate });
+        inserted++;
+      } else {
+        const existing = await ctx.db.query("records")
+          .withIndex("by_record_id", q => q.eq("id", rec.id))
+          .first();
+
+        if (existing) {
+          await ctx.db.patch(existing._id, { ...rec, importDate });
+        } else {
+          await ctx.db.insert("records", { ...rec, importDate });
+          inserted++;
+        }
+      }
+    }
+
+    return inserted;
+  },
+});
+
+export const updateLibraryMetaInternal = internalMutation({
+  args: {
+    key: v.string(),
+    counts: v.object({
+      theses: v.number(),
+      articles: v.number(),
+      research: v.number(),
+      total: v.number(),
+    }),
+    lastHarvest: v.optional(v.number()),
+    lastError: v.optional(v.object({
+      context: v.string(),
+      message: v.string(),
+      time: v.number(),
+    })),
+  },
+  handler: async (ctx, args) => {
+    const existing = await ctx.db.query("libraryMeta")
+      .withIndex("by_key", q => q.eq("key", args.key))
+      .first();
+
+    const data = {
+      ...args,
+      lastUpdated: Date.now(),
+    };
+
+    if (existing) {
+      await ctx.db.patch(existing._id, data);
+    } else {
+      await ctx.db.insert("libraryMeta", data);
+    }
+  },
+});
+
+export const countByCategoryInternal = internalQuery({
+  args: {},
+  handler: async (ctx) => {
+    const theses = await ctx.db.query('records').withIndex('by_category', q => q.eq('category', 'thesis')).collect();
+    const articles = await ctx.db.query('records').withIndex('by_category', q => q.eq('category', 'article')).collect();
+    const research = await ctx.db.query('records').withIndex('by_category', q => q.eq('category', 'research')).collect();
+    
+    return {
+      thesis: theses.length,
+      article: articles.length,
+      research: research.length,
+      total: theses.length + articles.length + research.length,
+    };
+  },
+});

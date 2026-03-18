@@ -123,7 +123,7 @@ export default function OurPrograms() {
 
                       <div className="mb-6 flex flex-wrap gap-4 text-sm font-medium text-slate-700 bg-slate-50 py-3 px-4 rounded-xl border border-slate-100">
                         <div className="flex items-center gap-2">
-                          <Clock className="h-5 w-5 text-blue-500" />
+                          <Clock className="h-5 w-5 text-blue-500" aria-hidden="true" />
                           <span>{course.duration}</span>
                         </div>
                       </div>
@@ -145,7 +145,7 @@ export default function OurPrograms() {
                                 key={index}
                                 className="flex items-start gap-3 text-sm text-slate-600 leading-relaxed"
                               >
-                                <CheckCircle className="h-5 w-5 mt-0.5 flex-shrink-0 text-green-500" />
+                                <CheckCircle className="h-5 w-5 mt-0.5 flex-shrink-0 text-green-500" aria-hidden="true" />
                                 <span>{title}</span>
                               </li>
                             ))}
@@ -172,7 +172,7 @@ export default function OurPrograms() {
                                 key={index}
                                 className="flex items-start gap-3 text-sm text-slate-600 leading-relaxed"
                               >
-                                <CheckCircle className="h-5 w-5 mt-0.5 flex-shrink-0 text-sky-500" />
+                                <CheckCircle className="h-5 w-5 mt-0.5 flex-shrink-0 text-sky-500" aria-hidden="true" />
                                 <span>{req}</span>
                               </li>
                             ))}
@@ -199,7 +199,7 @@ export default function OurPrograms() {
 
                         <Link href={`/courses/${course._id}`}>
                           <Button variant="outline" size="icon" className="h-11 w-11 rounded-xl border-slate-300 hover:border-blue-500 hover:text-blue-600 transition-colors">
-                            <BookOpen className="h-5 w-5" />
+                            <BookOpen className="h-5 w-5" aria-hidden="true" />
                           </Button>
                         </Link>
                       </div>
@@ -220,7 +220,7 @@ export default function OurPrograms() {
         <div className="container relative z-10 mx-auto px-4">
           <div className="mx-auto max-w-2xl text-center text-white">
             <div className="mx-auto mb-8 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-400 to-blue-600 shadow-[0_0_40px_rgba(56,189,248,0.3)]">
-              <Award className="h-10 w-10 text-white" />
+                  <Award className="h-10 w-10 text-white" aria-hidden="true" />
             </div>
             <h2 className="mb-6 text-4xl font-extrabold tracking-tight md:text-5xl">
               Not Sure Which Course to Choose?

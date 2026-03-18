@@ -11,6 +11,37 @@ import {
 } from './harvest-utils'
 import { parseOai } from './oai-parser'
 
+export interface HarvestCtx {
+  runQuery: (query: any, args: any) => Promise<any>
+  runMutation: (mutation: any, args: any) => Promise<any>
+}
+
+async function getRecords(ctx: HarvestCtx | undefined, category: string, pageSize: number) {
+  if (ctx?.runQuery) {
+    return await ctx.runQuery(api.records.getRecords, { category, pageSize })
+  }
+  if (!convexClient) throw new Error("No Convex client available")
+  return await convexClient.query(api.records.getRecords, { category, pageSize })
+}
+
+async function bulkUpsert(ctx: HarvestCtx | undefined, records: any[], clearCategory?: string) {
+  const args = { records, ...(clearCategory ? { clearCategory } : {}) }
+  if (ctx?.runMutation) {
+    return await ctx.runMutation(api.records.bulkUpsertRecords, args)
+  }
+  if (!convexClient) throw new Error("No Convex client available")
+  return await convexClient.mutation(api.records.bulkUpsertRecords, args)
+}
+
+async function updateMeta(ctx: HarvestCtx | undefined, key: string, counts: any, lastError?: any) {
+  const args = { key, counts, ...(lastError ? { lastError } : {}) }
+  if (ctx?.runMutation) {
+    return await ctx.runMutation(api.records.updateLibraryMeta, args)
+  }
+  if (!convexClient) throw new Error("No Convex client available")
+  return await convexClient.mutation(api.records.updateLibraryMeta, args)
+}
+
 export async function harvestDSpaceRepo(
   id: string,
   endpoint: string,
@@ -61,23 +92,17 @@ export async function harvestDSpaceRepo(
   return { t: theses.slice(0, limit), a: articles.slice(0, limit) }
 }
 
-export async function harvestDSpaceRepositories(): Promise<{
+export async function harvestDSpaceRepositories(ctx?: HarvestCtx): Promise<{
   theses: number
   articles: number
 }> {
   const allTheses: RecordType[] = []
   const allArticles: RecordType[] = []
 
-  const thesesResult = await convexClient.query(api.records.getRecords, {
-    category: 'thesis',
-    pageSize: 1000
-  })
+  const thesesResult = await getRecords(ctx, 'thesis', 1000)
   const existingTheses = thesesResult.results as unknown as RecordType[]
 
-  const articlesResult = await convexClient.query(api.records.getRecords, {
-    category: 'article',
-    pageSize: 1000
-  })
+  const articlesResult = await getRecords(ctx, 'article', 1000)
   const existingArticles = articlesResult.results as unknown as RecordType[]
 
   for (const [id, endpoint] of Object.entries(DSPACE_ENDPOINTS)) {
@@ -97,8 +122,8 @@ export async function harvestDSpaceRepositories(): Promise<{
       allTheses.push(...theses)
       allArticles.push(...articles)
     } catch (err) {
-      console.error(`❌ ${id} failed:`, (err as Error).message)
-      await logError('DSpace:' + id, err as Error)
+    console.error(`❌ ${id} failed:`, (err as Error).message)
+    await logError(ctx, 'DSpace:' + id, err as Error)
     }
 
     await sleep(1500)
@@ -110,34 +135,23 @@ export async function harvestDSpaceRepositories(): Promise<{
     ...allArticles,
   ])
 
-  await convexClient.mutation(api.records.bulkUpsertRecords, {
-    records: mergedTheses.map((r) => ({ ...r, category: 'thesis' })),
-    clearCategory: 'thesis'
-  })
+  await bulkUpsert(ctx, mergedTheses.map((r) => ({ ...r, category: 'thesis' })), 'thesis')
 
-  await convexClient.mutation(api.records.bulkUpsertRecords, {
-    records: mergedArticles.map((r) => ({ ...r, category: 'article' })),
-    clearCategory: 'article'
-  })
+  await bulkUpsert(ctx, mergedArticles.map((r) => ({ ...r, category: 'article' })), 'article')
 
   return { theses: allTheses.length, articles: allArticles.length }
 }
 
 export async function harvestDSpaceRepositoriesIncremental(
+  ctx: HarvestCtx | undefined,
   limit: number = 10
 ): Promise<number> {
   let totalNewRecords = 0
 
-  const thesesResult = await convexClient.query(api.records.getRecords, {
-    category: 'thesis',
-    pageSize: 1000
-  })
+  const thesesResult = await getRecords(ctx, 'thesis', 1000)
   let existingTheses = thesesResult.results as unknown as RecordType[]
 
-  const articlesResult = await convexClient.query(api.records.getRecords, {
-    category: 'article',
-    pageSize: 1000
-  })
+  const articlesResult = await getRecords(ctx, 'article', 1000)
   let existingArticles = articlesResult.results as unknown as RecordType[]
 
   for (const [id, endpoint] of Object.entries(DSPACE_ENDPOINTS)) {
@@ -174,17 +188,13 @@ export async function harvestDSpaceRepositoriesIncremental(
       )
 
       if (newTheses.length > 0) {
-        await convexClient.mutation(api.records.bulkUpsertRecords, {
-          records: newTheses.map((r) => ({ ...r, category: 'thesis' }))
-        })
+        await bulkUpsert(ctx, newTheses.map((r) => ({ ...r, category: 'thesis' })))
         existingTheses = [...existingTheses, ...newTheses]
         totalNewRecords += newTheses.length
       }
 
       if (newArticles.length > 0) {
-        await convexClient.mutation(api.records.bulkUpsertRecords, {
-          records: newArticles.map((r) => ({ ...r, category: 'article' }))
-        })
+        await bulkUpsert(ctx, newArticles.map((r) => ({ ...r, category: 'article' })))
         existingArticles = [...existingArticles, ...newArticles]
         totalNewRecords += newArticles.length
       }
@@ -193,7 +203,7 @@ export async function harvestDSpaceRepositoriesIncremental(
         `❌ ${id} incremental harvest failed:`,
         (err as Error).message
       )
-      await logError('DSpaceIncremental:' + id, err as Error)
+      await logError(ctx, 'DSpaceIncremental:' + id, err as Error)
     }
 
     await sleep(800)
@@ -202,7 +212,7 @@ export async function harvestDSpaceRepositoriesIncremental(
   return totalNewRecords
 }
 
-export async function logError(context: string, error: Error): Promise<void> {
+export async function logError(ctx: HarvestCtx | undefined, context: string, error: Error): Promise<void> {
   const entry = {
     context,
     message: error?.message || String(error),
@@ -210,11 +220,7 @@ export async function logError(context: string, error: Error): Promise<void> {
   }
 
   try {
-    await convexClient.mutation(api.records.updateLibraryMeta, {
-      key: 'system',
-      counts: { theses: 0, articles: 0, research: 0, total: 0 }, // Placeholder, logic can fetch first if needed
-      lastError: entry
-    })
+    await updateMeta(ctx, 'system', { theses: 0, articles: 0, research: 0, total: 0 }, entry)
   } catch (e) {
     console.error('Meta update error', (e as Error)?.message)
   }

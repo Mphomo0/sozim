@@ -10,7 +10,10 @@
 
 import type * as applications from "../applications.js";
 import type * as categories from "../categories.js";
+import type * as clerkSync from "../clerkSync.js";
 import type * as courses from "../courses.js";
+import type * as crons from "../crons.js";
+import type * as harvest from "../harvest.js";
 import type * as harvestJobs from "../harvestJobs.js";
 import type * as migration from "../migration.js";
 import type * as records from "../records.js";
@@ -25,7 +28,10 @@ import type {
 declare const fullApi: ApiFromModules<{
   applications: typeof applications;
   categories: typeof categories;
+  clerkSync: typeof clerkSync;
   courses: typeof courses;
+  crons: typeof crons;
+  harvest: typeof harvest;
   harvestJobs: typeof harvestJobs;
   migration: typeof migration;
   records: typeof records;
