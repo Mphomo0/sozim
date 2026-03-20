@@ -2,24 +2,24 @@ import { NextResponse } from 'next/server'
 import { harvestDSpaceRepo } from '@/lib/harvest-dspace'
 import { harvestResearchData } from '@/lib/harvest-research'
 import { DSPACE_ENDPOINTS, RECORDS_PER_REPOSITORY, fetchWithRetry, sleep, createRecordSignature, accumulativeDedupe } from '@/lib/harvest-utils'
-import { convexClient, api } from '@/lib/convex-client'
+import { getConvexClient, api } from '@/lib/convex-client'
 import { Id } from '@/convex/_generated/dataModel'
 
 const BATCH_SIZE = 2
 
 async function createJob(totalRepos: number) {
-  return await convexClient.mutation(api.harvestJobs.createHarvestJob, {
+  return await getConvexClient()!.mutation(api.harvestJobs.createHarvestJob, {
     type: 'full',
     totalRepos,
   })
 }
 
 async function startJob(jobId: Id<'harvestJobs'>) {
-  await convexClient.mutation(api.harvestJobs.startJob, { jobId })
+  await getConvexClient()!.mutation(api.harvestJobs.startJob, { jobId })
 }
 
 async function updateProgress(jobId: Id<'harvestJobs'>, currentRepo: string, processedRepos: number, totalRepos: number, results: { theses: number; articles: number; research: number }) {
-  await convexClient.mutation(api.harvestJobs.updateJobProgress, {
+  await getConvexClient()!.mutation(api.harvestJobs.updateJobProgress, {
     jobId,
     currentRepo,
     processedRepos,
@@ -29,18 +29,18 @@ async function updateProgress(jobId: Id<'harvestJobs'>, currentRepo: string, pro
 }
 
 async function completeJob(jobId: Id<'harvestJobs'>, results: { theses: number; articles: number; research: number }) {
-  await convexClient.mutation(api.harvestJobs.completeJob, { jobId, results })
+  await getConvexClient()!.mutation(api.harvestJobs.completeJob, { jobId, results })
 }
 
 async function failJob(jobId: Id<'harvestJobs'>, error: string) {
-  await convexClient.mutation(api.harvestJobs.failJob, { jobId, error })
+  await getConvexClient()!.mutation(api.harvestJobs.failJob, { jobId, error })
 }
 
 async function updateLibraryMeta() {
   // Use the efficient countByCategory query — no full record fetch needed
-  const counts = await convexClient.query(api.records.countByCategory, {})
+  const counts = await getConvexClient()!.query(api.records.countByCategory, {})
 
-  await convexClient.mutation(api.records.updateLibraryMeta, {
+  await getConvexClient()!.mutation(api.records.updateLibraryMeta, {
     key: 'main',
     counts: {
       theses: counts.thesis,
@@ -123,12 +123,12 @@ export async function POST(): Promise<NextResponse> {
     const mergedArticles = accumulativeDedupe(allArticles)
 
 
-    await convexClient.mutation(api.records.bulkUpsertRecords, {
+    await getConvexClient()!.mutation(api.records.bulkUpsertRecords, {
       records: mergedTheses.map((r: any) => ({ ...r, category: 'thesis' })),
       clearCategory: 'thesis',
     })
 
-    await convexClient.mutation(api.records.bulkUpsertRecords, {
+    await getConvexClient()!.mutation(api.records.bulkUpsertRecords, {
       records: mergedArticles.map((r: any) => ({ ...r, category: 'article' })),
       clearCategory: 'article',
     })

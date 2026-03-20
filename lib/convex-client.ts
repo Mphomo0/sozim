@@ -1,17 +1,15 @@
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
 
-const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
-
-const _convexClient = convexUrl ? new ConvexHttpClient(convexUrl) : undefined;
-
-export const convexClient = (() => {
-  if (!_convexClient) {
+export const getConvexClient = () => {
+  const url = process.env.NEXT_PUBLIC_CONVEX_URL;
+  if (!url) {
     if (typeof window === "undefined") {
-      throw new Error("NEXT_PUBLIC_CONVEX_URL is not set. Ensure it is defined in your environment.");
+      return undefined;
     }
+    throw new Error("NEXT_PUBLIC_CONVEX_URL is not set. Ensure it is defined in your environment.");
   }
-  return _convexClient!;
-})();
+  return new ConvexHttpClient(url);
+};
 
 export { api };

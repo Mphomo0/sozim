@@ -1,4 +1,4 @@
-import { convexClient, api } from './convex-client'
+import { getConvexClient, api } from './convex-client'
 import type { Record as RecordType, HarvestResult } from '@/lib/types'
 import {
   DSPACE_ENDPOINTS,
@@ -20,8 +20,8 @@ async function getRecords(ctx: HarvestCtx | undefined, category: string, pageSiz
   if (ctx?.runQuery) {
     return await ctx.runQuery(api.records.getRecords, { category, pageSize })
   }
-  if (!convexClient) throw new Error("No Convex client available")
-  return await convexClient.query(api.records.getRecords, { category, pageSize })
+  if (!getConvexClient()) throw new Error("No Convex client available")
+  return await getConvexClient()!.query(api.records.getRecords, { category, pageSize })
 }
 
 async function bulkUpsert(ctx: HarvestCtx | undefined, records: any[], clearCategory?: string) {
@@ -29,8 +29,8 @@ async function bulkUpsert(ctx: HarvestCtx | undefined, records: any[], clearCate
   if (ctx?.runMutation) {
     return await ctx.runMutation(api.records.bulkUpsertRecords, args)
   }
-  if (!convexClient) throw new Error("No Convex client available")
-  return await convexClient.mutation(api.records.bulkUpsertRecords, args)
+  if (!getConvexClient()) throw new Error("No Convex client available")
+  return await getConvexClient()!.mutation(api.records.bulkUpsertRecords, args)
 }
 
 async function updateMeta(ctx: HarvestCtx | undefined, key: string, counts: any, lastError?: any) {
@@ -38,8 +38,8 @@ async function updateMeta(ctx: HarvestCtx | undefined, key: string, counts: any,
   if (ctx?.runMutation) {
     return await ctx.runMutation(api.records.updateLibraryMeta, args)
   }
-  if (!convexClient) throw new Error("No Convex client available")
-  return await convexClient.mutation(api.records.updateLibraryMeta, args)
+  if (!getConvexClient()) throw new Error("No Convex client available")
+  return await getConvexClient()!.mutation(api.records.updateLibraryMeta, args)
 }
 
 export async function harvestDSpaceRepo(

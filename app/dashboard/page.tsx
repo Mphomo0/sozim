@@ -1,6 +1,6 @@
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
-import { convexClient } from '@/lib/convex-client'
+import { getConvexClient } from '@/lib/convex-client'
 import { api } from '@/convex/_generated/api'
 import ApplicationStatusChart from '@/components/sections/dashboard/ApplicationStatusChart'
 import ApplicationYearTrendChart from '@/components/sections/dashboard/ApplicationYearTrendChart'
@@ -36,7 +36,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
   const params = await searchParams
   const selectedYear = Number(params?.year) || currentYear
 
-  const stats = await convexClient.query(api.applications.getDashboardStats, { year: selectedYear })
+  const stats = await getConvexClient()!.query(api.applications.getDashboardStats, { year: selectedYear })
 
   const totalUsers = stats?.totalUsers || 0
   const totalApplications = stats?.totalApplications || 0
