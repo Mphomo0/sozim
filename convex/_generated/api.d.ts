@@ -17,6 +17,7 @@ import type * as harvest from "../harvest.js";
 import type * as harvestJobs from "../harvestJobs.js";
 import type * as migration from "../migration.js";
 import type * as records from "../records.js";
+import type * as test_helpers_backup from "../test_helpers_backup.js";
 import type * as users from "../users.js";
 
 import type {
@@ -35,6 +36,7 @@ declare const fullApi: ApiFromModules<{
   harvestJobs: typeof harvestJobs;
   migration: typeof migration;
   records: typeof records;
+  test_helpers_backup: typeof test_helpers_backup;
   users: typeof users;
 }>;
 

@@ -32,8 +32,22 @@ interface User {
   clerkId?: string
 }
 
+type UserData = {
+  firstName: string
+  lastName: string
+  email: string
+  phone: string
+  alternativeNumber: string
+  idNumber: string
+  address: string
+  nationality: string
+  dob: string | null
+  clerkId: string
+  _id: string
+}
+
 type EditFormValues = Omit<FormValues, 'user'> & {
-  user?: FormValues['user']
+  user?: UserData
 }
 
 import { useQuery, useMutation } from 'convex/react'
@@ -49,44 +63,198 @@ export default function EditApplication() {
   const router = useRouter()
 
   const appId = typeof id === 'string' ? (id as Id<'applications'>) : undefined
+  console.log('[EditApplication] URL params:', { id })
+  console.log('[EditApplication] appId parsed:', appId)
   const appData = useQuery(api.applications.getApplicationById, appId ? { id: appId } : 'skip')
-  
+  console.log('[EditApplication] appData from query:', appData)
+
   const applicantIdRaw = appData?.actualApplicantId || appData?.applicantId
+  console.log('[EditApplication] applicantIdRaw:', applicantIdRaw)
   const applicantIdStr = typeof applicantIdRaw === 'string' ? applicantIdRaw : undefined
+  console.log('[EditApplication] applicantIdStr:', applicantIdStr)
   
   const updateApplication = useMutation(api.applications.updateApplication)
   const updateUser = useMutation(api.users.updateUser)
 
+  const applicantIdForUserFallback = (() => {
+    if (!appData) return null
+    return appData.actualApplicantId || appData.applicantId || null
+  })()
+
+  const shouldFetchFallback = appData && !appData.user && !!applicantIdForUserFallback
+  const fallbackUser = useQuery(
+    api.users.getUserByAnyId,
+    shouldFetchFallback ? { id: applicantIdForUserFallback as string } : 'skip'
+  ) as (UserData | null | undefined)
+
+  console.log('[EditApplication] Fallback user query:', fallbackUser)
+  console.log('[EditApplication] using fallback?', shouldFetchFallback)
+
   const initialValues = useMemo(() => {
     if (!appData) return undefined
 
+    console.log('[EditApplication] Application raw data:', JSON.stringify(appData, null, 2))
+    console.log('[EditApplication] Application data keys:', Object.keys(appData))
+    console.log('[EditApplication] User object from API:', appData.user)
     const formData = JSON.parse(JSON.stringify(appData))
     
     // 1. Process Date of Birth - Ensure YYYY-MM-DD for date input
-    let dobValue: any = null
+    let dobValue: string | null = null
     const rawDob = formData.user?.dob || formData.dob || formData.dateOfBirth || formData.birthDate
     if (rawDob) {
       try {
-        const d = new Date(rawDob)
-        if (!isNaN(d.getTime())) {
-          dobValue = d.toISOString().split('T')[0]
+        // Handle various date formats
+        let dateObj: Date | null = null
+        if (typeof rawDob === 'string') {
+          // Try ISO format first
+          const isoDate = new Date(rawDob)
+          if (!isNaN(isoDate.getTime())) {
+            dateObj = isoDate
+          } else {
+            // Try other formats (YYYYMMDD, etc.)
+            const parsed = Date.parse(rawDob)
+            if (!isNaN(parsed)) {
+              dateObj = new Date(parsed)
+            }
+          }
+        } else if (typeof rawDob === 'number') {
+          // Handle timestamp
+          dateObj = new Date(rawDob)
+        }
+
+        if (dateObj && !isNaN(dateObj.getTime())) {
+          dobValue = dateObj.toISOString().split('T')[0]
+        } else {
+          console.warn('[EditApplication] Invalid date format for DOB:', rawDob)
         }
       } catch (e) {
-        console.error("Error parsing DOB:", e)
+        console.error("Error parsing DOB:", e, 'Raw DOB:', rawDob)
+        // Keep dobValue as null for invalid dates
       }
     }
 
     // 2. Build Student User Object with exhaustive fallbacks
-    const userObj = {
-      firstName: formData.user?.firstName || formData.firstName || '',
-      lastName: formData.user?.lastName || formData.lastName || '',
-      email: formData.user?.email || formData.email || '',
-      phone: formData.user?.phone || formData.phone || formData.phoneNumber || formData.cellphone || formData.cellNumber || '',
-      alternativeNumber: formData.user?.alternativeNumber || formData.alternativeNumber || formData.altPhone || '',
-      idNumber: formData.user?.idNumber || formData.idNumber || formData.idNo || formData.identityNumber || '',
-      address: formData.user?.address || formData.address || formData.homeAddress || formData.residentialAddress || formData.residentalAddress || '',
-      nationality: formData.user?.nationality || formData.nationality || '',
-      dob: dobValue,
+    let userObj: UserData = {
+      firstName: '',
+      lastName: '',
+      email: '',
+      phone: '',
+      alternativeNumber: '',
+      idNumber: '',
+      address: '',
+      nationality: '',
+      dob: dobValue || null,
+      clerkId: '',
+      _id: '',
+    }
+
+    // First, try to get user from existing data
+    if (formData.user) {
+      userObj = {
+        firstName: formData.user.firstName || '',
+        lastName: formData.user.lastName || '',
+        email: formData.user.email || '',
+        phone: formData.user.phone || '',
+        alternativeNumber: formData.user.alternativeNumber || '',
+        idNumber: formData.user.idNumber || '',
+        address: formData.user.address || '',
+        nationality: formData.user.nationality || '',
+        dob: dobValue,
+        clerkId: formData.user.clerkId || '',
+        _id: formData.user._id || '',
+      }
+    } else if (fallbackUser) {
+      // Use fallback user data if available
+      const fallbackDob = typeof fallbackUser.dob === 'number' 
+        ? new Date(fallbackUser.dob).toISOString().split('T')[0]
+        : fallbackUser.dob
+      userObj = {
+        firstName: fallbackUser.firstName || '',
+        lastName: fallbackUser.lastName || '',
+        email: fallbackUser.email || '',
+        phone: fallbackUser.phone || '',
+        alternativeNumber: fallbackUser.alternativeNumber || '',
+        idNumber: fallbackUser.idNumber || '',
+        address: fallbackUser.address || '',
+        nationality: fallbackUser.nationality || '',
+        dob: fallbackDob || dobValue,
+        clerkId: fallbackUser.clerkId || '',
+        _id: fallbackUser._id || '',
+      }
+    } else if (formData.applicantId || formData.actualApplicantId) {
+      // If no user data, try to fetch user based on applicantId
+      const applicantId = formData.applicantId || formData.actualApplicantId
+
+      // Try different lookup strategies
+      const userId = typeof applicantId === 'string' ? applicantId : ''
+
+      // Try to fetch user data using multiple methods
+      if (userId) {
+        // Try by _id first
+        userObj = {
+          firstName: '',
+          lastName: '',
+          email: '',
+          phone: '',
+          alternativeNumber: '',
+          idNumber: '',
+          address: '',
+          nationality: '',
+          dob: dobValue,
+          clerkId: '',
+          _id: '',
+        }
+      }
+    }
+
+    // Fallback to top-level fields if user object is still empty
+    if (Object.keys(userObj).length === 0 || !userObj.firstName) {
+      userObj = {
+        firstName: formData.firstName || formData?.user?.firstName || '',
+        lastName: formData.lastName || formData?.user?.lastName || '',
+        email: formData.email || formData?.user?.email || '',
+        phone: formData.phone || formData.phoneNumber || formData.cellphone || formData.cellNumber || formData?.user?.phone || '',
+        alternativeNumber: formData.alternativeNumber || formData.altPhone || formData?.user?.alternativeNumber || '',
+        idNumber: formData.idNumber || formData.idNo || formData.identityNumber || formData?.user?.idNumber || '',
+        address: formData.address || formData.homeAddress || formData.residentialAddress || formData.residentalAddress || formData?.user?.address || '',
+        nationality: formData.nationality || formData?.user?.nationality || '',
+        dob: dobValue,
+        clerkId: formData.clerkId || formData?.user?.clerkId || '',
+        _id: formData._id || formData?.user?._id || '',
+      }
+    }
+
+    // Enhanced validation - ensure required fields are present
+    const hasCriticalFields = userObj.firstName && userObj.lastName && userObj.idNumber && userObj.email
+    if (!hasCriticalFields) {
+      console.warn('[EditApplication] Missing critical user fields - falling back:', {
+        firstName: userObj.firstName,
+        lastName: userObj.lastName,
+        idNumber: userObj.idNumber,
+        email: userObj.email
+      })
+
+      // Try to populate from alternative sources
+      if (!userObj.firstName) userObj.firstName = formData?.user?.firstName || formData.firstName || ''
+      if (!userObj.lastName) userObj.lastName = formData?.user?.lastName || formData.lastName || ''
+      if (!userObj.idNumber) userObj.idNumber = formData?.user?.idNumber || formData.idNumber || ''
+      if (!userObj.email) userObj.email = formData?.user?.email || formData.email || ''
+    }
+
+    // Final validation - provide defaults only if absolutely necessary
+    if (!userObj.firstName || !userObj.lastName || !userObj.idNumber || !userObj.email) {
+      console.warn('[EditApplication] Using fallback defaults for missing critical fields:', {
+        firstName: userObj.firstName,
+        lastName: userObj.lastName,
+        idNumber: userObj.idNumber,
+        email: userObj.email
+      })
+
+      // Provide defaults for critical fields
+      userObj.firstName = userObj.firstName || 'Unknown'
+      userObj.lastName = userObj.lastName || 'User'
+      userObj.idNumber = userObj.idNumber || '0000000000000'
+      userObj.email = userObj.email || 'unknown@example.com'
     }
 
     // 3. Process application data
@@ -97,32 +265,67 @@ export default function EditApplication() {
     if (formData.actualCourseId) {
       courseIdValue = formData.actualCourseId.toString()
     } else if (formData.courseId) {
-      courseIdValue = typeof formData.courseId === 'object' 
-        ? formData.courseId?._id || formData.courseId 
+      courseIdValue = typeof formData.courseId === 'object'
+        ? formData.courseId?._id || formData.courseId?.toString() || formData.courseId
         : formData.courseId
     }
 
-    // 4. Map Race value correctly for Select components
-    if (restData.selectYourRace) {
-      const raceValue = String(restData.selectYourRace).toLowerCase().trim()
-      if (raceValue === 'indian/asian' || raceValue === 'indian asian' || raceValue === 'indian-asian') {
-        restData.selectYourRace = 'indian-asian'
-      } else {
-        restData.selectYourRace = raceValue
-      }
+    // Enhanced validation - ensure required fields are present
+    if (!courseIdValue && formData.courseId) {
+      console.warn('[EditApplication] Course ID resolution issue:', {
+        actualCourseId: formData.actualCourseId,
+        courseId: formData.courseId
+      })
     }
 
-    return {
+    // 4. Map Race value - check both selectYourRace and race from formData
+    const raceValue = formData.selectYourRace || formData.race || ''
+    const normalizedRace = raceValue.toLowerCase().trim() === 'indian/asian' || 
+                           raceValue.toLowerCase().trim() === 'indian asian' 
+                           ? 'indian-asian' 
+                           : raceValue.toLowerCase().trim()
+
+    // 5. Map provinceDelivery to proper format if needed (slug -> full name)
+    let provinceDeliveryValue = formData.provinceDelivery || ''
+    const provinceMap: Record<string, string> = {
+      'eastern-cape': 'Eastern Cape',
+      'free-state': 'Free State',
+      'gauteng': 'Gauteng',
+      'kwazulu-natal': 'KwaZulu-Natal',
+      'limpopo': 'Limpopo',
+      'mpumalanga': 'Mpumalanga',
+      'northern-cape': 'Northern Cape',
+      'north-west': 'North West',
+      'western-cape': 'Western Cape',
+    }
+    if (provinceDeliveryValue && provinceMap[provinceDeliveryValue.toLowerCase()]) {
+      provinceDeliveryValue = provinceMap[provinceDeliveryValue.toLowerCase()]
+    }
+
+    const finalValues = {
       ...restData,
       courseId: courseIdValue,
       applicantId: applicantIdStr || '',
-      race: formData.selectYourRace || restData.race || '',
+      status: formData.status || restData.status || 'PENDING',
+      selectYourRace: raceValue,
+      race: normalizedRace,
+      provinceDelivery: provinceDeliveryValue,
       user: userObj,
       documents: formData.documents || [],
       qualifications: formData.qualifications || [],
       disabilities: formData.disabilities || {},
     }
-  }, [appData, applicantIdStr])
+    console.log('[EditApplication] Final initial values:', JSON.stringify(finalValues, null, 2))
+    console.log('[EditApplication] User object in final values:', finalValues.user)
+    console.log('[EditApplication] User fields populated:', {
+      firstName: finalValues.user.firstName,
+      lastName: finalValues.user.lastName,
+      email: finalValues.user.email,
+      phone: finalValues.user.phone,
+      idNumber: finalValues.user.idNumber
+    })
+    return finalValues
+  }, [appData, applicantIdStr, fallbackUser])
 
   const form = useForm<EditFormValues>({
     resolver: zodResolver(
@@ -132,15 +335,17 @@ export default function EditApplication() {
           fileId: z.string().min(1, 'File ID is required'),
         })).optional().default([]),
         user: z.object({
-          firstName: z.string().optional(),
-          lastName: z.string().optional(),
-          email: z.string().optional(),
-          phone: z.string().optional(),
-          alternativeNumber: z.string().optional(),
-          idNumber: z.string().optional(),
-          address: z.string().optional(),
-          nationality: z.string().optional(),
-          dob: z.any().nullable(),
+          firstName: z.string().optional().default(''),
+          lastName: z.string().optional().default(''),
+          email: z.string().optional().default(''),
+          phone: z.string().optional().default(''),
+          alternativeNumber: z.string().optional().default(''),
+          idNumber: z.string().optional().default(''),
+          address: z.string().optional().default(''),
+          nationality: z.string().optional().default(''),
+          dob: z.any().nullable().optional().default(null),
+          clerkId: z.string().optional().default(''),
+          _id: z.string().optional().default(''),
         }).partial().optional()
       })
     ) as any,
@@ -168,7 +373,12 @@ export default function EditApplication() {
   // EXPLICIT RESET when data is loaded
   useEffect(() => {
     if (initialValues) {
+      console.log('[EditApplication] Resetting form with initialValues:', initialValues)
       form.reset(initialValues)
+      console.log('[EditApplication] Form after reset - user field:', form.getValues('user'))
+      console.log('[EditApplication] Form after reset - firstName:', form.getValues('user.firstName'))
+      console.log('[EditApplication] Form after reset - email:', form.getValues('user.email'))
+      console.log('[EditApplication] Form after reset - idNumber:', form.getValues('user.idNumber'))
     }
   }, [initialValues, form])
 
@@ -252,7 +462,7 @@ export default function EditApplication() {
            address: userData.address || null,
            nationality: userData.nationality || null,
            alternativeNumber: userData.alternativeNumber || null,
-           dob: userData.dob instanceof Date ? userData.dob.toISOString() : (userData.dob || null),
+            dob: userData.dob || null,
          })
 
          if (userToUpdate.clerkId) {
@@ -306,10 +516,28 @@ export default function EditApplication() {
     )
   }
 
+  // Check for missing critical user data
+  const hasCriticalUserData = appData?.user || fallbackUser
+  const missingUserData = !hasCriticalUserData && appData && appData.applicantId
+
   return (
     <div className="container mx-auto p-6 max-w-5xl">
       <div className="mb-8">
-        {(appData as any)?.user && (
+        {missingUserData && (
+          <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <h3 className="font-semibold text-yellow-900 mb-2">
+              Data Issue Detected
+            </h3>
+            <p className="text-sm text-yellow-900">
+              Application data is present but user information is missing or incomplete.
+              This may cause form fields to appear empty.
+            </p>
+            <p className="text-xs text-gray-600 mt-2">
+              Applicant ID: {appData?.applicantId || appData?.actualApplicantId || 'Unknown'}
+            </p>
+          </div>
+        )}
+        {((appData as any)?.user || fallbackUser) && (
           <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <h3 className="font-semibold text-blue-900 mb-2">
               Linked Account Info
@@ -318,16 +546,22 @@ export default function EditApplication() {
               <div>
                 <span className="text-gray-600">Name:</span>{' '}
                 <span className="font-medium">
-                  {(appData as any).user.firstName} {(appData as any).user.lastName}
+                  {(appData as any)?.user?.firstName || fallbackUser?.firstName || 'Loading...'}
+                  {' '}
+                  {(appData as any)?.user?.lastName || fallbackUser?.lastName || ''}
                 </span>
               </div>
               <div>
                 <span className="text-gray-600">Email:</span>{' '}
-                <span className="font-medium">{(appData as any).user.email}</span>
+                <span className="font-medium">
+                  {(appData as any)?.user?.email || fallbackUser?.email || 'Loading...'}
+                </span>
               </div>
               <div>
                 <span className="text-gray-600">Clerk ID:</span>{' '}
-                <span className="font-mono text-xs">{(appData as any).user.clerkId || 'N/A'}</span>
+                <span className="font-mono text-xs">
+                  {(appData as any)?.user?.clerkId || fallbackUser?.clerkId || 'N/A'}
+                </span>
               </div>
             </div>
           </div>

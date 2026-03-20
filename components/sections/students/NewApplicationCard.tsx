@@ -286,6 +286,7 @@ export default function CreateApplication({ onSuccess }: Props) {
 
       await createApplication({
         applicantId: convexUserId,
+        clerkId: user?.id || '',
         courseId: courseId,
         documents: uploadedDocs,
         data: {
@@ -297,6 +298,7 @@ export default function CreateApplication({ onSuccess }: Props) {
           phoneNumber: values.phoneNumber,
           alternativeNumber: values.alternativeNumber,
           genderDebtor: values.genderDebtor,
+          selectYourRace: values.selectYourRace,
           nationality: values.nationality,
           employmentStatus: values.employmentStatus,
           employerName: values.employerName,

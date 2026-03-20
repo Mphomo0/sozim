@@ -45,7 +45,20 @@ export const getUserById = query({
 export const getUserByAnyId = query({
   args: { id: v.string() },
   handler: async (ctx, args) => {
-    // 1. Try treating it as a legacy MongoDB ObjectId (24 hex chars)
+    if (!args.id) return null
+    
+    // 1. Try treating it as a standard Convex Id directly
+    try {
+      const normalizedId = ctx.db.normalizeId('users', args.id)
+      if (normalizedId) {
+        const user = await ctx.db.get(normalizedId)
+        if (user) return user
+      }
+    } catch (e) {
+      // Ignore - try other methods
+    }
+    
+    // 2. Try treating it as a legacy MongoDB ObjectId (24 hex chars)
     if (args.id.length === 24 && /^[a-f\d]{24}$/i.test(args.id)) {
       const user = await ctx.db.query('users')
         .withIndex('by_mongo_id', q => q.eq('mongoId', args.id))
@@ -53,15 +66,19 @@ export const getUserByAnyId = query({
       if (user) return user
     }
     
-    // 2. Try treating it as a standard Convex Id
-    try {
-      const normalizedId = ctx.db.normalizeId('users', args.id)
-      if (normalizedId) {
-        return await ctx.db.get(normalizedId)
-      }
-    } catch (e) {
-      // Ignore invalid id format error
+    // 3. Search by email if it looks like an email
+    if (args.id.includes('@')) {
+      const user = await ctx.db.query('users')
+        .withIndex('by_email', q => q.eq('email', args.id.toLowerCase()))
+        .first()
+      if (user) return user
     }
+    
+    // 4. Try by clerkId
+    const user = await ctx.db.query('users')
+      .withIndex('by_clerk_id', q => q.eq('clerkId', args.id))
+      .first()
+    if (user) return user
     
     return null
   },

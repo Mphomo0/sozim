@@ -93,6 +93,7 @@ export default defineSchema({
     
     applicantId: v.string(), // mongo id string initially
     actualApplicantId: v.optional(v.id("users")), // Real convex link
+    clerkId: v.optional(v.string()), // Clerk ID for direct user lookup
 
     courseId: v.string(), // mongo id string initially 
     actualCourseId: v.optional(v.id("courses")),

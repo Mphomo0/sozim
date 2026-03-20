@@ -166,6 +166,7 @@ export default function CreateApplication() {
         phoneNumber: values.phoneNumber,
         alternativeNumber: values.alternativeNumber,
         genderDebtor: values.genderDebtor,
+        selectYourRace: values.selectYourRace,
         nationality: values.nationality,
         employmentStatus: values.employmentStatus,
         employerName: values.employerName,
@@ -199,6 +200,7 @@ export default function CreateApplication() {
       // Create application
       await createApplication({
         applicantId: newUserId,
+        clerkId: '', // Admin-created users don't have ClerkId
         courseId: courseIdObj as any,
         documents: uploadedDocs,
         data: applicationData,

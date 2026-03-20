@@ -62,11 +62,26 @@ export const getApplicationById = query({
     const app = await ctx.db.get(args.id)
     if (!app) return null
 
-    const user = app.actualApplicantId 
-      ? await ctx.db.get(app.actualApplicantId)
-      : await ctx.db.query('users')
-          .withIndex('by_mongo_id', q => q.eq('mongoId', app.applicantId))
-          .first()
+    let user = null
+
+    // 1. Try clerkId first (primary lookup method)
+    if (app.clerkId) {
+      user = await ctx.db.query('users')
+        .withIndex('by_clerk_id', q => q.eq('clerkId', app.clerkId))
+        .first()
+    }
+    
+    // 2. Try actualApplicantId (Convex ID)
+    if (!user && app.actualApplicantId) {
+      user = await ctx.db.get(app.actualApplicantId)
+    }
+    
+    // 3. Try applicantId as mongoId
+    if (!user && app.applicantId) {
+      user = await ctx.db.query('users')
+        .withIndex('by_mongo_id', q => q.eq('mongoId', app.applicantId))
+        .first()
+    }
     
     return {
       ...app,
@@ -121,8 +136,9 @@ export const checkExistingApplication = query({
 
 export const createApplication = mutation({
   args: {
-    applicantId: v.string(), // This is expected to be a Convex ID from the frontend
-    courseId: v.string(),    // This is expected to be a Mongo ID from the frontend based on existing code
+    applicantId: v.string(), // Convex ID
+    clerkId: v.string(), // Clerk ID for user lookup
+    courseId: v.string(),    // Mongo ID from frontend
     status: v.optional(v.string()),
     documents: v.optional(v.array(v.any())),
     data: v.optional(v.any()),
@@ -143,7 +159,11 @@ export const createApplication = mutation({
       throw new Error('Invalid applicant ID')
     }
 
-    // 3. Check existing
+    // 3. Get user to verify clerkId
+    const user = await ctx.db.get(userConvexId)
+    const clerkId = user?.clerkId || args.clerkId
+
+    // 4. Check existing
     const existing = await ctx.db.query('applications')
       .withIndex('by_user', q => q.eq('actualApplicantId', userConvexId))
       .filter(q => 
@@ -159,8 +179,9 @@ export const createApplication = mutation({
     return await ctx.db.insert('applications', {
       ...rest,
       ...(data || {}),
-      applicantId: args.applicantId, // keep original as legacy reference if needed
+      applicantId: args.applicantId,
       actualApplicantId: userConvexId,
+      clerkId: clerkId,
       actualCourseId: courseConvexId,
       status: rest.status || 'PENDING',
       createdAt: Date.now(),

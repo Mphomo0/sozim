@@ -60,9 +60,7 @@ export default function StudentInformationSection({ form, isLoggedIn }: Props) {
             render={({ field }) => {
               const displayValue = (() => {
                 if (!field.value) return ''
-                if (typeof field.value === 'string') return field.value
-                if (field.value instanceof Date) return field.value.toISOString().split('T')[0]
-                return ''
+                return String(field.value)
               })()
               return (
                 <Input
