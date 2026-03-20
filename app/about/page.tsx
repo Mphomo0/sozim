@@ -6,7 +6,6 @@ import Leadership from '@/components/sections/about/Leadership'
 import MissionVision from '@/components/sections/about/MissionVision'
 import OurStory from '@/components/sections/about/OurStory'
 import Values from '@/components/sections/about/Values'
-import FAQSection from '@/components/global/FAQSection'
 import Breadcrumb from '@/components/global/Breadcrumb'
 import { getFAQSchema, getBreadcrumbSchema, getPersonSchema } from '@/lib/seo/schemas'
 
@@ -151,10 +150,6 @@ export default function About() {
       <OurStory />
       <Leadership />
       <Accreditation />
-      <FAQSection
-        title="Frequently Asked Questions About Sozim"
-        faqs={aboutFAQs}
-      />
     </>
   )
 }

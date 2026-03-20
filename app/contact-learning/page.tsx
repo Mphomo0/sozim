@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import ContactLearningSection from '@/components/sections/contact-learning/ContactLearningSection'
 import PageHeader from '@/components/global/PageHeader'
-import FAQSection from '@/components/global/FAQSection'
 import Breadcrumb from '@/components/global/Breadcrumb'
 import { getFAQSchema, getBreadcrumbSchema } from '@/lib/seo/schemas'
 
@@ -88,10 +87,6 @@ export default function ContactLearning() {
         details="Choose from our wide range of industry-recognized programs designed to advance your career."
       />
       <ContactLearningSection />
-      <FAQSection
-        title="Frequently Asked Questions About Learning Enquiries"
-        faqs={enquiryFAQs}
-      />
     </>
   )
 }

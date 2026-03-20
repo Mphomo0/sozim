@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import ProductsGrid from '@/components/sections/store/ProductsGrid'
 import PageHeader from '@/components/global/PageHeader'
-import FAQSection from '@/components/global/FAQSection'
 import Breadcrumb from '@/components/global/Breadcrumb'
 import { getFAQSchema, getBreadcrumbSchema } from '@/lib/seo/schemas'
 
@@ -88,10 +87,6 @@ export default function Shop() {
         details="Discover premium products crafted for comfort, quality, and everyday living. Shop with confidence and enjoy a seamless shopping experience."
       />
       <ProductsGrid />
-      <FAQSection
-        title="Frequently Asked Questions About the Sozim Store"
-        faqs={shopFAQs}
-      />
     </>
   )
 }

@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import PageHeader from '@/components/global/PageHeader'
 import OurPrograms from '@/components/sections/programs/OurPrograms'
-import FAQSection from '@/components/global/FAQSection'
 import Breadcrumb from '@/components/global/Breadcrumb'
 import { getFAQSchema, getBreadcrumbSchema, getCourseSchema } from '@/lib/seo/schemas'
 
@@ -111,10 +110,6 @@ export default function CoursesPage() {
         details="Choose from our wide range of industry-recognized programs designed to advance your career."
       />
       <OurPrograms />
-      <FAQSection
-        title="Frequently Asked Questions About Our Courses"
-        faqs={courseFAQs}
-      />
     </>
   )
 }

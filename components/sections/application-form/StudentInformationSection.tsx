@@ -1,5 +1,5 @@
 'use client'
-import { UseFormReturn } from 'react-hook-form'
+import { UseFormReturn, Controller } from 'react-hook-form'
 import { FormValues } from '@/lib/schema'
 import { Field, FieldLabel, FieldError } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
@@ -52,27 +52,56 @@ export default function StudentInformationSection({ form, isLoggedIn }: Props) {
           </FieldError>
         </Field>
 
-        {/* NEW FIELD: Date of Birth */}
         <Field>
           <FieldLabel htmlFor='user.dob'>Date of Birth</FieldLabel>
-
-          <Input
-            type='date'
-            id='user.dob'
-            {...form.register('user.dob', {
-              valueAsDate: true,
-            })}
+          <Controller
+            control={form.control}
+            name="user.dob"
+            render={({ field }) => {
+              const displayValue = (() => {
+                if (!field.value) return ''
+                if (typeof field.value === 'string') return field.value
+                if (field.value instanceof Date) return field.value.toISOString().split('T')[0]
+                return ''
+              })()
+              return (
+                <Input
+                  type='date'
+                  id='user.dob'
+                  value={displayValue}
+                  onChange={(e) => field.onChange(e.target.value || null)}
+                  onBlur={field.onBlur}
+                  name={field.name}
+                  ref={field.ref}
+                />
+              )
+            }}
           />
-
           <FieldError>{form.formState.errors.user?.dob?.message}</FieldError>
         </Field>
 
         <Field>
           <FieldLabel htmlFor='user.idNumber'>ID Number</FieldLabel>
-          <Input
-            id='user.idNumber'
-            placeholder='Enter your ID number'
-            {...form.register('user.idNumber')}
+          <Controller
+            control={form.control}
+            name="user.idNumber"
+            render={({ field }) => {
+              const displayValue = (() => {
+                if (!field.value) return ''
+                return String(field.value)
+              })()
+              return (
+                <Input
+                  id='user.idNumber'
+                  placeholder='Enter your ID number'
+                  value={displayValue}
+                  onChange={(e) => field.onChange(e.target.value)}
+                  onBlur={field.onBlur}
+                  name={field.name}
+                  ref={field.ref}
+                />
+              )
+            }}
           />
           <FieldError>
             {form.formState.errors.user?.idNumber?.message}
@@ -81,10 +110,17 @@ export default function StudentInformationSection({ form, isLoggedIn }: Props) {
 
         <Field>
           <FieldLabel htmlFor='user.phone'>Cellphone Number</FieldLabel>
-          <Input
-            id='user.phone'
-            placeholder='Enter cellphone number'
-            {...form.register('user.phone')}
+          <Controller
+            control={form.control}
+            name="user.phone"
+            render={({ field }) => (
+              <Input
+                id='user.phone'
+                placeholder='Enter cellphone number'
+                {...field}
+                value={field.value || ''}
+              />
+            )}
           />
           <FieldError>{form.formState.errors.user?.phone?.message}</FieldError>
         </Field>
@@ -129,10 +165,17 @@ export default function StudentInformationSection({ form, isLoggedIn }: Props) {
 
         <Field className='md:col-span-2'>
           <FieldLabel htmlFor='user.address'>Residential Address</FieldLabel>
-          <Textarea
-            id='user.address'
-            placeholder='Enter your address'
-            {...form.register('user.address')}
+          <Controller
+            control={form.control}
+            name="user.address"
+            render={({ field }) => (
+              <Textarea
+                id='user.address'
+                placeholder='Enter your address'
+                {...field}
+                value={field.value || ''}
+              />
+            )}
           />
           <FieldError>
             {form.formState.errors.user?.address?.message}

@@ -3,7 +3,7 @@ import type {
   DSpaceEndpoints,
   FetchOptions,
   Record as RecordType,
-} from '@/lib/types'
+} from './types'
 
 export const USER_AGENT = 'Academic-Library-Harvester/3.4.0'
 export const PAGE_SIZE_DEFAULT = 24

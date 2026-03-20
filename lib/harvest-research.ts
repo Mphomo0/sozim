@@ -1,5 +1,5 @@
 import { getConvexClient, api } from './convex-client'
-import type { Record as RecordType, ResearchSource } from '@/lib/types'
+import type { Record as RecordType, ResearchSource } from './types'
 import {
   RESEARCH_DATA_SOURCES,
   RECORDS_PER_REPOSITORY,

@@ -47,12 +47,16 @@ export const updateCourse = mutation({
     code: v.optional(v.string()),
     description: v.optional(v.string()),
     features: v.optional(v.array(v.string())),
-    categoryId: v.optional(v.id('courseCategories')),
+    categoryId: v.optional(v.string()),
     duration: v.optional(v.string()),
     isOpen: v.optional(v.boolean()),
     isPopular: v.optional(v.boolean()),
     image: v.optional(v.string()),
     modules: v.optional(v.any()),
+    qualification: v.optional(v.string()),
+    level: v.optional(v.string()),
+    creditTotals: v.optional(v.any()),
+    entryRequirements: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
     const { id, ...rest } = args

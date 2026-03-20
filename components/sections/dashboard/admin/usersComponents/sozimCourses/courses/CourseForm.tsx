@@ -164,32 +164,6 @@ export function CourseForm({ register, errors, control }: CourseFormProps) {
         </div>
       </div>
 
-      {/* CATEGORY */}
-      <div>
-        <label className="block text-sm font-medium mb-1">Category</label>
-        {loading ? (
-          <p className="text-sm text-gray-500">Loading categories...</p>
-        ) : (
-          <select
-            {...register('categoryId')}
-            className="w-full p-3 border border-gray-300 rounded-lg"
-            defaultValue=""
-          >
-            <option value="" disabled>
-              Select a category
-            </option>
-            {categories.map((cat) => (
-              <option key={cat._id} value={cat._id}>
-                {cat.name}
-              </option>
-            ))}
-          </select>
-        )}
-        {errors.categoryId && (
-          <p className="text-sm text-red-600">{errors.categoryId.message}</p>
-        )}
-      </div>
-
       {/* SECTION: MODULES */}
       <div className="space-y-6 bg-white/50 border border-gray-100 p-6 sm:p-8 rounded-2xl shadow-sm backdrop-blur-sm">
         <div className="flex items-center gap-2 border-b border-gray-100 pb-4 mb-6">

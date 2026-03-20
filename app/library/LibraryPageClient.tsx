@@ -7,41 +7,6 @@ import { useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Loader2, Database, AlertTriangle } from 'lucide-react'
 import { toast } from 'react-toastify'
-import FAQSection from '@/components/global/FAQSection'
-import { getSoftwareAppSchema, getFAQSchema } from '@/lib/seo/schemas'
-
-const libraryFAQs = [
-  {
-    question: 'What is the Sozim Academic Library?',
-    answer:
-      'The Sozim Academic Library is a digital research platform that provides access to thousands of scholarly articles, theses, dissertations, and research data. Our library aggregates content from leading South African universities and reputable international repositories, supporting students and researchers in their academic pursuits.',
-  },
-  {
-    question: 'How do I access the Sozim Academic Library?',
-    answer:
-      'The library is accessible to all registered Sozim students and visitors through our website. Navigate to the Library page and use the search function to browse our collection. Some resources may require free registration or may link to external repositories for full-text access. The library database is regularly updated with new content.',
-  },
-  {
-    question: 'What types of resources are available in the library?',
-    answer:
-      'Our library covers a wide range of academic disciplines including trading and finance, library and information science (LIS), education training and development (ETD), business management, and general academic research. Available formats include journal articles, conference papers, theses, dissertations, and research datasets.',
-  },
-  {
-    question: 'Is the Sozim Academic Library free to use?',
-    answer:
-      'Yes, the library search and discovery tool is completely free to use. Some linked resources from external repositories may have their own access requirements. We continuously work to expand our partnerships and provide greater access to open-access academic resources for South African students and researchers.',
-  },
-  {
-    question: 'Can I download research papers from the library?',
-    answer:
-      'Download availability depends on the specific resource and its licensing terms. Many open-access papers can be downloaded directly, while others may link to external repositories where you can access the full text. We always respect copyright and intellectual property rights associated with each resource.',
-  },
-  {
-    question: 'How often is the library database updated?',
-    answer:
-      'Our library database is regularly updated through automated harvesting from academic repositories. We sync with South African university repositories and international academic databases on a routine schedule. This ensures our users have access to the latest research and publications across all covered disciplines.',
-  },
-]
 
 type CategoryType = 'all' | 'research' | 'articles' | 'theses' | 'elis'
 
@@ -49,9 +14,6 @@ export default function LibraryPageClient() {
   const searchLayoutRef = useRef<SearchLayoutRef>(null)
   const [harvesting, setHarvesting] = useState(false)
   const [harvestStatus, setHarvestStatus] = useState<'idle' | 'harvesting' | 'error' | 'success'>('idle')
-
-  const softwareAppSchema = getSoftwareAppSchema()
-  const faqSchema = getFAQSchema(libraryFAQs)
 
   const handleSearch = (query: string, category: CategoryType) => {
     searchLayoutRef.current?.handleSearch(query, category)
@@ -84,14 +46,6 @@ export default function LibraryPageClient() {
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareAppSchema) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-      />
       <PageHeader
         title="Academic Library"
         details="Access thousands of scholarly articles, theses, and research data from leading South African universities and international repositories."
@@ -148,10 +102,6 @@ export default function LibraryPageClient() {
             </p>
           </div>
         }
-      />
-      <FAQSection
-        title="Frequently Asked Questions About the Academic Library"
-        faqs={libraryFAQs}
       />
     </>
   )

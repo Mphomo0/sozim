@@ -71,12 +71,17 @@ export const getApplicationById = query({
     return {
       ...app,
       user: user ? {
+        _id: user._id,
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
         phone: user.phone,
+        alternativeNumber: user.alternativeNumber,
         clerkId: user.clerkId,
         idNumber: user.idNumber,
+        address: user.address,
+        nationality: user.nationality,
+        dob: user.dob,
       } : null
     }
   },

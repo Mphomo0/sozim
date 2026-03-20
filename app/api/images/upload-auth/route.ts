@@ -5,11 +5,16 @@ import crypto from 'crypto'
 
 export const GET = auth(async function (req) {
   if (!req.auth)
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return NextResponse.json({ error: 'Unauthorized', message: 'Please log in to upload files' }, { status: 401 })
 
   try {
-    const privateKey = process.env.IMAGEKIT_PRIVATE_KEY!.trim() // Important: trim any whitespace
-    const publicKey = process.env.IMAGEKIT_PUBLIC_KEY!
+    const privateKey = process.env.IMAGEKIT_PRIVATE_KEY?.trim()
+    const publicKey = process.env.IMAGEKIT_PUBLIC_KEY
+
+    if (!privateKey || !publicKey) {
+      console.error('Missing ImageKit environment variables')
+      return NextResponse.json({ error: 'Server configuration error', message: 'File upload is not configured' }, { status: 500 })
+    }
 
     const token = uuidv4()
     const expire = Math.floor(Date.now() / 1000) + 2400 // 40 minutes (must be < 1 hour from now)
@@ -31,6 +36,6 @@ export const GET = auth(async function (req) {
     })
   } catch (error) {
     console.error(error)
-    return NextResponse.json({ error: 'Auth failed' }, { status: 500 })
+    return NextResponse.json({ error: 'Auth failed', message: 'Failed to generate upload signature' }, { status: 500 })
   }
 })

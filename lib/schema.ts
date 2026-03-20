@@ -125,7 +125,7 @@ export const formSchema = z.object({
   examRequirements: z.string().max(200, 'Max 200 characters').optional(),
   documents: z.array(
     z.object({
-      url: z.url(),
+      url: z.string(),
       fileId: z.string().min(1, 'File ID is required'),
     })
   ),
@@ -146,7 +146,7 @@ export const formSchema = z.object({
     email: z.email('Invalid email address'),
     address: z.string().min(5, 'Address is required'),
     nationality: z.string().min(1, 'Nationality is required'),
-    dob: z.date().nullable(),
+    dob: z.string().nullable().optional(),
   }),
 })
 

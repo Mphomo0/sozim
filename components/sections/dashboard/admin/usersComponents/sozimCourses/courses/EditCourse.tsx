@@ -87,15 +87,22 @@ export function EditCourse() {
       }
 
       await updateCourseMut({
-          id: courseId,
-          ...data,
-          modules: cleanedModules,
-          categoryId: data.categoryId as any,
+        id: courseId,
+        name: data.name,
+        code: data.code,
+        description: data.description,
+        duration: data.duration,
+        isOpen: data.isOpen,
+        qualification: data.qualification,
+        level: data.level,
+        categoryId: data.categoryId,
+        modules: cleanedModules,
+        creditTotals: data.creditTotals,
+        entryRequirements: data.entryRequirements,
       })
 
       toast.success('Course updated successfully')
       router.push('/dashboard/admin/courses')
-      router.refresh()
     } catch (err) {
       console.error(err)
       toast.error('Failed to update course')

@@ -112,8 +112,9 @@ export default function CreateApplication({ onSuccess }: Props) {
       })
 
       if (!res.ok) {
-        const errorData = await res.json()
-        throw new Error(errorData.message || 'Failed to fetch upload auth')
+        const errorData = await res.json().catch(() => ({}))
+        const message = errorData?.message || errorData?.error || `Upload auth failed (${res.status})`
+        throw new Error(message)
       }
 
       return await res.json()
@@ -214,7 +215,10 @@ export default function CreateApplication({ onSuccess }: Props) {
     api.users.getUserByClerkId,
     user?.id ? { clerkId: user.id } : 'skip'
   )
+  const allCourses = useQuery(api.courses.getCourses) || []
   const courseIdValue = form.watch('courseId')
+  const selectedCourse = allCourses.find((c) => c._id === courseIdValue)
+  const isCourseClosed = selectedCourse && !selectedCourse.isOpen
   const checkExistingApplication = useQuery(
     api.applications.checkExistingApplication,
     getUserByClerkId && courseIdValue
@@ -226,6 +230,11 @@ export default function CreateApplication({ onSuccess }: Props) {
     try {
       if (!selectedFiles.length) {
         toast.error('Please select at least one document.')
+        return
+      }
+
+      if (isCourseClosed) {
+        toast.error('Applications for this programme are currently closed.')
         return
       }
 
@@ -469,7 +478,7 @@ export default function CreateApplication({ onSuccess }: Props) {
 
           <Button
             type='submit'
-            disabled={isUploading || selectedFiles.length === 0 || checkExistingApplication}
+            disabled={isUploading || selectedFiles.length === 0 || checkExistingApplication || isCourseClosed}
             className='w-full text-lg'
           >
             {isUploading ? (
@@ -479,6 +488,8 @@ export default function CreateApplication({ onSuccess }: Props) {
               </>
             ) : checkExistingApplication ? (
               'Already Applied'
+            ) : isCourseClosed ? (
+              'Applications Closed'
             ) : (
               'Submit Application'
             )}

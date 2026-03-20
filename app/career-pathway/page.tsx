@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import PageHeader from '@/components/global/PageHeader'
 import CareerPathwayComp from '@/components/sections/careerpathways/CareerPathwayComp'
-import FAQSection from '@/components/global/FAQSection'
 import Breadcrumb from '@/components/global/Breadcrumb'
 import { getFAQSchema, getBreadcrumbSchema, getHowToSchema } from '@/lib/seo/schemas'
 
@@ -126,10 +125,6 @@ export default function CareerPathway() {
         details="Navigate your professional journey through the LIS and ETD sectors."
       />
       <CareerPathwayComp />
-      <FAQSection
-        title="Frequently Asked Questions About Career Pathways"
-        faqs={careerFAQs}
-      />
     </>
   )
 }

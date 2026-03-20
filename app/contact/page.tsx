@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import PageHeader from '@/components/global/PageHeader'
 import ContactsInfoCard from '@/components/sections/contact/ContactsInfoCard'
 import InfoMap from '@/components/sections/contact/InfoMap'
-import FAQSection from '@/components/global/FAQSection'
 import Breadcrumb from '@/components/global/Breadcrumb'
 import { getFAQSchema, getBreadcrumbSchema, getLocalBusinessSchema } from '@/lib/seo/schemas'
 import React from 'react'
@@ -37,34 +36,24 @@ const localBusinessSchema = getLocalBusinessSchema()
 
 const contactFAQs = [
   {
-    question: 'How can I contact Sozim Trading and Consultancy?',
+    question: 'When do applications open?',
     answer:
-      'You can reach us by phone at (+27) 83 668 0104, email at admin@sozim.co.za, or visit us at Shop 4, Sunday School Building, 154 Charlotte Maxeke Street, Bloemfontein. We are also available through our online contact form and offer a callback request service for your convenience.',
+      'Applications are open year-round with intakes in January, April, July, and October. Secure your spot in our next intake today.',
   },
   {
-    question: 'Where is Sozim Trading and Consultancy located?',
+    question: 'How long does the application process take?',
     answer:
-      'Our campus is located at Shop 4, Sunday School Building, 154 Charlotte Maxeke Street, Bloemfontein, Free State, 9301, South Africa. We are situated in the city centre with easy access to public transport and parking facilities. Online consultations and virtual support are also available.',
+      'The application process typically takes 5-7 business days from submission to acceptance. Our admissions team will contact you if any additional information is required.',
   },
   {
-    question: 'What are your operating hours?',
+    question: 'Do you offer payment plans?',
     answer:
-      'We are open Monday to Friday from 08:00 to 17:00, and on Saturdays from 09:00 to 13:00. We are closed on Sundays and public holidays. For online support, you can reach us via email at any time and we will respond during our next business day.',
+      'Yes, we offer flexible payment plans to make our courses more affordable. Contact our admissions team to discuss the payment options available to you.',
   },
   {
-    question: 'How quickly will I receive a response to my enquiry?',
+    question: 'Can I schedule a campus tour?',
     answer:
-      'Our team aims to respond to all enquiries within 24-48 business hours. For urgent admissions enquiries, we recommend calling us directly on (+27) 83 668 0104. You can also request a callback through our website if you prefer a phone call at a convenient time.',
-  },
-  {
-    question: 'Can I visit the campus before enrolling?',
-    answer:
-      'Yes, we welcome prospective students to visit our campus in Bloemfontein. Campus visits can be arranged by contacting us in advance. We offer guided tours, meet-and-greet sessions with instructors, and the opportunity to view our learning facilities. Contact us to schedule your visit.',
-  },
-  {
-    question: 'Do you offer online support for students outside Bloemfontein?',
-    answer:
-      'Absolutely. We provide comprehensive online support for students across South Africa. Our virtual learning platform, online enrolment system, and digital communication channels ensure that distance is never a barrier to quality education. Contact us to discuss online study options.',
+      'Yes, we encourage prospective students to visit our campus. Contact us to schedule a tour and learn more about our facilities and programmes.',
   },
 ]
 
@@ -92,14 +81,10 @@ export default function Contact() {
       <Breadcrumb />
       <PageHeader
         title="Get in Touch"
-        details="Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible."
+        details="Have questions? Would love to hear from you. Send us a message and we'll respond as soon as possible."
       />
       <ContactsInfoCard />
       <InfoMap />
-      <FAQSection
-        title="Frequently Asked Questions About Contacting Sozim"
-        faqs={contactFAQs}
-      />
     </>
   )
 }

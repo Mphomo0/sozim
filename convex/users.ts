@@ -114,20 +114,34 @@ export const createUser = mutation({
 export const updateUser = mutation({
   args: {
     id: v.id('users'),
-    firstName: v.optional(v.string()),
-    lastName: v.optional(v.string()),
-    email: v.optional(v.string()),
-    phone: v.optional(v.string()),
-    address: v.optional(v.string()),
-    dob: v.optional(v.string()),
-    alternativeNumber: v.optional(v.string()),
-    idNumber: v.optional(v.string()),
-    nationality: v.optional(v.string()),
-    clerkId: v.optional(v.string()),
+    firstName: v.optional(v.union(v.string(), v.null())),
+    lastName: v.optional(v.union(v.string(), v.null())),
+    email: v.optional(v.union(v.string(), v.null())),
+    phone: v.optional(v.union(v.string(), v.null())),
+    address: v.optional(v.union(v.string(), v.null())),
+    dob: v.optional(v.union(v.string(), v.null())),
+    alternativeNumber: v.optional(v.union(v.string(), v.null())),
+    idNumber: v.optional(v.union(v.string(), v.null())),
+    nationality: v.optional(v.union(v.string(), v.null())),
+    clerkId: v.optional(v.union(v.string(), v.null())),
+    role: v.optional(v.union(v.string(), v.null())),
+    password: v.optional(v.union(v.string(), v.null())),
   },
   handler: async (ctx, args) => {
-    const { id, ...rest } = args
-    await ctx.db.patch(id, rest)
+    const { id, password: _password, ...rest } = args
+    // Filter out null values to avoid storing literal nulls if the schema doesn't like them, 
+    // although patch should handle it if the schema allows optional.
+    const updateData: any = {}
+    Object.entries(rest).forEach(([key, value]) => {
+      if (value !== null) {
+        updateData[key] = value
+      } else {
+        // If it's null, we might want to unset it or set it to undefined
+        updateData[key] = undefined 
+      }
+    })
+    
+    await ctx.db.patch(id, updateData)
     return await ctx.db.get(id)
   },
 })

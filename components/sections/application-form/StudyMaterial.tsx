@@ -45,7 +45,7 @@ export default function StudyMaterial({ form }: Props) {
           <FieldLabel htmlFor="provinceDelivery">Province</FieldLabel>
           <Select
             onValueChange={(value) => form.setValue('provinceDelivery', value)}
-            defaultValue={form.getValues('provinceDelivery')}
+            value={form.watch('provinceDelivery')}
           >
             <SelectTrigger id="provinceDelivery">
               <SelectValue placeholder="Select a province" />

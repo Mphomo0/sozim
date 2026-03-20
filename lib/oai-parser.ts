@@ -4,7 +4,7 @@ import type {
   Record as RecordType,
   RecordType as RecordTypeEnum,
   IdentifierType,
-} from '@/lib/types'
+} from './types'
 import {
   decode,
   pick,

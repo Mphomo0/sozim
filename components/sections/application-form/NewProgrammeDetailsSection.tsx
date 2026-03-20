@@ -16,26 +16,35 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 
 type Props = {
   form: UseFormReturn<FormValues>
+  isAdmin?: boolean
 }
 
 interface Course {
   _id: string
   name: string
+  isOpen: boolean
 }
 
 import { useQuery } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 
-export default function NewProgrammeDetailsSection({ form }: Props) {
+export default function NewProgrammeDetailsSection({ form, isAdmin: isAdminProp }: Props) {
   const { user, isLoaded } = useUser()
 
-  const isAdmin = 
+  const isAdminFromUser = 
     isLoaded && 
     user && 
-    (user.publicMetadata?.role === 'ADMIN' || user.publicMetadata?.role === 'MODERATOR')
+    user.publicMetadata?.role === 'ADMIN'
+
+  const isAdmin = isAdminProp !== undefined ? isAdminProp : isAdminFromUser
 
   const coursesRaw = useQuery(api.courses.getCourses)
-  const courses = coursesRaw || []
+  const allCourses = coursesRaw || []
+  const courses = isAdmin ? allCourses : allCourses.filter((c) => c.isOpen)
+  
+  const selectedCourseId = form.watch('courseId')
+  const selectedCourse = allCourses.find((c) => c._id === selectedCourseId)
+  const isSelectedCourseClosed = selectedCourseId && selectedCourse && !selectedCourse.isOpen
 
   return (
     <div className="space-y-6 p-6 border rounded-xl bg-gray-50">
@@ -77,21 +86,36 @@ export default function NewProgrammeDetailsSection({ form }: Props) {
         <FieldLabel htmlFor="courseId">Programme Name</FieldLabel>
         <Select
           onValueChange={(value) => form.setValue('courseId', value)}
-          defaultValue={form.getValues('courseId')}
+          value={form.watch('courseId')}
         >
           <SelectTrigger id="programmeName">
             <SelectValue placeholder="Select a programme" />
           </SelectTrigger>
           <SelectContent>
-            {courses.map((course) => (
-              <SelectItem key={course._id} value={course._id}>
-                {course.name}
-              </SelectItem>
-            ))}
+            {courses.length === 0 && !isAdmin ? (
+              <div className="px-2 py-4 text-sm text-gray-500 text-center">
+                No programmes currently open for applications
+              </div>
+            ) : (
+              courses.map((course) => (
+                <SelectItem key={course._id} value={course._id}>
+                  {course.name}
+                </SelectItem>
+              ))
+            )}
           </SelectContent>
         </Select>
         <FieldError>{form.formState.errors.courseId?.message}</FieldError>
       </Field>
+
+      {/* Closed course warning */}
+      {isSelectedCourseClosed && !isAdmin && (
+        <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+          <p className="text-amber-800 font-medium">
+            Applications for this programme are currently closed. Please select a different programme or contact us for more information.
+          </p>
+        </div>
+      )}
 
       {/* Programme Status – ADMIN ONLY */}
       {isAdmin && (
@@ -104,7 +128,7 @@ export default function NewProgrammeDetailsSection({ form }: Props) {
                 value as 'PENDING' | 'APPROVED' | 'REJECTED'
               )
             }
-            defaultValue={form.getValues('status')}
+            value={form.watch('status')}
           >
             <SelectTrigger id="status">
               <SelectValue placeholder="Select status" />

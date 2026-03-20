@@ -30,7 +30,7 @@ interface FormValues {
   address?: string
   idNumber?: string
   nationality?: string
-  role?: 'USER' | 'ADMIN' | 'MODERATOR'
+  role?: string
 }
 
 export default function EditUserComp() {
@@ -63,7 +63,7 @@ export default function EditUserComp() {
         address: user.address || '',
         idNumber: user.idNumber || '',
         nationality: user.nationality || '',
-        role: (user.role as any) || 'USER',
+        role: user.role || 'USER',
       })
     }
   }, [user, reset])
@@ -72,7 +72,7 @@ export default function EditUserComp() {
   async function onSubmit(form: FormValues) {
     if (!userId || !user) return
     try {
-      const payload: any = {}
+      const payload: Record<string, string | undefined> = {}
 
       Object.entries(form).forEach(([key, value]) => {
         if (value !== undefined && value !== '') {
@@ -85,15 +85,22 @@ export default function EditUserComp() {
         return
       }
 
-      // If user is stored in Clerk, sync profile/password there first
-      if (user.clerkId && (payload.firstName || payload.lastName || payload.password || payload.email || payload.phone)) {
-        const clerkRes = await updateUserInClerk(user.clerkId, {
-          firstName: payload.firstName,
-          lastName: payload.lastName,
-          email: payload.email,
-          phone: payload.phone,
-          password: payload.password,
-        })
+      const clerkPayload: {
+        firstName?: string;
+        lastName?: string;
+        email?: string;
+        phone?: string;
+        password?: string;
+      } = {}
+
+      if (payload.firstName) clerkPayload.firstName = payload.firstName
+      if (payload.lastName) clerkPayload.lastName = payload.lastName
+      if (payload.email) clerkPayload.email = payload.email
+      if (payload.phone) clerkPayload.phone = payload.phone
+      if (payload.password) clerkPayload.password = payload.password
+
+      if (user.clerkId && Object.keys(clerkPayload).length > 0) {
+        const clerkRes = await updateUserInClerk(user.clerkId, clerkPayload)
 
         if (!clerkRes.success) {
            toast.error(clerkRes.error || "Failed updating authentication layer")
@@ -101,7 +108,19 @@ export default function EditUserComp() {
         }
       }
 
-      await updateUser({ id: userId, ...payload })
+      await updateUser({ 
+        id: userId, 
+        firstName: payload.firstName,
+        lastName: payload.lastName,
+        email: payload.email,
+        phone: payload.phone,
+        address: payload.address,
+        dob: payload.dob,
+        alternativeNumber: payload.alternativeNumber,
+        idNumber: payload.idNumber,
+        nationality: payload.nationality,
+        role: payload.role,
+      })
 
       toast.success('User updated successfully')
       router.push('/dashboard/admin/users')
@@ -327,6 +346,21 @@ export default function EditUserComp() {
           {...register('nationality')}
           className="w-full px-3 py-3 border border-slate-300 rounded-md text-sm text-slate-900 outline-blue-600"
         />
+      </div>
+
+      {/* Role */}
+      <div>
+        <label className="text-slate-900 text-sm font-medium mb-2 block">
+          Role
+        </label>
+        <select
+          {...register('role')}
+          className="w-full px-3 py-3 border border-slate-300 rounded-md text-sm text-slate-900 outline-blue-600 bg-white"
+        >
+          <option value="USER">User</option>
+          <option value="ADMIN">Admin</option>
+          <option value="MODERATOR">Moderator</option>
+        </select>
       </div>
 
       {/* Submit button */}

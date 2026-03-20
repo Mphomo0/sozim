@@ -4,7 +4,6 @@ import Featured from '@/components/sections/home/Featured'
 import Hero from '@/components/sections/home/Hero'
 import SozimPrograms from '@/components/sections/home/SozimPrograms'
 import Stats from '@/components/sections/home/Stats'
-import FAQSection from '@/components/global/FAQSection'
 import { getFAQSchema, getEventSchema, getBreadcrumbSchema } from '@/lib/seo/schemas'
 
 const BASE_URL = 'https://www.sozim.co.za'
@@ -96,10 +95,6 @@ export default function Home() {
       <Featured />
       <SozimPrograms />
       <CTA />
-      <FAQSection
-        title="Frequently Asked Questions"
-        faqs={homepageFAQs}
-      />
     </div>
   )
 }

@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import CampusCard from '@/components/global/CampusCard'
 import PageHeader from '@/components/global/PageHeader'
-import FAQSection from '@/components/global/FAQSection'
 import Breadcrumb from '@/components/global/Breadcrumb'
 import { getFAQSchema, getBreadcrumbSchema } from '@/lib/seo/schemas'
 
@@ -87,10 +86,6 @@ export default function CampusPage() {
         details="Our Contact Learning Campuses offer a range of opportunities to enhance your skills and knowledge."
       />
       <CampusCard />
-      <FAQSection
-        title="Frequently Asked Questions About Our Campuses"
-        faqs={campusFAQs}
-      />
     </>
   )
 }

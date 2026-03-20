@@ -1,5 +1,5 @@
 import { getConvexClient, api } from './convex-client'
-import type { Record as RecordType, HarvestResult } from '@/lib/types'
+import type { Record as RecordType, HarvestResult } from './types'
 import {
   DSPACE_ENDPOINTS,
   RECORDS_PER_REPOSITORY,
@@ -116,7 +116,7 @@ export async function harvestDSpaceRepositories(ctx?: HarvestCtx): Promise<{
 
       const { t: theses, a: articles } = await harvestDSpaceRepo(
         id,
-        endpoint,
+        endpoint as string,
         RECORDS_PER_REPOSITORY
       )
       allTheses.push(...theses)
@@ -165,12 +165,12 @@ export async function harvestDSpaceRepositoriesIncremental(
 
       const { t: theses, a: articles } = await harvestDSpaceRepo(
         id,
-        endpoint,
+        endpoint as string,
         limit
       )
 
       const newTheses = theses.filter(
-        (newThesis) =>
+        (newThesis: RecordType) =>
           !existingTheses.some(
             (existing) =>
               createRecordSignature(existing) ===
@@ -179,7 +179,7 @@ export async function harvestDSpaceRepositoriesIncremental(
       )
 
       const newArticles = articles.filter(
-        (newArticle) =>
+        (newArticle: RecordType) =>
           !existingArticles.some(
             (existing) =>
               createRecordSignature(existing) ===
@@ -188,13 +188,13 @@ export async function harvestDSpaceRepositoriesIncremental(
       )
 
       if (newTheses.length > 0) {
-        await bulkUpsert(ctx, newTheses.map((r) => ({ ...r, category: 'thesis' })))
+        await bulkUpsert(ctx, newTheses.map((r: RecordType) => ({ ...r, category: 'thesis' })))
         existingTheses = [...existingTheses, ...newTheses]
         totalNewRecords += newTheses.length
       }
 
       if (newArticles.length > 0) {
-        await bulkUpsert(ctx, newArticles.map((r) => ({ ...r, category: 'article' })))
+        await bulkUpsert(ctx, newArticles.map((r: RecordType) => ({ ...r, category: 'article' })))
         existingArticles = [...existingArticles, ...newArticles]
         totalNewRecords += newArticles.length
       }
