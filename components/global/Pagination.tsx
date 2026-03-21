@@ -87,23 +87,23 @@ export function Pagination({
         </div>
       )}
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1 sm:gap-2 w-full justify-between sm:justify-center">
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage <= 1}
-          className="px-3 py-1 rounded bg-gray-200 disabled:opacity-50 hover:bg-gray-300 text-sm"
+          className="px-2 sm:px-3 py-1 rounded bg-gray-200 disabled:opacity-50 hover:bg-gray-300 text-xs sm:text-sm whitespace-nowrap"
           aria-label="Previous page"
         >
           Previous
         </button>
 
-        <div className="flex gap-1">
+        <div className="flex gap-1 overflow-x-auto max-w-full">
           {getPageNumbers().map((page, index) =>
             typeof page === 'number' ? (
               <button
                 key={index}
                 onClick={() => onPageChange(page)}
-                className={`px-3 py-1 rounded text-sm ${
+                className={`px-2 sm:px-3 py-1 rounded text-xs sm:text-sm whitespace-nowrap ${
                   currentPage === page
                     ? 'bg-black text-white'
                     : 'bg-gray-200 hover:bg-gray-300'
@@ -112,7 +112,7 @@ export function Pagination({
                 {page}
               </button>
             ) : (
-              <span key={index} className="px-2 py-1 text-sm">
+              <span key={index} className="px-1 py-1 text-xs sm:text-sm">
                 {page}
               </span>
             )
@@ -122,7 +122,7 @@ export function Pagination({
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage >= totalPages}
-          className="px-3 py-1 rounded bg-gray-200 disabled:opacity-50 hover:bg-gray-300 text-sm"
+          className="px-2 sm:px-3 py-1 rounded bg-gray-200 disabled:opacity-50 hover:bg-gray-300 text-xs sm:text-sm whitespace-nowrap"
           aria-label="Next page"
         >
           Next

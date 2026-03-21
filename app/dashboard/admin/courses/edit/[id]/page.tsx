@@ -35,8 +35,8 @@ export default async function EditCoursePage() {
         </Link>
       }
     >
-      <div className="bg-white/70 backdrop-blur-sm rounded-3xl shadow-sm border border-gray-100 overflow-hidden transition-all hover:shadow-md">
-        <div className="p-8">
+      <div className="bg-white/70 backdrop-blur-sm rounded-3xl shadow-sm border border-gray-100 overflow-hidden transition-all hover:shadow-md w-full">
+        <div className="p-4 md:p-8">
           <EditCourse />
         </div>
       </div>

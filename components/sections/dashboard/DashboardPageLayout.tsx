@@ -42,8 +42,8 @@ export function DashboardPageLayout({
         transition={{ duration: 0.5 }}
         className={cn("flex-1 p-6 md:p-8 space-y-8 max-w-7xl mx-auto w-full", className)}
       >
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="space-y-1">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 w-full">
+          <div className="space-y-1 w-full">
             <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-50">
               {title}
             </h1>
@@ -54,7 +54,7 @@ export function DashboardPageLayout({
             )}
           </div>
           {action && (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 w-full flex-wrap">
               {action}
             </div>
           )}

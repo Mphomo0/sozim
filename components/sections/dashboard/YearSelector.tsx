@@ -33,12 +33,12 @@ export default function YearSelector({ currentYear, selectedYear }: Props) {
   const years = [currentYear - 2, currentYear - 1, currentYear, currentYear + 1]
 
   return (
-    <form>
+    <form className="w-full">
       <select
         name="year"
         defaultValue={selectedYear}
-        className="border p-2 rounded"
-        onChange={handleYearChange} // <--- The onChange handler is now safe here
+        className="border p-2 rounded w-full min-w-[120px]"
+        onChange={handleYearChange}
       >
         {years.map((yr) => (
           <option key={yr} value={yr}>

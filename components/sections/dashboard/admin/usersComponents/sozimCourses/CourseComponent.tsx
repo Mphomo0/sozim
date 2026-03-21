@@ -67,9 +67,9 @@ export default function CourseComponent() {
             className="pl-10 h-11 bg-white border-gray-200 focus:border-indigo-500 focus:ring-indigo-500 transition-all rounded-xl"
           />
         </div>
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <a href="/api/export/courses" download>
-            <Button variant="outline" className="h-11 px-4 rounded-xl border-gray-200 text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-sm">
+        <div className="flex items-center gap-2 w-full">
+          <a href="/api/export/courses" download className="w-full">
+            <Button variant="outline" className="h-11 px-4 rounded-xl border-gray-200 text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-sm w-full">
               <Download className="h-5 w-5 mr-2 sm:mr-0 md:mr-2" />
               <span className="inline sm:hidden md:inline">Export</span>
             </Button>

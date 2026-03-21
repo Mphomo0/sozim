@@ -72,7 +72,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
       description={`Real-time insights and application metrics for ${selectedYear}.`}
       breadcrumbs={[{ label: 'Analytics' }]}
       action={
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 w-full flex-wrap">
           <span className="text-sm font-medium text-gray-700">Filter Year:</span>
           <YearSelector currentYear={currentYear} selectedYear={selectedYear} />
         </div>
@@ -88,9 +88,9 @@ export default async function DashboardPage({ searchParams }: PageProps) {
         rejectedPercent={rejectedPercent}
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
-        <div className="bg-white/70 backdrop-blur-sm p-8 rounded-3xl shadow-sm border border-gray-100">
-          <div className="flex items-center justify-between mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8 w-full">
+        <div className="bg-white/70 backdrop-blur-sm p-4 md:p-8 rounded-3xl shadow-sm border border-gray-100 w-full">
+          <div className="flex items-center justify-between mb-4 md:mb-8">
             <div>
               <h2 className="text-xl font-bold text-gray-900">Application Breakdown</h2>
               <p className="text-sm text-gray-500">Status distribution for {selectedYear}</p>
@@ -101,8 +101,8 @@ export default async function DashboardPage({ searchParams }: PageProps) {
           </div>
         </div>
 
-        <div className="bg-white/70 backdrop-blur-sm p-8 rounded-3xl shadow-sm border border-gray-100">
-          <div className="flex items-center justify-between mb-8">
+        <div className="bg-white/70 backdrop-blur-sm p-4 md:p-8 rounded-3xl shadow-sm border border-gray-100 w-full">
+          <div className="flex items-center justify-between mb-4 md:mb-8">
             <div>
               <h2 className="text-xl font-bold text-gray-900">Historical Trends</h2>
               <p className="text-sm text-gray-500">Year-over-year application volume</p>

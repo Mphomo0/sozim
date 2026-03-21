@@ -43,7 +43,7 @@ export default function StudentPage() {
           </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-start sm:items-start gap-3 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-300">
+        <div className="flex flex-col sm:flex-row items-start sm:items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300">
           <Info className="mt-0.5 h-5 w-5 shrink-0" />
           <span>
             Before creating an application, please update your profile by clicking on the <strong>user icon</strong> in the top-right corner.

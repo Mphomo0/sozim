@@ -149,9 +149,9 @@ export default function ListApplications() {
             }}
           />
         </div>
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <a href="/api/export/applications" download>
-            <Button variant="outline" className="h-11 px-4 rounded-xl border-gray-200 text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-sm">
+        <div className="flex items-center gap-2 w-full">
+          <a href="/api/export/applications" download className="w-full">
+            <Button variant="outline" className="h-11 px-4 rounded-xl border-gray-200 text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-sm w-full">
               <Download className="h-4 w-4 mr-2 hidden sm:inline" />
               Export
             </Button>
