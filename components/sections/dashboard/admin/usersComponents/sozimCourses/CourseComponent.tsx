@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Pencil, Trash2, Plus, Search, BookOpen, GraduationCap, Download } from 'lucide-react'
+import { Pencil, Trash2, Plus, Search, BookOpen, GraduationCap } from 'lucide-react'
 import { Pagination } from '@/components/global/Pagination'
 
 export default function CourseComponent() {
@@ -67,22 +67,14 @@ export default function CourseComponent() {
             className="pl-10 h-11 bg-white border-gray-200 focus:border-indigo-500 focus:ring-indigo-500 transition-all rounded-xl"
           />
         </div>
-        <div className="flex items-center gap-2 w-full">
-          <a href="/api/export/courses" download className="w-full">
-            <Button variant="outline" className="h-11 px-4 rounded-xl border-gray-200 text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-sm w-full">
-              <Download className="h-5 w-5 mr-2 sm:mr-0 md:mr-2" />
-              <span className="inline sm:hidden md:inline">Export</span>
-            </Button>
-          </a>
-          <Link href="/dashboard/admin/courses/new" passHref>
-            <Button
-              className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white h-11 px-6 rounded-xl shadow-lg shadow-indigo-200 transition-all flex items-center gap-2 group"
-            >
-              <Plus className="h-5 w-5 group-hover:rotate-90 transition-transform duration-300" />
-              Add Course
-            </Button>
-          </Link>
-        </div>
+        <Link href="/dashboard/admin/courses/new" passHref>
+          <Button
+            className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white h-11 px-6 rounded-xl shadow-lg shadow-indigo-200 transition-all flex items-center gap-2 group"
+          >
+            <Plus className="h-5 w-5 group-hover:rotate-90 transition-transform duration-300" />
+            Add Course
+          </Button>
+        </Link>
       </div>
 
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">

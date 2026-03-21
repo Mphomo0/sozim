@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { useQuery, useMutation } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 import { Id } from '@/convex/_generated/dataModel'
-import { Search, Pencil, Trash2, Plus, ChevronLeft, Download } from 'lucide-react'
+import { Search, Pencil, Trash2, Plus } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import {
@@ -54,22 +54,14 @@ export default function CourseCategoryTable() {
             className="pl-10 h-11 bg-white border-gray-200 focus:border-indigo-500 focus:ring-indigo-500 transition-all rounded-xl"
           />
         </div>
-        <div className="flex items-center gap-2 w-full">
-          <a href="/api/export/categories" download className="w-full">
-            <Button variant="outline" className="h-11 px-4 rounded-xl border-gray-200 text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-sm w-full">
-              <Download className="h-5 w-5 mr-2 sm:mr-0 md:mr-2" />
-              <span className="inline sm:hidden md:inline">Export</span>
-            </Button>
-          </a>
-          <Link href="/dashboard/admin/courses/category/new" passHref>
-            <Button
-              className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white h-11 px-6 rounded-xl shadow-lg shadow-indigo-200 transition-all flex items-center gap-2 group"
-            >
-              <Plus className="h-5 w-5 group-hover:rotate-90 transition-transform duration-300" />
-              Add Category
-            </Button>
-          </Link>
-        </div>
+        <Link href="/dashboard/admin/courses/category/new" passHref>
+          <Button
+            className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white h-11 px-6 rounded-xl shadow-lg shadow-indigo-200 transition-all flex items-center gap-2 group"
+          >
+            <Plus className="h-5 w-5 group-hover:rotate-90 transition-transform duration-300" />
+            Add Category
+          </Button>
+        </Link>
       </div>
 
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden text-sm lg:text-base">

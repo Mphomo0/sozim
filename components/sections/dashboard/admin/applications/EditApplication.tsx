@@ -58,6 +58,7 @@ import { updateUserInClerk } from '@/app/actions/user.actions'
 export default function EditApplication() {
   const [isUploading, setIsUploading] = useState(false)
   const [newFiles, setNewFiles] = useState<File[]>([])
+  const [formKey, setFormKey] = useState(0)
 
   const { id } = useParams()
   const router = useRouter()
@@ -236,7 +237,7 @@ export default function EditApplication() {
     if (formData.actualCourseId) {
       courseIdValue = formData.actualCourseId.toString()
     } else if (formData.courseId) {
-      // courseId可能是mongo id字符串，需要检查是否为Convex ID格式（以j开头）
+      // courseId可能是mongo格式的字符串，但actualCourseId不存在，尝试使用
       courseIdValue = typeof formData.courseId === 'object'
         ? formData.courseId?._id || formData.courseId?.toString() || formData.courseId
         : formData.courseId
@@ -247,23 +248,10 @@ export default function EditApplication() {
       courseIdValue = formData.courseId
     }
 
-    // Debug: Log course info
-    console.log('[EditApplication] formData.course:', formData.course)
-    console.log('[EditApplication] formData.courseId raw:', JSON.stringify(formData.courseId))
-    console.log('[EditApplication] formData.actualCourseId:', formData.actualCourseId)
-    console.log('[EditApplication] courseIdValue final:', courseIdValue)
-
     // 4. Normalize Enum Fields
     const raceValue = formData.race || formData.selectYourRace || ''
     const normalizedRace = normalizeEnum(raceValue)
-    
-    // Debug: Log race/gender values
-    console.log('[EditApplication] formData.selectYourRace:', formData.selectYourRace)
-    console.log('[EditApplication] formData.genderDebtor:', formData.genderDebtor)
-    console.log('[EditApplication] formData.gender:', formData.gender)
-    console.log('[EditApplication] raceValue:', raceValue)
-    console.log('[EditApplication] normalizedRace:', normalizedRace)
-    
+
     const deliveryMethodValue = normalizeEnum(formData.deliveryMethod)
     const highestGradeAchievedValue = normalizeEnum(formData.highestGradeAchieved)
     const qualificationTypeValue = normalizeEnum(formData.qualificationType)
@@ -278,8 +266,6 @@ export default function EditApplication() {
     // 5. Map provinceDelivery to Full Name (as now expected by StudyMaterial.tsx)
     let provinceDeliveryValue = formData.provinceDelivery || ''
     
-    // Debug: Log province
-    console.log('[EditApplication] formData.provinceDelivery:', formData.provinceDelivery)
     const provinceMap: Record<string, string> = {
       'eastern-cape': 'Eastern Cape',
       'free-state': 'Free State',
@@ -299,59 +285,75 @@ export default function EditApplication() {
 
     const finalValues = {
       ...restData,
+      _id: formData._id || restData._id || '',
       courseId: courseIdValue,
       applicantId: applicantIdStr || '',
       status: formData.status || 'PENDING',
 
-      // Map all application data fields directly
-      deliveryAddress: formData.deliveryAddress || formData.deliveryAddress || '',
-      postalCodeDelivery: formData.postalCodeDelivery || formData.postalCode || '',
-      provinceDelivery: provinceDeliveryValue,
-      deliveryMethod: deliveryMethodValue,
-
-      // Normalized fields
-      race: normalizedRace,
-      selectYourRace: formData.selectYourRace || selectYourRaceValue || '',
-      highestGradeAchieved: highestGradeAchievedValue,
-      qualificationType: qualificationTypeValue,
-      socioEconomicStatus: socioEconomicStatusValue,
-      homeLanguage: homeLanguageValue,
-      gender: genderValue,
-      genderDebtor: formData.genderDebtor || genderDebtorValue || '',
-
-      user: userObj,
-      documents: formData.documents || [],
-      qualifications: formData.qualifications || [],
-      disabilities: formData.disabilities || {},
-
-      // Additional fallback mappings for missing fields
-      ...(formData.schoolAttended && { schoolAttended: formData.schoolAttended }),
-      ...(formData.schoolProvince && { schoolProvince: formData.schoolProvince }),
-      ...(formData.examRequirements && { examRequirements: formData.examRequirements }),
-      ...(formData.maritalStatus && { maritalStatus: formData.maritalStatus }),
-      ...(formData.employerName && { employerName: formData.employerName }),
-      ...(formData.employmentSector && { employmentSector: formData.employmentSector }),
-      ...(formData.employerAddress && { employerAddress: formData.employerAddress }),
-      ...(formData.fullNameCompany && { fullNameCompany: formData.fullNameCompany }),
-      ...(formData.sponsor && { sponsor: formData.sponsor }),
-      ...(formData.companyReg && { companyReg: formData.companyReg }),
-      ...(formData.sponsorEmail && { sponsorEmail: formData.sponsorEmail }),
-      // Explicitly map co-principal debtor fields from application level
+      fullNameCompany: formData.fullNameCompany || '',
+      sponsor: formData.sponsor || '',
+      companyReg: formData.companyReg || '',
+      sponsorEmail: formData.sponsorEmail || '',
       homeAddress: formData.homeAddress || '',
       phoneNumber: formData.phoneNumber || '',
       alternativeNumber: formData.alternativeNumber || '',
+      selectYourRace: formData.selectYourRace || selectYourRaceValue || '',
+      genderDebtor: formData.genderDebtor || genderDebtorValue || '',
       nationality: formData.nationality || '',
       employmentStatus: formData.employmentStatus || '',
+      employerName: formData.employerName || '',
+      employmentSector: formData.employmentSector || '',
+      employerAddress: formData.employerAddress || '',
+      maritalStatus: formData.maritalStatus || '',
+      examRequirements: formData.examRequirements || '',
+
+      deliveryAddress: formData.deliveryAddress || '',
+      postalCodeDelivery: formData.postalCodeDelivery || formData.postalCode || '',
+      provinceDelivery: provinceDeliveryValue,
+      deliveryMethod: deliveryMethodValue || undefined,
+
+      highestGradeAchieved: highestGradeAchievedValue || undefined,
+      highestGradeOther: formData.highestGradeOther || '',
+      yearCompleted: formData.yearCompleted || '',
+      schoolAttended: formData.schoolAttended || '',
+      schoolProvince: formData.schoolProvince || '',
+
+      race: normalizedRace || undefined,
+      raceOther: formData.raceOther || '',
+      homeLanguage: homeLanguageValue || undefined,
+      homeLanguageOther: formData.homeLanguageOther || '',
+      gender: genderValue || undefined,
+      qualificationType: qualificationTypeValue || undefined,
+      socioEconomicStatus: socioEconomicStatusValue || undefined,
+
+      specialNeeds: formData.specialNeeds || undefined,
+      disabilities: formData.disabilities || {
+        seeing: undefined,
+        hearing: undefined,
+        communication: undefined,
+        physical: undefined,
+        emotional: undefined,
+        intellectual: undefined,
+      },
+
+      user: userObj,
+      documents: Array.isArray(formData.documents) 
+        ? formData.documents.map((d: any) => ({ 
+            url: d.url || '', 
+            fileId: d.fileId || d._id || '' 
+          }))
+        : [],
+      qualifications: Array.isArray(formData.qualifications) 
+        ? formData.qualifications.map((q: any) => ({
+            tertiaryQualification: q.tertiaryQualification || '',
+            tertiaryQualificationOther: q.tertiaryQualificationOther || '',
+            tertiaryQualificationName: q.tertiaryQualificationName || '',
+            tertiaryInstitution: q.tertiaryInstitution || '',
+            yearCommenced: q.yearCommenced || '',
+            YearCompletedTertiary: q.YearCompletedTertiary || '',
+          }))
+        : [],
     }
-    
-    // Debug logging
-    console.log('[EditApplication] finalValues keys:', Object.keys(finalValues))
-    console.log('[EditApplication] finalValues.homeAddress:', finalValues.homeAddress)
-    console.log('[EditApplication] finalValues.phoneNumber:', finalValues.phoneNumber)
-    console.log('[EditApplication] finalValues.selectYourRace:', finalValues.selectYourRace)
-    console.log('[EditApplication] finalValues.user:', finalValues.user)
-    console.log('[EditApplication] finalValues.user.phone:', finalValues.user?.phone)
-    console.log('[EditApplication] finalValues.user.alternativeNumber:', finalValues.user?.alternativeNumber)
     
     return finalValues
   }, [appData, applicantIdStr, fallbackUser])
@@ -385,6 +387,11 @@ export default function EditApplication() {
       documents: [],
       qualifications: [],
       disabilities: {},
+      selectYourRace: '',
+      genderDebtor: '',
+      provinceDelivery: '',
+      deliveryMethod: undefined,
+      qualificationType: undefined,
       user: {
         firstName: '',
         lastName: '',
@@ -402,18 +409,14 @@ export default function EditApplication() {
   // EXPLICIT RESET when data is loaded - only once
   const hasResetRef = useRef(false)
   useEffect(() => {
-    if (initialValues && !hasResetRef.current) {
-      // Check that we have actual application data (not just default structure)
-      if (initialValues._id) {
-        hasResetRef.current = true
-        console.log('[EditApplication] Resetting form with initialValues')
-        form.reset(initialValues)
-        console.log('[EditApplication] Form after reset - courseId:', form.getValues('courseId'))
-        console.log('[EditApplication] Form after reset - selectYourRace:', form.getValues('selectYourRace'))
-        console.log('[EditApplication] Form after reset - provinceDelivery:', form.getValues('provinceDelivery'))
-      }
+    if (initialValues && !hasResetRef.current && appData) {
+      hasResetRef.current = true
+      form.reset(initialValues)
+      setFormKey(k => k + 1)
+      console.log('[EditApplication] Form reset with initialValues keys:', Object.keys(initialValues))
+      console.log('[EditApplication] user object:', initialValues.user)
     }
-  }, [initialValues, form])
+  }, [initialValues, form, appData])
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -421,6 +424,25 @@ export default function EditApplication() {
   })
 
   const watchSpecialNeeds = form.watch('specialNeeds')
+
+  useEffect(() => {
+    if (initialValues && appData && formKey > 0) {
+      form.setValue('selectYourRace', initialValues.selectYourRace || '')
+      form.setValue('genderDebtor', initialValues.genderDebtor || '')
+      form.setValue('courseId', initialValues.courseId || '')
+      form.setValue('provinceDelivery', initialValues.provinceDelivery || '')
+      form.setValue('deliveryMethod', initialValues.deliveryMethod || '')
+      form.setValue('qualificationType', initialValues.qualificationType || '')
+      form.setValue('socioEconomicStatus', initialValues.socioEconomicStatus || '')
+      form.setValue('homeLanguage', initialValues.homeLanguage || '')
+      form.setValue('gender', initialValues.gender || '')
+      form.setValue('race', initialValues.race || '')
+      form.setValue('highestGradeAchieved', initialValues.highestGradeAchieved || '')
+      form.setValue('specialNeeds', initialValues.specialNeeds || '')
+      form.setValue('status', initialValues.status || 'PENDING')
+      form.trigger()
+    }
+  }, [initialValues, form, appData, formKey])
 
   const disabilityPath = (key: keyof NonNullable<FormValues['disabilities']>) =>
     `disabilities.${key}` as const
@@ -619,7 +641,7 @@ export default function EditApplication() {
       </div>
 
       <form 
-        key={appData?._id?.toString() || 'loading'} 
+        key={`form-${formKey}`}
         onSubmit={form.handleSubmit(onSubmit)} 
         className="space-y-12"
       >

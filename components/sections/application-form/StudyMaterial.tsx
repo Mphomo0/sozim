@@ -13,12 +13,24 @@ import {
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { RadioGroupItem, RadioGroup } from '@/components/ui/radio-group'
+import { useEffect, useRef, useState } from 'react'
 
 type Props = {
   form: UseFormReturn<FormValues>
 }
 
 export default function StudyMaterial({ form }: Props) {
+  const [provinceKey, setProvinceKey] = useState(0)
+  const provinceValue = form.watch('provinceDelivery')
+  const prevProvinceRef = useRef(provinceValue)
+
+  useEffect(() => {
+    if (prevProvinceRef.current !== provinceValue && provinceValue) {
+      prevProvinceRef.current = provinceValue
+      setProvinceKey(k => k + 1)
+    }
+  }, [provinceValue])
+
   return (
     <div className="space-y-6 p-6 border rounded-xl bg-gray-50">
       <h2 className="font-bold text-3xl text-primary border-b pb-2">
@@ -44,8 +56,9 @@ export default function StudyMaterial({ form }: Props) {
         <Field>
           <FieldLabel htmlFor="provinceDelivery">Province</FieldLabel>
           <Select
+            key={provinceKey}
             onValueChange={(value) => form.setValue('provinceDelivery', value)}
-            value={form.watch('provinceDelivery')}
+            value={provinceValue || ''}
           >
             <SelectTrigger id="provinceDelivery">
               <SelectValue placeholder="Select a province" />
@@ -79,7 +92,7 @@ export default function StudyMaterial({ form }: Props) {
       <Field>
         <FieldLabel>Delivery Method</FieldLabel>
         <RadioGroup
-          value={form.watch('deliveryMethod')}
+          value={form.watch('deliveryMethod') || ''}
           onValueChange={(value) =>
             form.setValue(
               'deliveryMethod',

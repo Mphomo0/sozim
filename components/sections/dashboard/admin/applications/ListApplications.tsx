@@ -11,6 +11,10 @@ import {
   Calendar,
   Search,
   Download,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  Filter,
 } from 'lucide-react'
 import { Pagination } from '@/components/global/Pagination'
 import { format } from 'date-fns'
@@ -25,6 +29,13 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { useQuery, useMutation } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 import { Id } from '@/convex/_generated/dataModel'
@@ -38,6 +49,9 @@ export default function ListApplications() {
   const [currentPage, setCurrentPage] = useState(1)
   const [limit, setLimit] = useState(10)
   const [searchTerm, setSearchTerm] = useState('')
+  const [sortBy, setSortBy] = useState<'name' | 'date'>('date')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
+  const [showFilters, setShowFilters] = useState(false)
 
   const applicationsRaw = useQuery(api.applications.getApplications, {})
   const deleteAppMut = useMutation(api.applications.deleteApplication)
@@ -45,18 +59,31 @@ export default function ListApplications() {
   const isLoading = applicationsRaw === undefined
   const allApplications = applicationsRaw || []
 
-  // Ensure data aligns with legacy typing for rendering
-  const result = searchTerm
-    ? allApplications.filter((app: any) => {
-        const userName = app.user
-          ? `${app.user.firstName} ${app.user.lastName} ${app.user.clerkId}`
-          : ''
-        const courseName = app.course ? app.course.name : ''
-        const searchTarget =
-          `${app.status} ${app.courseId} ${courseName} ${userName}`.toLowerCase()
-        return searchTarget.includes(searchTerm.toLowerCase())
-      })
-    : allApplications
+  // Filter and sort applications
+  const filteredAndSorted = allApplications
+    .filter((app: any) => {
+      const userName = app.user
+        ? `${app.user.firstName} ${app.user.lastName} ${app.user.clerkId}`
+        : ''
+      const courseName = app.course ? app.course.name : ''
+      const searchTarget =
+        `${app.status} ${app.courseId} ${courseName} ${userName}`.toLowerCase()
+      return searchTarget.includes(searchTerm.toLowerCase())
+    })
+    .sort((a: any, b: any) => {
+      if (sortBy === 'name') {
+        const nameA = a.user ? `${a.user.firstName} ${a.user.lastName}`.toLowerCase() : ''
+        const nameB = b.user ? `${b.user.firstName} ${b.user.lastName}`.toLowerCase() : ''
+        const comparison = nameA.localeCompare(nameB)
+        return sortOrder === 'asc' ? comparison : -comparison
+      } else {
+        const dateA = a._creationTime || 0
+        const dateB = b._creationTime || 0
+        return sortOrder === 'asc' ? dateA - dateB : dateB - dateA
+      }
+    })
+
+  const result = filteredAndSorted
 
   const totalPages = Math.ceil(result.length / limit) || 1
   const validPage = currentPage > totalPages ? totalPages : currentPage
@@ -180,18 +207,79 @@ export default function ListApplications() {
             }}
           />
         </div>
-        <div className="flex items-center gap-2 w-full">
-          <a href="/api/export/applications" download className="w-full">
+        <div className="flex items-center gap-2 w-full flex-wrap sm:flex-nowrap">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowFilters(!showFilters)}
+            className="h-10 px-3 rounded-xl border-gray-200 text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-sm"
+          >
+            <Filter className="h-4 w-4 mr-1" />
+            <span className="hidden sm:inline">Filters</span>
+          </Button>
+          <a href="/api/export/applications" download className="w-full sm:w-auto">
             <Button
               variant="outline"
-              className="h-11 px-4 rounded-xl border-gray-200 text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-sm w-full"
+              className="h-10 px-4 rounded-xl border-gray-200 text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-sm w-full sm:w-auto"
             >
-              <Download className="h-4 w-4 mr-2 hidden sm:inline" />
+              <Download className="h-4 w-4 mr-2" />
               Export
             </Button>
           </a>
         </div>
       </div>
+
+      {showFilters && (
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Sort By</label>
+              <Select value={sortBy} onValueChange={(v) => setSortBy(v as 'name' | 'date')}>
+                <SelectTrigger className="h-10 w-full sm:w-40 rounded-lg border-gray-200">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="date">Date</SelectItem>
+                  <SelectItem value="name">Name</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Order</label>
+              <Select value={sortOrder} onValueChange={(v) => setSortOrder(v as 'asc' | 'desc')}>
+                <SelectTrigger className="h-10 w-full sm:w-40 rounded-lg border-gray-200">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="asc">
+                    <div className="flex items-center gap-2">
+                      <ArrowUp className="h-4 w-4" /> Ascending
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="desc">
+                    <div className="flex items-center gap-2">
+                      <ArrowDown className="h-4 w-4" /> Descending
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {(sortBy || sortOrder) && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setSortBy('date')
+                  setSortOrder('desc')
+                }}
+                className="text-gray-500 hover:text-gray-700 h-10"
+              >
+                Clear Filters
+              </Button>
+            )}
+          </div>
+        </div>
+      )}
 
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
         {applications.length === 0 ? (

@@ -1,5 +1,5 @@
 'use client'
-import { UseFormReturn, Controller } from 'react-hook-form'
+import { UseFormReturn } from 'react-hook-form'
 import { FormValues } from '@/lib/schema'
 import { Field, FieldLabel, FieldError } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
@@ -11,12 +11,32 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { useEffect, useState, useRef } from 'react'
 
 type Props = {
   form: UseFormReturn<FormValues>
 }
 
 export default function CoPrincipalDebtorSection({ form }: Props) {
+  const [raceKey, setRaceKey] = useState(0)
+  const [genderKey, setGenderKey] = useState(0)
+  const raceValue = form.watch('selectYourRace')
+  const genderValue = form.watch('genderDebtor')
+  
+  const prevRaceRef = useRef(raceValue)
+  const prevGenderRef = useRef(genderValue)
+  
+  useEffect(() => {
+    if (prevRaceRef.current !== raceValue && raceValue) {
+      prevRaceRef.current = raceValue
+      setRaceKey(k => k + 1)
+    }
+    if (prevGenderRef.current !== genderValue && genderValue) {
+      prevGenderRef.current = genderValue
+      setGenderKey(k => k + 1)
+    }
+  }, [raceValue, genderValue])
+
   return (
     <div className="space-y-6 p-6 border rounded-xl bg-gray-50">
       <h2 className="font-bold text-3xl text-primary border-b pb-2">
@@ -109,27 +129,22 @@ export default function CoPrincipalDebtorSection({ form }: Props) {
 
         <Field>
           <FieldLabel htmlFor="selectYourRace">Race</FieldLabel>
-          <Controller
-            control={form.control}
-            name="selectYourRace"
-            render={({ field }) => (
-              <Select
-                onValueChange={field.onChange}
-                value={field.value || ''}
-              >
-                <SelectTrigger id="selectYourRace">
-                  <SelectValue placeholder="Select Your Race" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="african">African</SelectItem>
-                  <SelectItem value="coloured">Coloured</SelectItem>
-                  <SelectItem value="indian-asian">Indian/Asian</SelectItem>
-                  <SelectItem value="white">White</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
-                </SelectContent>
-              </Select>
-            )}
-          />
+          <Select
+            key={raceKey}
+            onValueChange={(value) => form.setValue('selectYourRace', value)}
+            value={raceValue || ''}
+          >
+            <SelectTrigger id="selectYourRace">
+              <SelectValue placeholder="Select Your Race" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="african">African</SelectItem>
+              <SelectItem value="coloured">Coloured</SelectItem>
+              <SelectItem value="indian-asian">Indian/Asian</SelectItem>
+              <SelectItem value="white">White</SelectItem>
+              <SelectItem value="other">Other</SelectItem>
+            </SelectContent>
+          </Select>
           <FieldError>
             {form.formState.errors.selectYourRace?.message}
           </FieldError>
@@ -137,25 +152,20 @@ export default function CoPrincipalDebtorSection({ form }: Props) {
 
         <Field>
           <FieldLabel htmlFor="genderDebtor">Gender</FieldLabel>
-          <Controller
-            control={form.control}
-            name="genderDebtor"
-            render={({ field }) => (
-              <Select
-                onValueChange={field.onChange}
-                value={field.value || ''}
-              >
-                <SelectTrigger id="genderDebtor">
-                  <SelectValue placeholder="Select gender" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="male">Male</SelectItem>
-                  <SelectItem value="female">Female</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
-                </SelectContent>
-              </Select>
-            )}
-          />
+          <Select
+            key={genderKey}
+            onValueChange={(value) => form.setValue('genderDebtor', value)}
+            value={genderValue || ''}
+          >
+            <SelectTrigger id="genderDebtor">
+              <SelectValue placeholder="Select gender" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="male">Male</SelectItem>
+              <SelectItem value="female">Female</SelectItem>
+              <SelectItem value="other">Other</SelectItem>
+            </SelectContent>
+          </Select>
           <FieldError>{form.formState.errors.genderDebtor?.message}</FieldError>
         </Field>
 

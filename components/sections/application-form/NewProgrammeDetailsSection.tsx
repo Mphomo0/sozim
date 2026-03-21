@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { UseFormReturn } from 'react-hook-form'
 import { useUser } from '@clerk/nextjs'
 import { FormValues } from '@/lib/schema'
@@ -42,9 +42,19 @@ export default function NewProgrammeDetailsSection({ form, isAdmin: isAdminProp 
   const allCourses = coursesRaw || []
   const courses = isAdmin ? allCourses : allCourses.filter((c) => c.isOpen)
   
-  const selectedCourseId = form.watch('courseId')
-  const selectedCourse = allCourses.find((c) => c._id === selectedCourseId)
-  const isSelectedCourseClosed = selectedCourseId && selectedCourse && !selectedCourse.isOpen
+  const [courseKey, setCourseKey] = useState(0)
+  const courseValue = form.watch('courseId')
+  const prevCourseRef = useRef(courseValue)
+
+  useEffect(() => {
+    if (prevCourseRef.current !== courseValue && courseValue) {
+      prevCourseRef.current = courseValue
+      setCourseKey(k => k + 1)
+    }
+  }, [courseValue])
+
+  const selectedCourse = allCourses.find((c) => c._id === courseValue)
+  const isSelectedCourseClosed = courseValue && selectedCourse && !selectedCourse.isOpen
 
   return (
     <div className="space-y-6 p-6 border rounded-xl bg-gray-50">
@@ -57,7 +67,7 @@ export default function NewProgrammeDetailsSection({ form, isAdmin: isAdminProp 
       <Field>
         <FieldLabel>Qualification Type</FieldLabel>
         <RadioGroup
-          value={form.watch('qualificationType')}
+          value={form.watch('qualificationType') || ''}
           onValueChange={(value) =>
             form.setValue(
               'qualificationType',
@@ -85,8 +95,9 @@ export default function NewProgrammeDetailsSection({ form, isAdmin: isAdminProp 
       <Field>
         <FieldLabel htmlFor="courseId">Programme Name</FieldLabel>
         <Select
+          key={courseKey}
           onValueChange={(value) => form.setValue('courseId', value)}
-          value={form.watch('courseId')}
+          value={courseValue || ''}
         >
           <SelectTrigger id="programmeName">
             <SelectValue placeholder="Select a programme" />
@@ -128,7 +139,7 @@ export default function NewProgrammeDetailsSection({ form, isAdmin: isAdminProp 
                 value as 'PENDING' | 'APPROVED' | 'REJECTED'
               )
             }
-            value={form.watch('status')}
+            value={form.getValues('status') || ''}
           >
             <SelectTrigger id="status">
               <SelectValue placeholder="Select status" />
