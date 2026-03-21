@@ -1,7 +1,7 @@
 'use client'
 
 import { UseFormReturn } from 'react-hook-form'
-import { FormValues } from '@/lib/schema'
+import { FormValues, provinces } from '@/lib/schema'
 import { Field, FieldLabel, FieldError } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import {
@@ -51,15 +51,11 @@ export default function StudyMaterial({ form }: Props) {
               <SelectValue placeholder="Select a province" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="eastern-cape">Eastern Cape</SelectItem>
-              <SelectItem value="free-state">Free State</SelectItem>
-              <SelectItem value="gauteng">Gauteng</SelectItem>
-              <SelectItem value="kwazulu-natal">KwaZulu-Natal</SelectItem>
-              <SelectItem value="limpopo">Limpopo</SelectItem>
-              <SelectItem value="mpumalanga">Mpumalanga</SelectItem>
-              <SelectItem value="northern-cape">Northern Cape</SelectItem>
-              <SelectItem value="north-west">North West</SelectItem>
-              <SelectItem value="western-cape">Western Cape</SelectItem>
+              {provinces.map((province) => (
+                <SelectItem key={province} value={province}>
+                  {province}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
           <FieldError>

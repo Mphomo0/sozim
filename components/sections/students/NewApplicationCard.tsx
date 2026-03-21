@@ -211,6 +211,7 @@ export default function CreateApplication({ onSuccess }: Props) {
   }
 
   const createApplication = useMutation(api.applications.createApplication)
+  const updateUser = useMutation(api.users.updateUser)
   const getUserByClerkId = useQuery(
     api.users.getUserByClerkId,
     user?.id ? { clerkId: user.id } : 'skip'
@@ -328,6 +329,18 @@ export default function CreateApplication({ onSuccess }: Props) {
           status: 'PENDING',
         },
       })
+
+      // Update user record with idNumber and dob if provided
+      if (values.user.idNumber || values.user.dob) {
+        const userUpdateData: any = {}
+        if (values.user.idNumber) userUpdateData.idNumber = values.user.idNumber
+        if (values.user.dob) userUpdateData.dob = values.user.dob
+        
+        await updateUser({
+          id: convexUserId,
+          ...userUpdateData,
+        })
+      }
 
       toast.success('Application submitted successfully')
       form.reset()

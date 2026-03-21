@@ -88,17 +88,17 @@ const PathwayDetail = ({ pathway }: { pathway: CareerPathway }) => {
           <div className="absolute top-0 left-0 w-1.5 h-full bg-blue-600" />
           <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           
-          <CardContent className="p-8 md:p-12 relative z-10">
+          <CardContent className="p-4 md:p-8 lg:p-12 relative z-10">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-8 pb-8 border-b border-slate-100">
-              <div className="flex items-center gap-6">
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 shadow-sm border border-blue-100">
+              <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-6">
+                <div className="flex h-12 w-12 md:h-16 md:w-16 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 shadow-sm border border-blue-100">
                   {iconMap[pathway.id]}
                 </div>
                 <div>
-                  <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 leading-tight">
+                  <h2 className="text-2xl md:text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 leading-tight">
                     {pathway.title}
                   </h2>
-                  <div className="flex flex-wrap gap-4 mt-3">
+                  <div className="flex flex-wrap gap-2 md:gap-4 mt-2 md:mt-3">
                     <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200 px-4 py-1 rounded-full font-bold shadow-sm">
                       <Zap className="w-3.5 h-3.5 mr-1.5" /> NQF LEVEL {pathway.n_q_f_level}
                     </Badge>
@@ -110,7 +110,7 @@ const PathwayDetail = ({ pathway }: { pathway: CareerPathway }) => {
               </div>
             </div>
 
-            <p className="text-xl font-light text-slate-600 leading-relaxed max-w-4xl italic">
+            <p className="text-base md:text-xl font-light text-slate-600 leading-relaxed max-w-4xl italic">
               "{pathway.description}"
             </p>
           </CardContent>
@@ -118,15 +118,15 @@ const PathwayDetail = ({ pathway }: { pathway: CareerPathway }) => {
       </motion.div>
 
       {/* Career Progression Section */}
-      <div className="space-y-8">
-        <div className="flex items-center gap-4">
-          <h3 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900">
+        <div className="space-y-8">
+        <div className="flex items-center gap-3 md:gap-4">
+          <h3 className="text-xl md:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900">
             Career Progression
           </h3>
           <div className="h-1 flex-1 bg-slate-100 rounded-full" />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           {pathway.steps.map((step, index) => (
             <motion.div
               key={index}
@@ -194,24 +194,24 @@ const PathwayDetail = ({ pathway }: { pathway: CareerPathway }) => {
           viewport={{ once: true }}
           className="space-y-8"
         >
-          <div className="flex items-center gap-4">
-            <h3 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900">
+          <div className="flex items-center gap-3 md:gap-4">
+            <h3 className="text-xl md:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900">
               Professional Registration & Compliance
             </h3>
             <div className="h-1 flex-1 bg-slate-100 rounded-full" />
           </div>
 
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-wrap gap-3 md:gap-4">
             {pathway.registration.map((reg, index) => (
               <Badge
                 key={index}
-                className="p-4 bg-white hover:bg-slate-50 text-slate-800 border-slate-200 shadow-sm transition-all text-base font-bold rounded-2xl flex gap-3"
+                className="p-3 md:p-4 bg-white hover:bg-slate-50 text-slate-800 border-slate-200 shadow-sm transition-all text-sm md:text-base font-bold rounded-xl md:rounded-2xl flex gap-2 md:gap-3 items-start"
                 variant="outline"
               >
-                <div className="h-8 w-8 flex items-center justify-center rounded-lg bg-blue-50 text-blue-600">
-                  <Globe className="w-5 h-5" />
+                <div className="h-5 w-5 md:h-8 md:w-8 flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 shrink-0 mt-0.5">
+                  <Globe className="w-3 h-3 md:w-5 md:h-5" />
                 </div>
-                {reg}
+                <span className="whitespace-pre-line">{reg}</span>
               </Badge>
             ))}
           </div>

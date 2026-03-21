@@ -14,13 +14,21 @@ export const getApplications = query({
     }
     const applications = await applicationsQuery.collect()
 
-    // Join with user data
+    // Join with user and course data
     return await Promise.all(
       applications.map(async (app) => {
+        // Resolve User
         const user = app.actualApplicantId 
           ? await ctx.db.get(app.actualApplicantId)
           : await ctx.db.query('users')
               .withIndex('by_mongo_id', q => q.eq('mongoId', app.applicantId))
+              .first()
+        
+        // Resolve Course
+        const course = app.actualCourseId
+          ? await ctx.db.get(app.actualCourseId)
+          : await ctx.db.query('courses')
+              .withIndex('by_mongo_id', q => q.eq('mongoId', app.courseId))
               .first()
         
         return {
@@ -30,6 +38,11 @@ export const getApplications = query({
             lastName: user.lastName,
             email: user.email,
             clerkId: user.clerkId,
+          } : null,
+          course: course ? {
+            _id: course._id,
+            name: course.name,
+            code: course.code,
           } : null
         }
       })
@@ -82,9 +95,17 @@ export const getApplicationById = query({
         .withIndex('by_mongo_id', q => q.eq('mongoId', app.applicantId))
         .first()
     }
+
+    // Resolve Course
+    const course = app.actualCourseId
+      ? await ctx.db.get(app.actualCourseId)
+      : await ctx.db.query('courses')
+          .withIndex('by_mongo_id', q => q.eq('mongoId', app.courseId))
+          .first()
     
     return {
       ...app,
+      actualCourseId: course?._id || app.actualCourseId,
       user: user ? {
         _id: user._id,
         firstName: user.firstName,
@@ -97,6 +118,10 @@ export const getApplicationById = query({
         address: user.address,
         nationality: user.nationality,
         dob: user.dob,
+      } : null,
+      course: course ? {
+        _id: course._id,
+        name: course.name,
       } : null
     }
   },

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -68,6 +68,19 @@ export default function EditApplication() {
   const appData = useQuery(api.applications.getApplicationById, appId ? { id: appId } : 'skip')
   console.log('[EditApplication] appData from query:', appData)
 
+  // Debug: Check what fields are actually present in appData
+  useEffect(() => {
+    if (appData) {
+      console.log('[EditApplication] Available fields in appData:', Object.keys(appData))
+      console.log('[EditApplication] Specific delivery fields:', {
+        deliveryAddress: appData.deliveryAddress,
+        provinceDelivery: appData.provinceDelivery,
+        postalCodeDelivery: appData.postalCodeDelivery,
+        deliveryMethod: appData.deliveryMethod
+      })
+    }
+  }, [appData])
+
   const applicantIdRaw = appData?.actualApplicantId || appData?.applicantId
   console.log('[EditApplication] applicantIdRaw:', applicantIdRaw)
   const applicantIdStr = typeof applicantIdRaw === 'string' ? applicantIdRaw : undefined
@@ -93,43 +106,66 @@ export default function EditApplication() {
   const initialValues = useMemo(() => {
     if (!appData) return undefined
 
-    console.log('[EditApplication] Application raw data:', JSON.stringify(appData, null, 2))
-    console.log('[EditApplication] Application data keys:', Object.keys(appData))
-    console.log('[EditApplication] User object from API:', appData.user)
     const formData = JSON.parse(JSON.stringify(appData))
     
+    // Helper to normalize strings to match enum slugs
+    const normalizeEnum = (val: any) => {
+      if (typeof val !== 'string' || !val) return val
+      
+      const normalized = val.toLowerCase().trim()
+        .replace(/[^a-z0-9\s/-]/g, '') // Remove special chars but keep spaces, hyphens, slashes
+        .replace(/[\s/]+/g, '-')       // Replace spaces and slashes with hyphens
+      
+      // Specific legacy mappings
+      const mapping: Record<string, string> = {
+        'african': 'african',
+        'coloured': 'coloured',
+        'indian-asian': 'indian-asian',
+        'indian/asian': 'indian-asian',
+        'indian-and-asian': 'indian-asian',
+        'white': 'white',
+        'other': 'other',
+        'male': 'male',
+        'female': 'female',
+        'not-disclose': 'not-disclose',
+        'not-to-disclose': 'not-disclose',
+        'do-not-wish-to-disclose': 'not-disclose',
+        'unemployed-seeking-work': 'unemployed-seeking',
+        'unemployed-not-seeking-work': 'unemployed-not-seeking',
+        'grade-12-in-progress': 'grade-12-in-progress',
+        'grade-12-completed': 'grade-12-completed',
+        'none': 'none',
+        'yes': 'yes'
+      }
+      
+      return mapping[normalized] || normalized
+    }
+
     // 1. Process Date of Birth - Ensure YYYY-MM-DD for date input
     let dobValue: string | null = null
-    const rawDob = formData.user?.dob || formData.dob || formData.dateOfBirth || formData.birthDate
+    const rawDob = formData.user?.dob || formData.dob || formData.dateOfBirth || formData.birthDate || formData.dobUser
     if (rawDob) {
       try {
-        // Handle various date formats
         let dateObj: Date | null = null
         if (typeof rawDob === 'string') {
-          // Try ISO format first
           const isoDate = new Date(rawDob)
           if (!isNaN(isoDate.getTime())) {
             dateObj = isoDate
           } else {
-            // Try other formats (YYYYMMDD, etc.)
             const parsed = Date.parse(rawDob)
             if (!isNaN(parsed)) {
               dateObj = new Date(parsed)
             }
           }
         } else if (typeof rawDob === 'number') {
-          // Handle timestamp
           dateObj = new Date(rawDob)
         }
 
         if (dateObj && !isNaN(dateObj.getTime())) {
           dobValue = dateObj.toISOString().split('T')[0]
-        } else {
-          console.warn('[EditApplication] Invalid date format for DOB:', rawDob)
         }
       } catch (e) {
         console.error("Error parsing DOB:", e, 'Raw DOB:', rawDob)
-        // Keep dobValue as null for invalid dates
       }
     }
 
@@ -148,7 +184,6 @@ export default function EditApplication() {
       _id: '',
     }
 
-    // First, try to get user from existing data
     if (formData.user) {
       userObj = {
         firstName: formData.user.firstName || '',
@@ -159,12 +194,11 @@ export default function EditApplication() {
         idNumber: formData.user.idNumber || '',
         address: formData.user.address || '',
         nationality: formData.user.nationality || '',
-        dob: dobValue,
+        dob: dobValue || formData.user.dob || null,
         clerkId: formData.user.clerkId || '',
         _id: formData.user._id || '',
       }
     } else if (fallbackUser) {
-      // Use fallback user data if available
       const fallbackDob = typeof fallbackUser.dob === 'number' 
         ? new Date(fallbackUser.dob).toISOString().split('T')[0]
         : fallbackUser.dob
@@ -181,112 +215,71 @@ export default function EditApplication() {
         clerkId: fallbackUser.clerkId || '',
         _id: fallbackUser._id || '',
       }
-    } else if (formData.applicantId || formData.actualApplicantId) {
-      // If no user data, try to fetch user based on applicantId
-      const applicantId = formData.applicantId || formData.actualApplicantId
-
-      // Try different lookup strategies
-      const userId = typeof applicantId === 'string' ? applicantId : ''
-
-      // Try to fetch user data using multiple methods
-      if (userId) {
-        // Try by _id first
-        userObj = {
-          firstName: '',
-          lastName: '',
-          email: '',
-          phone: '',
-          alternativeNumber: '',
-          idNumber: '',
-          address: '',
-          nationality: '',
-          dob: dobValue,
-          clerkId: '',
-          _id: '',
-        }
-      }
     }
 
-    // Fallback to top-level fields if user object is still empty
-    if (Object.keys(userObj).length === 0 || !userObj.firstName) {
-      userObj = {
-        firstName: formData.firstName || formData?.user?.firstName || '',
-        lastName: formData.lastName || formData?.user?.lastName || '',
-        email: formData.email || formData?.user?.email || '',
-        phone: formData.phone || formData.phoneNumber || formData.cellphone || formData.cellNumber || formData?.user?.phone || '',
-        alternativeNumber: formData.alternativeNumber || formData.altPhone || formData?.user?.alternativeNumber || '',
-        idNumber: formData.idNumber || formData.idNo || formData.identityNumber || formData?.user?.idNumber || '',
-        address: formData.address || formData.homeAddress || formData.residentialAddress || formData.residentalAddress || formData?.user?.address || '',
-        nationality: formData.nationality || formData?.user?.nationality || '',
-        dob: dobValue,
-        clerkId: formData.clerkId || formData?.user?.clerkId || '',
-        _id: formData._id || formData?.user?._id || '',
-      }
-    }
-
-    // Enhanced validation - ensure required fields are present
-    const hasCriticalFields = userObj.firstName && userObj.lastName && userObj.idNumber && userObj.email
-    if (!hasCriticalFields) {
-      console.warn('[EditApplication] Missing critical user fields - falling back:', {
-        firstName: userObj.firstName,
-        lastName: userObj.lastName,
-        idNumber: userObj.idNumber,
-        email: userObj.email
-      })
-
-      // Try to populate from alternative sources
-      if (!userObj.firstName) userObj.firstName = formData?.user?.firstName || formData.firstName || ''
-      if (!userObj.lastName) userObj.lastName = formData?.user?.lastName || formData.lastName || ''
-      if (!userObj.idNumber) userObj.idNumber = formData?.user?.idNumber || formData.idNumber || ''
-      if (!userObj.email) userObj.email = formData?.user?.email || formData.email || ''
-    }
-
-    // Final validation - provide defaults only if absolutely necessary
-    if (!userObj.firstName || !userObj.lastName || !userObj.idNumber || !userObj.email) {
-      console.warn('[EditApplication] Using fallback defaults for missing critical fields:', {
-        firstName: userObj.firstName,
-        lastName: userObj.lastName,
-        idNumber: userObj.idNumber,
-        email: userObj.email
-      })
-
-      // Provide defaults for critical fields
-      userObj.firstName = userObj.firstName || 'Unknown'
-      userObj.lastName = userObj.lastName || 'User'
-      userObj.idNumber = userObj.idNumber || '0000000000000'
-      userObj.email = userObj.email || 'unknown@example.com'
-    }
+    // Final Fallback to top-level fields for student user info
+    if (!userObj.firstName) userObj.firstName = formData.firstName || ''
+    if (!userObj.lastName) userObj.lastName = formData.lastName || ''
+    if (!userObj.email) userObj.email = formData.email || ''
+    if (!userObj.phone) userObj.phone = formData.phone || formData.phoneNumber || formData.cellphone || formData.cellNumber || ''
+    if (!userObj.alternativeNumber) userObj.alternativeNumber = formData.alternativeNumber || formData.altPhone || formData.altNumber || ''
+    if (!userObj.idNumber) userObj.idNumber = formData.idNumber || formData.idNo || formData.identityNumber || ''
+    if (!userObj.address) userObj.address = formData.address || formData.homeAddress || formData.residentialAddress || ''
+    if (!userObj.nationality) userObj.nationality = formData.nationality || ''
 
     // 3. Process application data
-    const { user: _u, ...restData } = formData
+    const { user: _u, course: _c, ...restData } = formData
 
-    // Handle courseId
+    // Handle courseId - must be Convex ID for the Select component
+    //优先使用actualCourseId，其次使用courseId（可能是mongo id或Convex id）
     let courseIdValue = ''
     if (formData.actualCourseId) {
       courseIdValue = formData.actualCourseId.toString()
     } else if (formData.courseId) {
+      // courseId可能是mongo id字符串，需要检查是否为Convex ID格式（以j开头）
       courseIdValue = typeof formData.courseId === 'object'
         ? formData.courseId?._id || formData.courseId?.toString() || formData.courseId
         : formData.courseId
     }
-
-    // Enhanced validation - ensure required fields are present
+    
+    // 如果courseId是mongo格式的字符串但actualCourseId不存在，尝试使用
     if (!courseIdValue && formData.courseId) {
-      console.warn('[EditApplication] Course ID resolution issue:', {
-        actualCourseId: formData.actualCourseId,
-        courseId: formData.courseId
-      })
+      courseIdValue = formData.courseId
     }
 
-    // 4. Map Race value - check both selectYourRace and race from formData
-    const raceValue = formData.selectYourRace || formData.race || ''
-    const normalizedRace = raceValue.toLowerCase().trim() === 'indian/asian' || 
-                           raceValue.toLowerCase().trim() === 'indian asian' 
-                           ? 'indian-asian' 
-                           : raceValue.toLowerCase().trim()
+    // Debug: Log course info
+    console.log('[EditApplication] formData.course:', formData.course)
+    console.log('[EditApplication] formData.courseId raw:', JSON.stringify(formData.courseId))
+    console.log('[EditApplication] formData.actualCourseId:', formData.actualCourseId)
+    console.log('[EditApplication] courseIdValue final:', courseIdValue)
 
-    // 5. Map provinceDelivery to proper format if needed (slug -> full name)
+    // 4. Normalize Enum Fields
+    const raceValue = formData.race || formData.selectYourRace || ''
+    const normalizedRace = normalizeEnum(raceValue)
+    
+    // Debug: Log race/gender values
+    console.log('[EditApplication] formData.selectYourRace:', formData.selectYourRace)
+    console.log('[EditApplication] formData.genderDebtor:', formData.genderDebtor)
+    console.log('[EditApplication] formData.gender:', formData.gender)
+    console.log('[EditApplication] raceValue:', raceValue)
+    console.log('[EditApplication] normalizedRace:', normalizedRace)
+    
+    const deliveryMethodValue = normalizeEnum(formData.deliveryMethod)
+    const highestGradeAchievedValue = normalizeEnum(formData.highestGradeAchieved)
+    const qualificationTypeValue = normalizeEnum(formData.qualificationType)
+    const socioEconomicStatusValue = normalizeEnum(formData.socioEconomicStatus)
+    const homeLanguageValue = normalizeEnum(formData.homeLanguage)
+    const genderValue = normalizeEnum(formData.gender)
+
+    // Co-principal debtor fields - use original values, not normalized for display
+    const selectYourRaceValue = formData.selectYourRace || normalizeEnum(raceValue)
+    const genderDebtorValue = formData.genderDebtor || formData.gender || ''
+
+    // 5. Map provinceDelivery to Full Name (as now expected by StudyMaterial.tsx)
     let provinceDeliveryValue = formData.provinceDelivery || ''
+    
+    // Debug: Log province
+    console.log('[EditApplication] formData.provinceDelivery:', formData.provinceDelivery)
     const provinceMap: Record<string, string> = {
       'eastern-cape': 'Eastern Cape',
       'free-state': 'Free State',
@@ -298,32 +291,68 @@ export default function EditApplication() {
       'north-west': 'North West',
       'western-cape': 'Western Cape',
     }
-    if (provinceDeliveryValue && provinceMap[provinceDeliveryValue.toLowerCase()]) {
-      provinceDeliveryValue = provinceMap[provinceDeliveryValue.toLowerCase()]
+    
+    const normalizedProv = provinceDeliveryValue.toLowerCase().trim().replace(/\s+/g, '-')
+    if (provinceMap[normalizedProv]) {
+      provinceDeliveryValue = provinceMap[normalizedProv]
     }
 
     const finalValues = {
       ...restData,
       courseId: courseIdValue,
       applicantId: applicantIdStr || '',
-      status: formData.status || restData.status || 'PENDING',
-      selectYourRace: raceValue,
-      race: normalizedRace,
+      status: formData.status || 'PENDING',
+
+      // Map all application data fields directly
+      deliveryAddress: formData.deliveryAddress || formData.deliveryAddress || '',
+      postalCodeDelivery: formData.postalCodeDelivery || formData.postalCode || '',
       provinceDelivery: provinceDeliveryValue,
+      deliveryMethod: deliveryMethodValue,
+
+      // Normalized fields
+      race: normalizedRace,
+      selectYourRace: formData.selectYourRace || selectYourRaceValue || '',
+      highestGradeAchieved: highestGradeAchievedValue,
+      qualificationType: qualificationTypeValue,
+      socioEconomicStatus: socioEconomicStatusValue,
+      homeLanguage: homeLanguageValue,
+      gender: genderValue,
+      genderDebtor: formData.genderDebtor || genderDebtorValue || '',
+
       user: userObj,
       documents: formData.documents || [],
       qualifications: formData.qualifications || [],
       disabilities: formData.disabilities || {},
+
+      // Additional fallback mappings for missing fields
+      ...(formData.schoolAttended && { schoolAttended: formData.schoolAttended }),
+      ...(formData.schoolProvince && { schoolProvince: formData.schoolProvince }),
+      ...(formData.examRequirements && { examRequirements: formData.examRequirements }),
+      ...(formData.maritalStatus && { maritalStatus: formData.maritalStatus }),
+      ...(formData.employerName && { employerName: formData.employerName }),
+      ...(formData.employmentSector && { employmentSector: formData.employmentSector }),
+      ...(formData.employerAddress && { employerAddress: formData.employerAddress }),
+      ...(formData.fullNameCompany && { fullNameCompany: formData.fullNameCompany }),
+      ...(formData.sponsor && { sponsor: formData.sponsor }),
+      ...(formData.companyReg && { companyReg: formData.companyReg }),
+      ...(formData.sponsorEmail && { sponsorEmail: formData.sponsorEmail }),
+      // Explicitly map co-principal debtor fields from application level
+      homeAddress: formData.homeAddress || '',
+      phoneNumber: formData.phoneNumber || '',
+      alternativeNumber: formData.alternativeNumber || '',
+      nationality: formData.nationality || '',
+      employmentStatus: formData.employmentStatus || '',
     }
-    console.log('[EditApplication] Final initial values:', JSON.stringify(finalValues, null, 2))
-    console.log('[EditApplication] User object in final values:', finalValues.user)
-    console.log('[EditApplication] User fields populated:', {
-      firstName: finalValues.user.firstName,
-      lastName: finalValues.user.lastName,
-      email: finalValues.user.email,
-      phone: finalValues.user.phone,
-      idNumber: finalValues.user.idNumber
-    })
+    
+    // Debug logging
+    console.log('[EditApplication] finalValues keys:', Object.keys(finalValues))
+    console.log('[EditApplication] finalValues.homeAddress:', finalValues.homeAddress)
+    console.log('[EditApplication] finalValues.phoneNumber:', finalValues.phoneNumber)
+    console.log('[EditApplication] finalValues.selectYourRace:', finalValues.selectYourRace)
+    console.log('[EditApplication] finalValues.user:', finalValues.user)
+    console.log('[EditApplication] finalValues.user.phone:', finalValues.user?.phone)
+    console.log('[EditApplication] finalValues.user.alternativeNumber:', finalValues.user?.alternativeNumber)
+    
     return finalValues
   }, [appData, applicantIdStr, fallbackUser])
 
@@ -370,15 +399,19 @@ export default function EditApplication() {
     },
   })
 
-  // EXPLICIT RESET when data is loaded
+  // EXPLICIT RESET when data is loaded - only once
+  const hasResetRef = useRef(false)
   useEffect(() => {
-    if (initialValues) {
-      console.log('[EditApplication] Resetting form with initialValues:', initialValues)
-      form.reset(initialValues)
-      console.log('[EditApplication] Form after reset - user field:', form.getValues('user'))
-      console.log('[EditApplication] Form after reset - firstName:', form.getValues('user.firstName'))
-      console.log('[EditApplication] Form after reset - email:', form.getValues('user.email'))
-      console.log('[EditApplication] Form after reset - idNumber:', form.getValues('user.idNumber'))
+    if (initialValues && !hasResetRef.current) {
+      // Check that we have actual application data (not just default structure)
+      if (initialValues._id) {
+        hasResetRef.current = true
+        console.log('[EditApplication] Resetting form with initialValues')
+        form.reset(initialValues)
+        console.log('[EditApplication] Form after reset - courseId:', form.getValues('courseId'))
+        console.log('[EditApplication] Form after reset - selectYourRace:', form.getValues('selectYourRace'))
+        console.log('[EditApplication] Form after reset - provinceDelivery:', form.getValues('provinceDelivery'))
+      }
     }
   }, [initialValues, form])
 
@@ -452,49 +485,66 @@ export default function EditApplication() {
       // 1. Update User and sync to Clerk if they exist
       const userToUpdate = (appData as any)?.user
       if (userData && userToUpdate?._id) {
-         await updateUser({
-           id: userToUpdate._id,
-           firstName: userData.firstName || null,
-           lastName: userData.lastName || null,
-           email: userData.email || null,
-           phone: userData.phone || null,
-           idNumber: userData.idNumber || null,
-           address: userData.address || null,
-           nationality: userData.nationality || null,
-           alternativeNumber: userData.alternativeNumber || null,
-            dob: userData.dob || null,
-         })
+        // Only update fields with actual values (non-empty strings)
+        const userUpdateData: any = {}
+        
+        if (userData.firstName) userUpdateData.firstName = userData.firstName
+        if (userData.lastName) userUpdateData.lastName = userData.lastName
+        if (userData.email) userUpdateData.email = userData.email
+        if (userData.phone) userUpdateData.phone = userData.phone
+        if (userData.idNumber) userUpdateData.idNumber = userData.idNumber
+        if (userData.address) userUpdateData.address = userData.address
+        if (userData.nationality) userUpdateData.nationality = userData.nationality
+        if (userData.alternativeNumber) userUpdateData.alternativeNumber = userData.alternativeNumber
+        if (userData.dob) userUpdateData.dob = userData.dob
+        
+        // Debug: Log what we're updating
+        console.log('[EditApplication] Updating user with:', userUpdateData)
+        
+        if (Object.keys(userUpdateData).length > 0) {
+          await updateUser({
+            id: userToUpdate._id,
+            ...userUpdateData,
+          })
+        }
 
-         if (userToUpdate.clerkId) {
-           let clerkPhone = userData.phone
-           if (clerkPhone) {
-             clerkPhone = clerkPhone.replace(/\s+/g, '')
-             if (!clerkPhone.startsWith('+')) {
-               if (clerkPhone.startsWith('0') && clerkPhone.length === 10) {
-                 clerkPhone = '+27' + clerkPhone.substring(1)
-               } else {
-                 clerkPhone = '+' + clerkPhone
-               }
-             }
-           }
+        if (userToUpdate.clerkId && userData.phone) {
+            let clerkPhone = userData.phone
+            if (clerkPhone) {
+              clerkPhone = clerkPhone.replace(/\s+/g, '')
+              if (!clerkPhone.startsWith('+')) {
+                if (clerkPhone.startsWith('0') && clerkPhone.length === 10) {
+                  clerkPhone = '+27' + clerkPhone.substring(1)
+                } else {
+                  clerkPhone = '+' + clerkPhone
+                }
+              }
+            }
 
-           await updateUserInClerk(userToUpdate.clerkId, {
-             firstName: userData.firstName || undefined,
-             lastName: userData.lastName || undefined,
-             phone: clerkPhone || undefined,
-           })
-         }
+            await updateUserInClerk(userToUpdate.clerkId, {
+              firstName: userData.firstName || undefined,
+              lastName: userData.lastName || undefined,
+              phone: clerkPhone || undefined,
+            })
+        }
       }
 
       // 2. Update application via Convex
+      const updateData: any = {
+        ...applicationData,
+        courseId: data.courseId,
+        documents: finalDocuments,
+      }
+      
+      // If courseId is a Convex ID (not mongo), also set actualCourseId
+      if (data.courseId && data.courseId.startsWith('j')) {
+        updateData.actualCourseId = data.courseId as any
+      }
+      
       await updateApplication({
         id: appId,
         status: data.status,
-        data: {
-          ...applicationData,
-          courseId: data.courseId,
-          documents: finalDocuments,
-        }
+        data: updateData
       })
 
       toast.success('Application updated successfully!')
