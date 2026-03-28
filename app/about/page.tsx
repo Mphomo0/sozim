@@ -12,9 +12,9 @@ import { getFAQSchema, getBreadcrumbSchema, getPersonSchema } from '@/lib/seo/sc
 const BASE_URL = 'https://www.sozim.co.za'
 
 export const metadata: Metadata = {
-  title: 'About Sozim Trading and Consultancy | Our Story, Mission & Values',
+  title: 'About Us | Sozim Trading',
   description:
-    'Learn about Sozim Trading and Consultancy — an accredited education provider in Bloemfontein, South Africa, dedicated to empowering students through quality training, professional development, and career-focused courses.',
+    'Learn about Sozim Trading — an accredited education provider in Bloemfontein, South Africa, offering quality training and career-focused courses.',
   keywords: [
     'about Sozim Trading',
     'Sozim Consultancy story',
@@ -25,10 +25,11 @@ export const metadata: Metadata = {
     'education consultancy Free State',
   ],
   openGraph: {
-    title: 'About Sozim Trading and Consultancy | Our Story',
+    title: 'About Us | Sozim Trading',
     description:
-      'Discover the story, mission, and values behind Sozim Trading and Consultancy — empowering students across South Africa.',
+      'Discover the story, mission, and values behind Sozim Trading — empowering students across South Africa.',
     url: `${BASE_URL}/about`,
+    siteName: 'Sozim Trading and Consultancy',
   },
   alternates: {
     canonical: `${BASE_URL}/about`,

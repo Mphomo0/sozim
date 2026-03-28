@@ -7,9 +7,9 @@ import { getFAQSchema, getBreadcrumbSchema, getCourseSchema } from '@/lib/seo/sc
 const BASE_URL = 'https://www.sozim.co.za'
 
 export const metadata: Metadata = {
-  title: 'Accredited Trading Courses & Professional Training Programmes | Sozim',
+  title: 'Trading Courses & Training | Sozim',
   description:
-    'Explore accredited trading courses and professional training programmes at Sozim Trading and Consultancy. Enrol in beginner to advanced courses covering forex, stock markets, and financial trading in South Africa. SAQA-registered qualifications available.',
+    'Explore accredited trading courses and professional training at Sozim. Enrol in forex, stock markets, and financial trading courses in South Africa.',
   keywords: [
     'trading courses South Africa',
     'forex trading courses',
@@ -23,10 +23,11 @@ export const metadata: Metadata = {
     'QCTO registered trading courses',
   ],
   openGraph: {
-    title: 'Trading Courses & Professional Training | Sozim Trading SA',
+    title: 'Trading Courses & Training | Sozim',
     description:
       'Enrol in accredited trading and professional training courses in South Africa. Beginner to advanced programmes with industry-recognised certificates.',
     url: `${BASE_URL}/courses`,
+    siteName: 'Sozim Trading and Consultancy',
   },
   alternates: {
     canonical: `${BASE_URL}/courses`,

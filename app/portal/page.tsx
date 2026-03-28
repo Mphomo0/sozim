@@ -8,8 +8,8 @@ import { getBreadcrumbSchema } from '@/lib/seo/schemas'
 const BASE_URL = 'https://www.sozim.co.za'
 
 export const metadata: Metadata = {
-  title: 'Student Portal | Coming Soon - Sozim Trading and Consultancy',
-  description: 'The new Sozim Trading student portal is launching soon. Access your courses, track progress, and manage your learning journey all in one place.',
+  title: 'Student Portal | Coming Soon',
+  description: 'The new Sozim student portal is launching soon. Access your courses, track progress, and manage your learning journey.',
   keywords: [
     'student portal Sozim',
     'learning management system',
@@ -20,12 +20,17 @@ export const metadata: Metadata = {
     'progress tracking',
   ],
   openGraph: {
-    title: 'Student Portal | Coming Soon - Sozim Trading and Consultancy',
-    description: 'The new Sozim Trading student portal is launching soon. Access your courses, track progress, and manage your learning journey all in one place.',
+    title: 'Student Portal | Coming Soon',
+    description: 'The new Sozim student portal is launching soon. Access your courses, track progress, and manage your learning journey.',
     url: `${BASE_URL}/portal`,
+    siteName: 'Sozim Trading and Consultancy',
   },
   alternates: {
     canonical: `${BASE_URL}/portal`,
+  },
+  robots: {
+    index: false,
+    follow: false,
   },
 }
 
