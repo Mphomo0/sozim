@@ -7,24 +7,33 @@ import { getFAQSchema, getBreadcrumbSchema } from '@/lib/seo/schemas'
 const BASE_URL = 'https://www.sozim.co.za'
 
 export const metadata: Metadata = {
-  title: 'Sozim Store | Premium Trading Resources and Educational Products',
+  title: 'Sozim Store',
   description:
-    'Shop the Sozim Store for premium trading resources, educational materials, and professional tools. Discover quality products designed to support your trading education journey in South Africa.',
+    'Shop the Sozim Store for premium trading resources, educational materials, and professional tools designed to support your trading education journey.',
   keywords: [
     'Sozim store',
     'trading resources shop',
     'trading education materials South Africa',
-    'trading books SA',
     'professional trading tools',
     'educational products South Africa',
     'student resources',
-    'trading merchandise',
   ],
   openGraph: {
-    title: 'Sozim Store | Trading Resources and Education Products',
+    title: 'Sozim Store | Trading Resources',
     description:
-      'Browse our range of premium trading resources, educational materials, and professional tools designed to support your trading education journey.',
+      'Browse premium trading resources, educational materials, and professional tools for your trading education.',
     url: `${BASE_URL}/shop`,
+    siteName: 'Sozim',
+    type: 'website',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Sozim Store - Trading Resources',
+        type: 'image/jpeg',
+      },
+    ],
   },
   alternates: {
     canonical: `${BASE_URL}/shop`,

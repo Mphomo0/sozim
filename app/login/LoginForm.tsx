@@ -8,6 +8,7 @@ import { motion } from 'framer-motion'
 export default function LoginForm() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden bg-slate-950">
+      <h1 className="sr-only">Login to Sozim Trading</h1>
       <div className="absolute inset-0 opacity-20 pointer-events-none">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-600/20 via-transparent to-transparent" />
         <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">

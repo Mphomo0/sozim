@@ -9,24 +9,32 @@ import React from 'react'
 const BASE_URL = 'https://www.sozim.co.za'
 
 export const metadata: Metadata = {
-  title: 'Contact Us | Sozim Trading',
+  title: 'Contact Us',
   description:
-    'Contact Sozim Trading in Bloemfontein, South Africa. Get in touch for course enquiries, admissions, and student support.',
+    'Contact Sozim in Bloemfontein, South Africa. Get in touch for course enquiries, admissions, and student support.',
   keywords: [
-    'contact Sozim Trading',
-    'Sozim education contact details',
+    'contact Sozim',
+    'Sozim education contact',
     'trading courses enquiries South Africa',
     'Bloemfontein education contact',
     'Sozim admissions contact',
     'student support South Africa',
-    'contact learning institution SA',
   ],
   openGraph: {
-    title: 'Contact Us | Sozim Trading',
-    description:
-      'Reach out to Sozim Trading for course enquiries, admissions, and student support.',
+    title: 'Contact Us | Sozim',
+    description: 'Reach out to Sozim for course enquiries, admissions, and student support.',
     url: `${BASE_URL}/contact`,
-    siteName: 'Sozim Trading and Consultancy',
+    siteName: 'Sozim',
+    type: 'website',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Contact Sozim',
+        type: 'image/jpeg',
+      },
+    ],
   },
   alternates: {
     canonical: `${BASE_URL}/contact`,

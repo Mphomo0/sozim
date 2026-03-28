@@ -5,14 +5,30 @@ import Breadcrumb from '@/components/global/Breadcrumb'
 const BASE_URL = 'https://www.sozim.co.za'
 
 export const metadata: Metadata = {
-  title: 'Terms of Service | Sozim Trading and Consultancy',
+  title: 'Terms of Service',
   description:
-    'Sozim Trading and Consultancy terms and conditions. Read our terms of service for using our website and education services.',
+    'Sozim terms and conditions. Read our terms of service for using our website and education services.',
   authors: [{ name: 'Sozim Team' }],
   other: {
     'author': 'Sozim Team',
     'published': '2026-03-28',
     'modified': '2026-03-28',
+  },
+  openGraph: {
+    title: 'Terms of Service | Sozim',
+    description: 'Sozim terms and conditions for using our website and education services.',
+    url: `${BASE_URL}/terms-of-service`,
+    siteName: 'Sozim',
+    type: 'website',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Terms of Service - Sozim',
+        type: 'image/jpeg',
+      },
+    ],
   },
   alternates: {
     canonical: `${BASE_URL}/terms-of-service`,

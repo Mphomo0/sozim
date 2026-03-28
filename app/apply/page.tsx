@@ -8,23 +8,31 @@ import { getFAQSchema, getBreadcrumbSchema } from '@/lib/seo/schemas'
 const BASE_URL = 'https://www.sozim.co.za'
 
 export const metadata: Metadata = {
-  title: 'Apply Now | Sozim Trading | Sozim Trading and Consultancy',
-  description: 'Apply for accredited trading courses and professional training in South Africa. Enroll today and start your trading career!',
+  title: 'Apply Now',
+  description: 'Apply for accredited trading courses and professional training in South Africa. Start your trading career today!',
   keywords: [
-    'apply now Sozim Trading',
+    'apply Sozim',
     'enroll trading courses South Africa',
     'student application form',
     'accredited courses application',
     'trading education enrollment',
-    'professional training application SA',
-    'online course enrollment',
-    'Bloemfontein campus application',
+    'professional training SA',
   ],
   openGraph: {
-    title: 'Apply Now | Sozim Trading',
-    description: 'Apply for accredited trading courses and professional training in South Africa. Enroll today and start your trading career!',
+    title: 'Apply Now | Sozim',
+    description: 'Apply for accredited trading courses and professional training in South Africa. Start your trading career!',
     url: `${BASE_URL}/apply`,
-    siteName: 'Sozim Trading and Consultancy',
+    siteName: 'Sozim',
+    type: 'website',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Apply for Sozim Courses',
+        type: 'image/jpeg',
+      },
+    ],
   },
   alternates: {
     canonical: `${BASE_URL}/apply`,

@@ -5,14 +5,30 @@ import Breadcrumb from '@/components/global/Breadcrumb'
 const BASE_URL = 'https://www.sozim.co.za'
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy | Sozim Trading and Consultancy',
+  title: 'Privacy Policy',
   description:
-    'Sozim Trading and Consultancy privacy policy. Learn how we collect, use, and protect your personal information in accordance with South African data protection laws.',
+    'Sozim privacy policy. Learn how we collect, use, and protect your personal information in accordance with South African data protection laws.',
   authors: [{ name: 'Sozim Team' }],
   other: {
     'author': 'Sozim Team',
     'published': '2026-03-28',
     'modified': '2026-03-28',
+  },
+  openGraph: {
+    title: 'Privacy Policy | Sozim',
+    description: 'Sozim privacy policy - how we collect, use, and protect your personal information.',
+    url: `${BASE_URL}/privacy-policy`,
+    siteName: 'Sozim',
+    type: 'website',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Privacy Policy - Sozim',
+        type: 'image/jpeg',
+      },
+    ],
   },
   alternates: {
     canonical: `${BASE_URL}/privacy-policy`,

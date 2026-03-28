@@ -7,24 +7,33 @@ import { getFAQSchema, getBreadcrumbSchema } from '@/lib/seo/schemas'
 const BASE_URL = 'https://www.sozim.co.za'
 
 export const metadata: Metadata = {
-  title: 'Enquire About Learning | Sozim Trading and Consultancy',
+  title: 'Enquire',
   description:
-    'Enquire about learning opportunities at Sozim Trading and Consultancy. Get information about course enrolment, admissions, financial assistance, and student support for accredited education programmes in South Africa.',
+    'Enquire about learning opportunities at Sozim. Get information about course enrolment, admissions, financial assistance, and student support.',
   keywords: [
-    'enquire about learning Sozim',
+    'enquire Sozim',
     'course enrolment South Africa',
     'student admission enquiry',
     'learning opportunities SA',
     'trading course enquiries',
     'student recruitment South Africa',
-    'education enquiry',
-    'skills training admission',
   ],
   openGraph: {
-    title: 'Enquire About Learning | Sozim Trading and Consultancy',
+    title: 'Enquire | Sozim',
     description:
-      'Get information about enrolling in Sozim trading and professional education courses. Our admissions team is ready to help you start your learning journey.',
+      'Get information about enrolling in Sozim trading and professional education courses. Our admissions team is ready to help.',
     url: `${BASE_URL}/contact-learning`,
+    siteName: 'Sozim',
+    type: 'website',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Enquire About Learning - Sozim',
+        type: 'image/jpeg',
+      },
+    ],
   },
   alternates: {
     canonical: `${BASE_URL}/contact-learning`,

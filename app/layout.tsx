@@ -32,12 +32,12 @@ export const metadata: Metadata = {
   },
 
   title: {
-    default: 'Sozim Trading and Consultancy | Accredited Education & Trading Courses South Africa',
-    template: '%s | Sozim Trading and Consultancy',
+    default: 'Sozim | Accredited Education & Trading Courses South Africa',
+    template: '%s | Sozim',
   },
 
   description:
-    'Sozim Trading and Consultancy offers accredited trading courses, professional training, and career-focused education programmes in South Africa. Enroll today and transform your future with expert-led courses in Bloemfontein and online.',
+    'Sozim offers accredited trading courses, professional training, and career-focused education in South Africa. Enroll today for expert-led courses in Bloemfontein and online.',
 
   keywords: [
     'Sozim Trading and Consultancy',
@@ -91,30 +91,22 @@ export const metadata: Metadata = {
   },
 
   openGraph: {
-    title: 'Sozim Trading and Consultancy | Accredited Education & Trading Courses South Africa',
+    title: 'Sozim | Accredited Education & Trading Courses South Africa',
     description:
       'Enroll in accredited trading courses and professional training programmes in South Africa. Expert-led education for career success.',
     url: BASE_URL,
-    siteName: 'Sozim Trading and Consultancy',
+    siteName: 'Sozim',
+    type: 'website',
     images: [
       {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'Sozim Trading and Consultancy - Accredited Education and Trading Courses in South Africa',
+        alt: 'Sozim - Accredited Education and Trading Courses in South Africa',
         type: 'image/jpeg',
-      },
-      {
-        url: '/og-banner.png',
-        width: 1200,
-        height: 630,
-        alt: 'Sozim Trading - Professional Trading Education South Africa',
-        type: 'image/png',
       },
     ],
     locale: 'en_ZA',
-    alternateLocale: ['en_ZA', 'en_ZA'],
-    type: 'website',
   },
 
   twitter: {

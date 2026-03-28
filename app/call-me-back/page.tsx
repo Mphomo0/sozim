@@ -7,9 +7,9 @@ import { getBreadcrumbSchema } from '@/lib/seo/schemas'
 const BASE_URL = 'https://www.sozim.co.za'
 
 export const metadata: Metadata = {
-  title: 'Request a Callback | Sozim Trading and Consultancy',
+  title: 'Request Callback',
   description:
-    'Request a callback from a Sozim Trading and Consultancy student recruitment advisor. Fill in your details and we will call you at a time that suits you to discuss your education and training options.',
+    'Request a callback from a Sozim student recruitment advisor. We will call you to discuss your education and training options.',
   keywords: [
     'request callback Sozim',
     'student advisor call back',
@@ -18,10 +18,21 @@ export const metadata: Metadata = {
     'admissions call back SA',
   ],
   openGraph: {
-    title: 'Request a Callback | Sozim Trading and Consultancy',
+    title: 'Request Callback | Sozim',
     description:
-      'Request a callback from our student recruitment team. We will call you to discuss your educational goals and course options.',
+      'Request a callback from our student recruitment team to discuss your educational goals and course options.',
     url: `${BASE_URL}/call-me-back`,
+    siteName: 'Sozim',
+    type: 'website',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Request Callback - Sozim',
+        type: 'image/jpeg',
+      },
+    ],
   },
   alternates: {
     canonical: `${BASE_URL}/call-me-back`,

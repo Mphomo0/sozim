@@ -7,23 +7,33 @@ import { getFAQSchema, getBreadcrumbSchema } from '@/lib/seo/schemas'
 const BASE_URL = 'https://www.sozim.co.za'
 
 export const metadata: Metadata = {
-  title: 'Our Contact Learning Campuses | Sozim Trading and Consultancy',
+  title: 'Campus',
   description:
-    'Visit Sozim Trading and Consultancy campuses in South Africa. Our contact learning campuses offer face-to-face education, professional training facilities, and dedicated student support in Bloemfontein and surrounding areas.',
+    'Visit Sozim campuses in South Africa. Our contact learning campuses offer face-to-face education, professional training facilities, and dedicated student support in Bloemfontein.',
   keywords: [
     'Sozim campus Bloemfontein',
     'contact learning South Africa',
     'campus education Free State',
     'in-person training South Africa',
     'student campus facilities SA',
-    'trading education campus',
     'Bloemfontein education institution',
   ],
   openGraph: {
-    title: 'Our Contact Learning Campuses | Sozim',
+    title: 'Campus | Sozim',
     description:
-      'Visit our campuses across South Africa for face-to-face learning, professional training, and dedicated student support.',
+      'Visit our campuses across South Africa for face-to-face learning, professional training, and student support.',
     url: `${BASE_URL}/campus`,
+    siteName: 'Sozim',
+    type: 'website',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Sozim Campus - Bloemfontein',
+        type: 'image/jpeg',
+      },
+    ],
   },
   alternates: {
     canonical: `${BASE_URL}/campus`,
