@@ -12,6 +12,12 @@ export const metadata: Metadata = {
   title: 'Sozim Trading and Consultancy | Accredited Education & Trading Courses South Africa',
   description:
     'Sozim Trading and Consultancy offers accredited trading courses, professional training, and career-focused education programmes in South Africa. Enrol today in forex trading, stock market training, and professional development courses in Bloemfontein and online.',
+  authors: [{ name: 'Sozim Team' }],
+  other: {
+    'author': 'Sozim Team',
+    'published': '2026-03-28',
+    'modified': '2026-03-28',
+  },
   keywords: [
     'Sozim Trading and Consultancy',
     'trading courses South Africa',

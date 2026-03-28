@@ -31,6 +31,12 @@ export const metadata: Metadata = {
   alternates: {
     canonical: `${BASE_URL}/courses`,
   },
+  authors: [{ name: 'Sozim Team' }],
+  other: {
+    'author': 'Sozim Team',
+    'published': '2026-03-28',
+    'modified': '2026-03-28',
+  },
 }
 
 const courseSchema = getCourseSchema({

@@ -1,0 +1,39 @@
+# Sozim Trading and Consultancy
+
+## Site Overview
+Sozim Trading and Consultancy provides accredited education and trading courses in South Africa. Founded in 2009, we offer certificates, undergraduate, graduate, and online learning programs.
+
+## Pages
+
+### Home (/)
+- Transform Your Future - World-class education
+- 5000+ Students Enrolled, 50+ Expert Instructors, 20+ Programs, 95% Success Rate
+- Programs: Undergraduate, Graduate, Online Learning, Certificates
+
+### About (/about)
+- Mission: Deliver tailored training programs for safe workplaces and compliance standards
+- Vision: Create a literate tomorrow through exceptional library and information training
+- Values: Excellence, Innovation and Impact, Accountability, Care, Social Justice, Sustainability
+- Founded: 2009, 10,000+ Graduates, QCTO Accredited, SAQA Aligned
+
+### Courses (/courses)
+- Industry-recognized programs designed for career advancement
+- Loading dynamically from database
+
+### Career Pathways (/career-pathway)
+- NQF 5, 6, 7 qualifications
+- Career progression guidance
+
+### Campus (/campus)
+- Physical location in Bloemfontein
+
+### Library (/library)
+- Educational resources (populated from database)
+
+### Shop (/shop)
+- Sozim Store for materials
+
+### Contact (/contact)
+- Shop 4, Sunday School Building, 154 Charlotte Maxeke Street, Bloemfontein
+- Phone: (+27) 83 668 0104
+- Email: admin@sozim.co.za

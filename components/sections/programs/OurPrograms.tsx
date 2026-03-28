@@ -35,7 +35,72 @@ export default function OurPrograms() {
       ? courses
       : courses.filter((course) => getCategoryName(course) === selectedCategory)
 
-  if (loading) return <div className="text-center h-96">Loading...</div>
+  if (loading) {
+    return (
+      <>
+        {/* CATEGORY FILTERS - Static fallback */}
+        <section className="bg-slate-50 py-8 relative">
+          <div className="container mx-auto px-4 relative z-10">
+            <div className="flex items-center justify-center flex-wrap gap-3">
+              <Button variant="default" className="rounded-full px-6 bg-blue-600 text-white shadow-md">
+                All Programs
+              </Button>
+            </div>
+          </div>
+        </section>
+
+        {/* COURSES GRID - Static fallback with sample courses */}
+        <section className="py-20 relative bg-slate-50/50">
+          <div className="container mx-auto px-4">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <Card key={i} className="h-full flex flex-col overflow-hidden border border-slate-200/60 bg-white/80 backdrop-blur-sm">
+                  <CardHeader className="pb-4">
+                    <div className="mb-4 flex items-center justify-between text-sm">
+                      <Badge className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-semibold">
+                        Loading...
+                      </Badge>
+                    </div>
+                    <CardTitle className="text-2xl font-bold tracking-tight text-slate-900">
+                      Loading course...
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex-1 flex flex-col">
+                    <p className="mb-6 text-base text-slate-600 leading-relaxed">
+                      Course information is loading. Please wait...
+                    </p>
+                    <div className="mt-auto flex gap-3 pt-6 border-t border-slate-100">
+                      <Button className="flex-1 bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-xl h-11" disabled>
+                        Apply Now
+                      </Button>
+                      <Button variant="outline" size="icon" className="h-11 w-11 rounded-xl border-slate-300" disabled>
+                        <BookOpen className="h-5 w-5" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* CTA FOOTER - Static fallback */}
+        <section className="relative bg-slate-900 py-24 overflow-hidden mt-12">
+          <div className="container relative z-10 mx-auto px-4">
+            <div className="mx-auto max-w-2xl text-center text-white">
+              <h2 className="mb-6 text-4xl font-extrabold tracking-tight md:text-5xl">
+                Not Sure Which Course to Choose?
+              </h2>
+              <p className="mb-10 text-xl font-light text-slate-300 leading-relaxed">
+                Our expert advisors are here to help you find the perfect program
+                for your career goals. Let&apos;s build your future together.
+              </p>
+            </div>
+          </div>
+        </section>
+      </>
+    )
+  }
 
   return (
     <>

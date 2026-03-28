@@ -15,7 +15,7 @@ export function getOrganizationSchema() {
     },
     description:
       'Sozim Trading and Consultancy offers accredited education, professional trading training, and career-focused courses in South Africa, empowering students and professionals for success.',
-    foundingDate: '2020',
+    foundingDate: '2009',
     foundingLocation: 'Bloemfontein, South Africa',
     areaServed: {
       '@type': 'Country',
