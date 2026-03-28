@@ -6,18 +6,18 @@ const BASE_URL = 'https://www.sozim.co.za'
 
 export const metadata: Metadata = {
   title: 'Terms of Service',
-  description:
-    'Sozim terms and conditions. Read our terms of service for using our website and education services.',
+	description:
+		'Read Sozim Trading and Consultancy terms of service. Understand the terms and conditions for using our accredited education services and website in South Africa.',
   authors: [{ name: 'Sozim Team' }],
   other: {
     'author': 'Sozim Team',
     'published': '2026-03-28',
     'modified': '2026-03-28',
   },
-  openGraph: {
-    title: 'Terms of Service | Sozim',
-    description: 'Sozim terms and conditions for using our website and education services.',
-    url: `${BASE_URL}/terms-of-service`,
+	openGraph: {
+		title: 'Terms of Service | Sozim',
+		description: 'Read Sozim terms and conditions for using our accredited education services and website.',
+		url: `${BASE_URL}/terms-of-service`,
     siteName: 'Sozim',
     type: 'website',
     images: [

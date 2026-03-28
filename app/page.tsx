@@ -10,8 +10,8 @@ const BASE_URL = 'https://www.sozim.co.za'
 
 export const metadata: Metadata = {
   title: 'Sozim | Accredited Education & Trading Courses South Africa',
-  description:
-    'Sozim offers accredited trading courses, professional training, and career-focused education in South Africa. Enrol today for forex, stock market, and professional development courses in Bloemfontein and online.',
+	description:
+		'Sozim offers accredited trading courses and professional training in South Africa. Enrol for forex, stock market, and career development courses in Bloemfontein or online.',
   authors: [{ name: 'Sozim Team' }],
   other: {
     'author': 'Sozim Team',
@@ -30,11 +30,11 @@ export const metadata: Metadata = {
     'online trading education SA',
     'career development courses',
   ],
-  openGraph: {
-    title: 'Sozim | Accredited Trading Courses South Africa',
-    description:
-      'Enroll in accredited trading and professional training courses in South Africa. Expert-led education for career success.',
-    url: BASE_URL,
+	openGraph: {
+		title: 'Sozim | Accredited Trading Courses South Africa',
+		description:
+			'Enrol in accredited trading and professional training courses in South Africa. Expert-led education in Bloemfontein and online.',
+		url: BASE_URL,
     siteName: 'Sozim',
     type: 'website',
     images: [

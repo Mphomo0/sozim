@@ -7,9 +7,9 @@ import { getFAQSchema, getBreadcrumbSchema } from '@/lib/seo/schemas'
 const BASE_URL = 'https://www.sozim.co.za'
 
 export const metadata: Metadata = {
-  title: 'Campus',
-  description:
-    'Visit Sozim campuses in South Africa. Our contact learning campuses offer face-to-face education, professional training facilities, and dedicated student support in Bloemfontein.',
+	title: 'Campus Locations | Sozim Trading & Consultancy',
+	description:
+		'Visit Sozim campuses in South Africa. Our Bloemfontein campus offers face-to-face education, professional training facilities, and dedicated student support.',
   keywords: [
     'Sozim campus Bloemfontein',
     'contact learning South Africa',
@@ -18,11 +18,11 @@ export const metadata: Metadata = {
     'student campus facilities SA',
     'Bloemfontein education institution',
   ],
-  openGraph: {
-    title: 'Campus | Sozim',
-    description:
-      'Visit our campuses across South Africa for face-to-face learning, professional training, and student support.',
-    url: `${BASE_URL}/campus`,
+	openGraph: {
+		title: 'Campus Locations | Sozim',
+		description:
+			'Visit our Bloemfontein campus for face-to-face learning, professional training facilities, and student support.',
+		url: `${BASE_URL}/campus`,
     siteName: 'Sozim',
     type: 'website',
     images: [

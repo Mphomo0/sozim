@@ -8,8 +8,8 @@ const BASE_URL = 'https://www.sozim.co.za'
 
 export const metadata: Metadata = {
   title: 'Career Pathways',
-  description:
-    'Navigate your professional career journey through accredited education pathways. Explore career guidance for trading, Library Science (LIS), and Education Training Development (ETD) sectors.',
+	description:
+		'Explore accredited career pathways in trading, Library Science (LIS), and Education Training Development (ETD). Professional guidance for your South African career journey.',
   keywords: [
     'trading career pathways South Africa',
     'LIS career guidance',
@@ -18,11 +18,10 @@ export const metadata: Metadata = {
     'education training development careers',
     'professional trading careers SA',
   ],
-  openGraph: {
-    title: 'Career Pathways | Sozim',
-    description:
-      'Explore professional career pathways in trading, library science, and education training development.',
-    url: `${BASE_URL}/career-pathway`,
+	openGraph: {
+		title: 'Career Pathways | Sozim',
+		description: 'Explore career pathways in trading, library science, and education training development in South Africa.',
+		url: `${BASE_URL}/career-pathway`,
     siteName: 'Sozim',
     type: 'website',
     images: [
