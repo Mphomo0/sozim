@@ -4,8 +4,8 @@ import LoginForm from './LoginForm'
 const BASE_URL = 'https://www.sozim.co.za'
 
 export const metadata: Metadata = {
-  title: 'Login | Sozim Trading',
-  description: 'Log in to your Sozim account. Access your student portal, courses, and learning resources.',
+  title: 'Login | Sozim Trading | Sozim Trading and Consultancy',
+  description: 'Log in to your Sozim account to access your student portal, trading courses, and learning resources. Start learning today!',
   keywords: [
     'login Sozim Trading',
     'student login',
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     title: 'Login | Sozim Trading',
-    description: 'Log in to your Sozim account. Access your student portal, courses, and learning resources.',
+    description: 'Log in to your Sozim account to access your student portal, trading courses, and learning resources. Start learning today!',
     url: `${BASE_URL}/login`,
     siteName: 'Sozim Trading and Consultancy',
   },

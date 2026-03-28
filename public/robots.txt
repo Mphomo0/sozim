@@ -12,7 +12,6 @@ Allow: /shop
 Disallow: /dashboard
 Disallow: /api/
 Disallow: /student/
-Disallow: /favorites
 Disallow: /actions
 Disallow: /_next/
 Disallow: /apple-touch-icon.png
