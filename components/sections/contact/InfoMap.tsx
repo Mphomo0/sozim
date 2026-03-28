@@ -17,8 +17,8 @@ import ContactForm from './ContactForm'
 
 export default function InfoMap() {
   return (
-    <section className="container mx-auto sm:px-6 lg:px-8 mb-24">
-      <section className="py-12">
+    <section className="container mx-auto sm:px-6 lg:px-8 mb-12">
+      <section className="py-6">
         <div className="container mx-auto px-4">
           <div className="grid gap-12 lg:grid-cols-2">
             {/* Contact Form */}

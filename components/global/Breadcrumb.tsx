@@ -26,6 +26,9 @@ function getBreadcrumbs(pathname: string): BreadcrumbItem[] {
     favorites: 'Favorites',
     student: 'Student Portal',
     'call-me-back': 'Request Callback',
+    apply: 'Apply Now',
+    portal: 'Student Portal',
+    login: 'Login',
   }
 
   segments.forEach((segment, index) => {

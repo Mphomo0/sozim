@@ -16,7 +16,7 @@ export default function Navbar() {
   const [showResults, setShowResults] = useState(false)
   const [favoritesCount, setFavoritesCount] = useState(0)
   const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>(
-    {}
+    {},
   )
   const [desktopDropdowns, setDesktopDropdowns] = useState<
     Record<string, boolean>
@@ -26,13 +26,13 @@ export default function Navbar() {
   const router = useRouter()
   const { user } = useUser()
   const { signOut } = useClerk()
-  
+
   const coursesReq = useQuery(api.courses.getCourses)
   const courses = coursesReq || []
-  
+
   const convexUser = useQuery(
     api.users.getUserByClerkId,
-    user?.id ? { clerkId: user.id } : "skip"
+    user?.id ? { clerkId: user.id } : 'skip',
   )
 
   useEffect(() => {
@@ -54,7 +54,7 @@ export default function Navbar() {
       }
     }
     window.addEventListener('storage', handleStorageChange)
-    
+
     const checkFavorites = () => {
       const stored = localStorage.getItem('shopFavorites')
       if (stored) {
@@ -64,7 +64,7 @@ export default function Navbar() {
         setFavoritesCount(0)
       }
     }
-    
+
     window.addEventListener('focus', checkFavorites)
     return () => {
       window.removeEventListener('storage', handleStorageChange)
@@ -75,10 +75,13 @@ export default function Navbar() {
   const filteredResults = useMemo(() => {
     if (searchQuery.trim() === '') return []
     const query = searchQuery.toLowerCase()
-    return courses.filter((course: any) => 
-      course.title?.toLowerCase().includes(query) ||
-      course.description?.toLowerCase().includes(query)
-    ).slice(0, 5)
+    return courses
+      .filter(
+        (course: any) =>
+          course.title?.toLowerCase().includes(query) ||
+          course.description?.toLowerCase().includes(query),
+      )
+      .slice(0, 5)
   }, [searchQuery, courses])
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -99,7 +102,7 @@ export default function Navbar() {
   }
 
   const topMenuItems = [
-    { label: 'Apply Now', href: '/student' },
+    { label: 'Apply Now', href: '/apply' },
     { label: 'Call Me Back', href: '/call-me-back' },
     { label: 'Student Portal', href: '/portal' },
     { label: 'Contact Us', href: '/contact' },
@@ -157,7 +160,9 @@ export default function Navbar() {
     { label: 'Campus', href: '/campus' },
     { label: 'Career Pathways', href: '/career-pathway' },
     { label: 'Sozim Store', href: '/shop' },
-    ...(favoritesCount > 0 ? [{ label: `Favorites (${favoritesCount})`, href: '/favorites' }] : []),
+    ...(favoritesCount > 0
+      ? [{ label: `Favorites (${favoritesCount})`, href: '/favorites' }]
+      : []),
   ]
 
   const toggleDropdown = (label: string) => {
@@ -300,7 +305,9 @@ export default function Navbar() {
             <button
               onClick={() => {
                 if (searchQuery) {
-                  router.push(`/courses?search=${encodeURIComponent(searchQuery)}`)
+                  router.push(
+                    `/courses?search=${encodeURIComponent(searchQuery)}`,
+                  )
                   setSearchActive(false)
                   setSearchQuery('')
                 } else {
@@ -496,7 +503,7 @@ export default function Navbar() {
                     {item.label}
                   </Link>
                 </li>
-              )
+              ),
             )}
           </ul>
         </nav>

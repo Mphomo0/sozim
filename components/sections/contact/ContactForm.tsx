@@ -89,10 +89,10 @@ export default function ContactForm() {
   }
 
   return (
-    <div className="h-full">
-      <Card className="h-full border-slate-200/60 bg-white/80 backdrop-blur-md shadow-2xl rounded-3xl overflow-hidden relative group">
+    <div>
+      <Card className="border-slate-200/60 bg-white/80 backdrop-blur-md shadow-2xl rounded-3xl overflow-hidden relative group">
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-600 to-sky-400" />
-        <CardHeader className="pb-4">
+        <CardHeader className="pb-2">
           <CardTitle className="text-3xl font-extrabold tracking-tight text-slate-900">
             Send us a Message
           </CardTitle>
@@ -101,9 +101,9 @@ export default function ContactForm() {
             hours
           </CardDescription>
         </CardHeader>
-        <CardContent className="pt-4">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid gap-6 md:grid-cols-2">
+        <CardContent className="pt-2">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="firstName" className="text-sm font-bold text-slate-700 ml-1 uppercase tracking-wider">First Name *</Label>
                 <Input
