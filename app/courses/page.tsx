@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import PageHeader from '@/components/global/PageHeader'
 import OurPrograms from '@/components/sections/programs/OurPrograms'
 import Breadcrumb from '@/components/global/Breadcrumb'
-import { getFAQSchema, getBreadcrumbSchema, getCourseSchema } from '@/lib/seo/schemas'
+import { getFAQSchema, getBreadcrumbSchema, getCourseSchema, getWebPageSchema, getArticleSchema, getEducationalOccupationalCredentialSchema } from '@/lib/seo/schemas'
 
 const BASE_URL = 'https://www.sozim.co.za'
 
@@ -104,6 +104,33 @@ export default function CoursesPage() {
     { name: 'Home', url: BASE_URL },
     { name: 'Our Programs', url: `${BASE_URL}/courses` },
   ])
+  const webPageSchema = getWebPageSchema({
+    name: 'Courses | Sozim',
+    description: 'Explore accredited trading courses and professional training at Sozim. Enrol in forex, stock markets, and financial trading courses in South Africa.',
+    url: `${BASE_URL}/courses`,
+    lastModified: '2026-03-28',
+    breadcrumb: [
+      { name: 'Home', url: BASE_URL },
+      { name: 'Our Programs', url: `${BASE_URL}/courses` },
+    ],
+    speakable: ['h1', 'h2', 'p'],
+  })
+  const articleSchema = getArticleSchema({
+    headline: 'Accredited Trading Courses and Professional Training South Africa',
+    description: 'Comprehensive trading education and professional training courses covering forex trading, stock markets, financial analysis, and career development skills in South Africa.',
+    author: 'Sozim Team',
+    datePublished: '2026-03-28',
+    dateModified: '2026-03-28',
+    url: `${BASE_URL}/courses`,
+    keywords: ['trading courses South Africa', 'forex trading courses', 'accredited trading courses SA'],
+  })
+  const credentialSchema = getEducationalOccupationalCredentialSchema({
+    name: 'Trading and Professional Education Programmes',
+    description: 'Accredited trading education and professional training courses recognized by ETDP SETA, QCTO, and SAQA.',
+    credentialCategory: 'Professional Certificate',
+    url: `${BASE_URL}/courses`,
+    recognizedBy: ['ETDP SETA', 'QCTO', 'SAQA'],
+  })
 
   return (
     <>
@@ -118,6 +145,18 @@ export default function CoursesPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(credentialSchema) }}
       />
       <Breadcrumb />
       <PageHeader

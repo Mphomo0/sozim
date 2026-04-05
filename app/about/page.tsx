@@ -7,7 +7,7 @@ import MissionVision from '@/components/sections/about/MissionVision'
 import OurStory from '@/components/sections/about/OurStory'
 import Values from '@/components/sections/about/Values'
 import Breadcrumb from '@/components/global/Breadcrumb'
-import { getFAQSchema, getBreadcrumbSchema, getPersonSchema } from '@/lib/seo/schemas'
+import { getFAQSchema, getBreadcrumbSchema, getPersonSchema, getArticleSchema, getWebPageSchema } from '@/lib/seo/schemas'
 
 const BASE_URL = 'https://www.sozim.co.za'
 
@@ -95,6 +95,26 @@ export default function About() {
     { name: 'Home', url: BASE_URL },
     { name: 'About Us', url: `${BASE_URL}/about` },
   ])
+  const articleSchema = getArticleSchema({
+    headline: 'About Sozim Trading and Consultancy',
+    description: 'Learn about Sozim — an accredited education provider in Bloemfontein, South Africa, offering quality training and career-focused courses.',
+    author: 'Sozim Team',
+    datePublished: '2026-03-28',
+    dateModified: '2026-03-28',
+    url: `${BASE_URL}/about`,
+    keywords: ['about Sozim', 'accredited education provider South Africa', 'Bloemfontein education institution'],
+  })
+  const webPageSchema = getWebPageSchema({
+    name: 'About Us | Sozim',
+    description: 'Discover the story, mission, and values behind Sozim — empowering students across South Africa.',
+    url: `${BASE_URL}/about`,
+    lastModified: '2026-03-28',
+    breadcrumb: [
+      { name: 'Home', url: BASE_URL },
+      { name: 'About Us', url: `${BASE_URL}/about` },
+    ],
+    speakable: ['h1', 'h2', 'p'],
+  })
 
   const leadershipTeam = [
     {
@@ -138,6 +158,14 @@ export default function About() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageSchema) }}
       />
       {leadershipTeam.map((member) => (
         <script

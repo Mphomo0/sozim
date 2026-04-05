@@ -478,8 +478,7 @@ export default function CreateApplication({ onSuccess }: Props) {
                         {status === 'uploading' && (
                           <div className='w-full bg-gray-200 h-1 mt-3 rounded-full overflow-hidden'>
                             <div
-                              className='bg-blue-600 h-full animate-pulse'
-                              style={{ width: '100%' }}
+                              className='bg-blue-600 h-full w-full animate-pulse'
                             />
                           </div>
                         )}

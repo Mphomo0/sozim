@@ -3,9 +3,10 @@ const BASE_URL = 'https://www.sozim.co.za'
 export function getOrganizationSchema() {
   return {
     '@context': 'https://schema.org',
-    '@type': 'Organization',
+    '@type': ['Organization', 'EducationalOrganization'],
     '@id': `${BASE_URL}/#organization`,
     name: 'Sozim Trading and Consultancy',
+    alternateName: ['Sozim Trading', 'Sozim'],
     url: BASE_URL,
     logo: {
       '@type': 'ImageObject',
@@ -13,6 +14,10 @@ export function getOrganizationSchema() {
       width: 200,
       height: 100,
     },
+    image: [
+      'https://ik.imagekit.io/vzofqg2fg/images/heroImage.jpg',
+      'https://ik.imagekit.io/vzofqg2fg/images/SozimLogoWhite.webp',
+    ],
     description:
       'Sozim Trading and Consultancy offers accredited education, professional trading training, and career-focused courses in South Africa, empowering students and professionals for success.',
     foundingDate: '2009',
@@ -93,6 +98,58 @@ export function getOrganizationSchema() {
           },
         },
       ],
+    },
+    accreditation: [
+      {
+        '@type': 'Accreditation',
+        name: 'ETDP SETA Accredited',
+        accreditingBody: {
+          '@type': 'Organization',
+          name: 'Education, Training and Development Practices Sector Education and Training Authority',
+          url: 'https://www.etdpseta.org.za',
+        },
+      },
+      {
+        '@type': 'Accreditation',
+        name: 'QCTO Registered',
+        accreditingBody: {
+          '@type': 'Organization',
+          name: 'Quality Council for Trades and Occupations',
+          url: 'https://www.qcto.org.za',
+        },
+      },
+      {
+        '@type': 'Accreditation',
+        name: 'SAQA Aligned',
+        accreditingBody: {
+          '@type': 'Organization',
+          name: 'South African Qualifications Authority',
+          url: 'https://www.saqa.org.za',
+        },
+      },
+    ],
+    award: [
+      {
+        '@type': 'Award',
+        name: 'Accredited Education Provider South Africa',
+        dateReceived: '2009',
+        awarder: {
+          '@type': 'Organization',
+          name: 'ETDP SETA',
+        },
+      },
+    ],
+    numberOfEmployees: {
+      '@type': 'QuantitativeValue',
+      minValue: 10,
+      maxValue: 50,
+    },
+    alumni: {
+      '@type': 'Alumni',
+      alumniOf: {
+        '@id': `${BASE_URL}/#organization`,
+      },
+      description: 'Over 500+ graduates working in trading, finance, and library science across South Africa',
     },
   }
 }
@@ -372,12 +429,305 @@ export function getPersonSchema(params: {
   }
 }
 
-export function getOrganizationSchemaScript() {
+export function getReviewSchema(params: {
+  itemName: string
+  itemUrl: string
+  rating: number
+  reviewBody: string
+  authorName: string
+  datePublished?: string
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Review',
+    itemReviewed: {
+      '@type': 'EducationalOrganization',
+      name: params.itemName,
+      url: params.itemUrl,
+    },
+    reviewRating: {
+      '@type': 'Rating',
+      ratingValue: params.rating.toString(),
+      bestRating: '5',
+      worstRating: '1',
+    },
+    author: {
+      '@type': 'Person',
+      name: params.authorName,
+    },
+    reviewBody: params.reviewBody,
+    datePublished: params.datePublished || new Date().toISOString().split('T')[0],
+    publisher: {
+      '@id': `${BASE_URL}/#organization`,
+    },
+  }
+}
+
+export function getSpeakableSchema(params: {
+  headline: string
+  speakableText: string[]
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    '@id': `${BASE_URL}/#webpage`,
+    url: BASE_URL,
+    name: params.headline,
+    speakable: {
+      '@type': 'SpeakableSpecification',
+      cssSelector: params.speakableText,
+    },
+  }
+}
+
+export function getArticleSchema(params: {
+  headline: string
+  description: string
+  author: string
+  datePublished: string
+  dateModified: string
+  image?: string
+  url?: string
+  keywords?: string[]
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    '@id': `${params.url || BASE_URL}#article`,
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': params.url || BASE_URL,
+    },
+    headline: params.headline,
+    description: params.description,
+    image: params.image || 'https://ik.imagekit.io/vzofqg2fg/images/heroImage.jpg',
+    author: {
+      '@type': 'Organization',
+      '@id': `${BASE_URL}/#organization`,
+      name: params.author,
+    },
+    publisher: {
+      '@type': 'Organization',
+      '@id': `${BASE_URL}/#organization`,
+      name: 'Sozim Trading and Consultancy',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://ik.imagekit.io/vzofqg2fg/images/SozimLogoWhite.webp',
+        width: 200,
+        height: 100,
+      },
+    },
+    datePublished: params.datePublished,
+    dateModified: params.dateModified,
+    keywords: params.keywords?.join(', ') || 'trading education, South Africa, accredited courses',
+    inLanguage: 'en-ZA',
+    wordCount: 1500,
+    articleSection: 'Education',
+    articleBody: params.description,
+  }
+}
+
+export function getWebPageSchema(params: {
+  name: string
+  description: string
+  url?: string
+  lastModified?: string
+  breadcrumb?: { name: string; url: string }[]
+  speakable?: string[]
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    '@id': `${params.url || BASE_URL}#webpage`,
+    url: params.url || BASE_URL,
+    name: params.name,
+    description: params.description,
+    isPartOf: {
+      '@id': `${BASE_URL}/#website`,
+    },
+    about: {
+      '@id': `${BASE_URL}/#organization`,
+    },
+    dateModified: params.lastModified || new Date().toISOString(),
+    inLanguage: 'en-ZA',
+    ...(params.speakable && {
+      speakable: {
+        '@type': 'SpeakableSpecification',
+        cssSelector: params.speakable,
+      },
+    }),
+    ...(params.breadcrumb && {
+      breadcrumb: {
+        '@type': 'BreadcrumbList',
+        itemListElement: params.breadcrumb.map((item, index) => ({
+          '@type': 'ListItem',
+          position: index + 1,
+          name: item.name,
+          item: item.url,
+        })),
+      },
+    }),
+  }
+}
+
+export function getSiteNavigationElementSchema(items: { name: string; url: string }[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'SiteNavigationElement',
+    name: items.map(item => item.name),
+    url: items.map(item => item.url),
+    hasPart: items.map(item => ({
+      '@type': 'SiteNavigationElement',
+      name: item.name,
+      url: item.url,
+    })),
+  }
+}
+
+export function getProfessionalMembershipSchema(params: {
+  organizationName: string
+  membershipType: string
+  memberSince?: string
+}) {
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     '@id': `${BASE_URL}/#organization`,
+    memberOf: {
+      '@type': 'Organization',
+      name: params.organizationName,
+      url: params.organizationName.toLowerCase().replace(/\s+/g, '-'),
+      description: `Member of ${params.organizationName}`,
+    },
+    membershipPoints: {
+      '@type': 'MembershipProgram',
+      name: params.membershipType,
+      memberSince: params.memberSince || '2009',
+    },
+  }
+}
+
+export function getAlumniSchema(params: {
+  alumniCount: string
+  description: string
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'EducationalOrganization',
+    '@id': `${BASE_URL}/#organization`,
+    alumni: {
+      '@type': 'Alumni',
+      alumniOf: {
+        '@id': `${BASE_URL}/#organization`,
+      },
+      description: params.description,
+      numberOfAlumni: params.alumniCount,
+    },
+  }
+}
+
+export function getAggregateRatingSchema(params: {
+  ratingValue: string
+  reviewCount: string
+  bestRating?: string
+  worstRating?: string
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'EducationalOrganization',
+    '@id': `${BASE_URL}/#organization`,
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: params.ratingValue,
+      reviewCount: params.reviewCount,
+      bestRating: params.bestRating || '5',
+      worstRating: params.worstRating || '1',
+      ratingExplanation: 'Average rating from student reviews across all courses',
+    },
+  }
+}
+
+export function getCourseInstanceSchema(params: {
+  courseName: string
+  courseUrl: string
+  courseMode: string[]
+  startDate?: string
+  endDate?: string
+  instructor?: string
+  location?: string
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'CourseInstance',
+    course: {
+      '@type': 'Course',
+      name: params.courseName,
+      url: params.courseUrl,
+      provider: {
+        '@id': `${BASE_URL}/#organization`,
+      },
+    },
+    courseMode: params.courseMode,
+    startDate: params.startDate || '2026-03-01',
+    endDate: params.endDate || '2026-12-31',
+    instructor: params.instructor ? {
+      '@type': 'Person',
+      name: params.instructor,
+    } : undefined,
+    location: params.location ? {
+      '@type': 'Place',
+      name: params.location,
+    } : undefined,
+  }
+}
+
+export function getEducationalOccupationalCredentialSchema(params: {
+  name: string
+  description: string
+  credentialCategory: string
+  url?: string
+  recognizedBy?: string[]
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'EducationalOccupationalCredential',
+    name: params.name,
+    description: params.description,
+    credentialCategory: params.credentialCategory,
+    url: params.url || BASE_URL,
+    recognizedBy: params.recognizedBy?.map(org => ({
+      '@type': 'Organization',
+      name: org,
+    })) || [
+      {
+        '@type': 'Organization',
+        name: 'ETDP SETA',
+        url: 'https://www.etdpseta.org.za',
+      },
+      {
+        '@type': 'Organization',
+        name: 'QCTO',
+        url: 'https://www.qcto.org.za',
+      },
+      {
+        '@type': 'Organization',
+        name: 'SAQA',
+        url: 'https://www.saqa.org.za',
+      },
+    ],
+    provider: {
+      '@id': `${BASE_URL}/#organization`,
+    },
+  }
+}
+
+export function getOrganizationSchemaScript() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': ['Organization', 'EducationalOrganization'],
+    '@id': `${BASE_URL}/#organization`,
     name: 'Sozim Trading and Consultancy',
+    alternateName: ['Sozim Trading', 'Sozim'],
     url: BASE_URL,
     logo: {
       '@type': 'ImageObject',
@@ -385,8 +735,13 @@ export function getOrganizationSchemaScript() {
       width: 200,
       height: 100,
     },
+    image: [
+      'https://ik.imagekit.io/vzofqg2fg/images/heroImage.jpg',
+      'https://ik.imagekit.io/vzofqg2fg/images/SozimLogoWhite.webp',
+    ],
     description:
       'Sozim Trading and Consultancy offers accredited education, professional trading training, and career-focused courses in South Africa.',
+    foundingDate: '2009',
     address: {
       '@type': 'PostalAddress',
       streetAddress: 'Shop 4, Sunday School Building, 154 Charlotte Maxeke Street',
@@ -406,6 +761,26 @@ export function getOrganizationSchemaScript() {
       'https://www.facebook.com/sozimtrading',
       'https://www.instagram.com/sozimtrading',
       'https://www.linkedin.com/company/sozim-trading',
+    ],
+    accreditation: [
+      {
+        '@type': 'Accreditation',
+        name: 'ETDP SETA Accredited',
+        accreditingBody: {
+          '@type': 'Organization',
+          name: 'ETDP SETA',
+          url: 'https://www.etdpseta.org.za',
+        },
+      },
+      {
+        '@type': 'Accreditation',
+        name: 'QCTO Registered',
+        accreditingBody: {
+          '@type': 'Organization',
+          name: 'Quality Council for Trades and Occupations',
+          url: 'https://www.qcto.org.za',
+        },
+      },
     ],
   }
 }

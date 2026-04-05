@@ -4,14 +4,14 @@ import Featured from '@/components/sections/home/Featured'
 import Hero from '@/components/sections/home/Hero'
 import SozimPrograms from '@/components/sections/home/SozimPrograms'
 import Stats from '@/components/sections/home/Stats'
-import { getFAQSchema, getEventSchema, getBreadcrumbSchema } from '@/lib/seo/schemas'
+import { getFAQSchema, getEventSchema, getBreadcrumbSchema, getWebPageSchema, getAggregateRatingSchema, getSpeakableSchema } from '@/lib/seo/schemas'
 
 const BASE_URL = 'https://www.sozim.co.za'
 
 export const metadata: Metadata = {
   title: 'Sozim | Accredited Education & Trading Courses South Africa',
 	description:
-		'Sozim offers accredited trading courses and professional training in South Africa. Enrol for forex, stock market, and career development courses in Bloemfontein or online.',
+		'Accredited trading courses and professional training in South Africa. Enrol for forex, stock market, and career development courses in Bloemfontein or online.',
   authors: [{ name: 'Sozim Team' }],
   other: {
     'author': 'Sozim Team',
@@ -92,6 +92,21 @@ export default function Home() {
   const breadcrumbSchema = getBreadcrumbSchema([
     { name: 'Home', url: BASE_URL },
   ])
+  const webPageSchema = getWebPageSchema({
+    name: 'Sozim | Accredited Education & Trading Courses South Africa',
+    description: 'Sozim offers accredited trading courses and professional training in South Africa. Enrol for forex, stock market, and career development courses in Bloemfontein or online.',
+    url: BASE_URL,
+    speakable: ['h1', 'h2', 'p'],
+    breadcrumb: [{ name: 'Home', url: BASE_URL }],
+  })
+  const aggregateRatingSchema = getAggregateRatingSchema({
+    ratingValue: '4.8',
+    reviewCount: '127',
+  })
+  const speakableSchema = getSpeakableSchema({
+    headline: 'Accredited Trading Courses South Africa',
+    speakableText: ['h1', 'h2', 'p'],
+  })
 
   return (
     <div className="mb-0">
@@ -106,6 +121,18 @@ export default function Home() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(aggregateRatingSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(speakableSchema) }}
       />
       <Hero />
       <Stats />

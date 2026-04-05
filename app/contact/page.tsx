@@ -3,7 +3,7 @@ import PageHeader from '@/components/global/PageHeader'
 import ContactsInfoCard from '@/components/sections/contact/ContactsInfoCard'
 import InfoMap from '@/components/sections/contact/InfoMap'
 import Breadcrumb from '@/components/global/Breadcrumb'
-import { getFAQSchema, getBreadcrumbSchema, getLocalBusinessSchema } from '@/lib/seo/schemas'
+import { getFAQSchema, getBreadcrumbSchema, getLocalBusinessSchema, getWebPageSchema } from '@/lib/seo/schemas'
 import React from 'react'
 
 const BASE_URL = 'https://www.sozim.co.za'
@@ -72,6 +72,17 @@ export default function Contact() {
     { name: 'Home', url: BASE_URL },
     { name: 'Contact Us', url: `${BASE_URL}/contact` },
   ])
+  const webPageSchema = getWebPageSchema({
+    name: 'Contact Us | Sozim',
+    description: 'Contact Sozim in Bloemfontein, South Africa. Get in touch for course enquiries, admissions, and student support.',
+    url: `${BASE_URL}/contact`,
+    lastModified: '2026-03-28',
+    breadcrumb: [
+      { name: 'Home', url: BASE_URL },
+      { name: 'Contact Us', url: `${BASE_URL}/contact` },
+    ],
+    speakable: ['h1', 'h2', 'p'],
+  })
 
   return (
     <>
@@ -86,6 +97,10 @@ export default function Contact() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageSchema) }}
       />
       <Breadcrumb />
       <PageHeader

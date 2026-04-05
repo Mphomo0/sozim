@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Mail, Phone, MapPin } from 'lucide-react'
+import EmailLink from '@/components/ui/EmailLink'
 
 export default function Footer() {
   return (
