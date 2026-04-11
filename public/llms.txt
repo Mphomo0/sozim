@@ -1,7 +1,21 @@
-# Sozim Trading and Consultancy
+# Sozim - Accredited Education and Training College
 
 ## Site Overview
-Sozim Trading and Consultancy provides accredited education and trading courses in South Africa. Founded in 2009, we offer certificates, undergraduate, graduate, and online learning programs.
+Sozim is an accredited education and training college in Bloemfontein, South Africa. Founded in 2009, we offer certificates, undergraduate, graduate, and online learning programs. Our programmes are accredited by ETDP SETA, QCTO, and aligned with SAQA standards.
+
+## Brand Identity
+- **Name**: Sozim (also known as Sozim Trading and Consultancy)
+- **Tagline**: Accredited Education and Training College in Bloemfontein, South Africa
+- **Location**: Shop 4, Sunday School Building, 154 Charlotte Maxeke Street, Bloemfontein, Free State, 9301
+- **Phone**: (+27) 83 668 0104
+- **Email**: admin@sozim.co.za
+- **Founded**: 2009
+
+## Accreditation
+- ETDP SETA Accredited
+- QCTO Registered
+- SAQA Aligned
+- 10,000+ Graduates
 
 ## Pages
 
@@ -14,21 +28,25 @@ Sozim Trading and Consultancy provides accredited education and trading courses 
 - Mission: Deliver tailored training programs for safe workplaces and compliance standards
 - Vision: Create a literate tomorrow through exceptional library and information training
 - Values: Excellence, Innovation and Impact, Accountability, Care, Social Justice, Sustainability
-- Founded: 2009, 10,000+ Graduates, QCTO Accredited, SAQA Aligned
+- Leadership: Managing Director, Academic Director, Student Affairs Managers, Operations Manager
 
 ### Courses (/courses)
 - Industry-recognized programs designed for career advancement
-- Loading dynamically from database
+- Categories: Trading Courses, Professional Training, Skills Development, Career Pathways
+- Study Modes: In-person (Bloemfontein), Online, Contact Learning
 
 ### Career Pathways (/career-pathway)
 - NQF 5, 6, 7 qualifications
 - Career progression guidance
+- Structured learning pathways
 
 ### Campus (/campus)
 - Physical location in Bloemfontein
+- Student support services
 
 ### Library (/library)
 - Educational resources (populated from database)
+- Academic research materials
 
 ### Shop (/shop)
 - Sozim Store for materials
@@ -37,3 +55,29 @@ Sozim Trading and Consultancy provides accredited education and trading courses 
 - Shop 4, Sunday School Building, 154 Charlotte Maxeke Street, Bloemfontein
 - Phone: (+27) 83 668 0104
 - Email: admin@sozim.co.za
+
+## Course Categories
+1. **Trading Education**: Forex trading, Stock market training, Financial markets
+2. **Professional Development**: Skills programmes, Career pathways, Certifications
+3. **Library and Information Science**: LIS courses, Research skills, Information management
+4. **Contact Learning**: In-person training in Bloemfontein
+5. **Online Learning**: Virtual learning environment for remote students
+
+## Student Outcomes
+- 95% Success Rate
+- 5000+ Students Enrolled
+- 50+ Expert Instructors
+- 20+ Programs
+- Career-focused education with practical skills
+
+## Social Media
+- Facebook: https://www.facebook.com/sozimtrading
+- Instagram: https://www.instagram.com/sozimtrading
+- LinkedIn: https://www.linkedin.com/company/sozim-trading
+- Twitter: https://twitter.com/sozimtrading
+
+## Contact Information
+- **Address**: Shop 4, Sunday School Building, 154 Charlotte Maxeke Street, Bloemfontein, Free State, 9301, South Africa
+- **Phone**: (+27) 83 668 0104
+- **Email**: admin@sozim.co.za
+- **Operating Hours**: Monday-Friday 08:00-17:00, Saturday 09:00-13:00

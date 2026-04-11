@@ -5,8 +5,8 @@ export function getOrganizationSchema() {
     '@context': 'https://schema.org',
     '@type': ['Organization', 'EducationalOrganization'],
     '@id': `${BASE_URL}/#organization`,
-    name: 'Sozim Trading and Consultancy',
-    alternateName: ['Sozim Trading', 'Sozim'],
+    name: 'Sozim - Accredited Education and Training College',
+    alternateName: ['Sozim', 'Sozim College'],
     url: BASE_URL,
     logo: {
       '@type': 'ImageObject',
@@ -19,9 +19,9 @@ export function getOrganizationSchema() {
       'https://ik.imagekit.io/vzofqg2fg/images/SozimLogoWhite.webp',
     ],
     description:
-      'Sozim Trading and Consultancy offers accredited education, professional trading training, and career-focused courses in South Africa, empowering students and professionals for success.',
+      'Sozim is an accredited education and training college in Bloemfontein. We offer accredited programmes in Library and Information Science, Education Training and Development, and professional skills courses.',
     foundingDate: '2009',
-    foundingLocation: 'Bloemfontein, South Africa',
+    foundingLocation: 'Bloemfontein',
     areaServed: {
       '@type': 'Country',
       name: 'South Africa',
@@ -57,17 +57,18 @@ export function getOrganizationSchema() {
       'https://www.instagram.com/sozimtrading',
       'https://www.linkedin.com/company/sozim-trading',
       'https://twitter.com/sozimtrading',
+      'https://www.youtube.com/@SozimTrading',
     ],
     knowsAbout: [
-      'Trading Education',
-      'Financial Markets',
-      'Stock Market Training',
-      'Forex Trading',
+      'Education and Training',
       'Library and Information Science',
-      'Education Training Development',
+      'ETD Courses',
       'Skills Development',
-      'Professional Certifications',
-      'South African Qualifications',
+      'Career Development',
+      'SAQA Qualifications',
+      'Accredited Education',
+      'Professional Development',
+      'National Certificates',
     ],
     hasOfferCatalog: {
       '@type': 'OfferCatalog',
@@ -77,24 +78,24 @@ export function getOrganizationSchema() {
           '@type': 'Offer',
           itemOffered: {
             '@type': 'Course',
-            name: 'Trading Fundamentals',
-            description: 'Beginner trading courses covering financial markets basics',
-          },
-        },
-        {
-          '@type': 'Offer',
-          itemOffered: {
-            '@type': 'Course',
-            name: 'Advanced Trading Strategies',
-            description: 'Professional-level trading education for experienced traders',
-          },
-        },
-        {
-          '@type': 'Offer',
-          itemOffered: {
-            '@type': 'Course',
             name: 'Library and Information Science',
-            description: 'Accredited LIS programmes for career advancement',
+            description: 'Accredited LIS programmes for librarian and information professionals',
+          },
+        },
+        {
+          '@type': 'Offer',
+          itemOffered: {
+            '@type': 'Course',
+            name: 'Education Training and Development',
+            description: 'ETD programmes for learning facilitators and assessors',
+          },
+        },
+        {
+          '@type': 'Offer',
+          itemOffered: {
+            '@type': 'Course',
+            name: 'Professional Skills Development',
+            description: 'Skills courses for career advancement',
           },
         },
       ],
@@ -149,7 +150,7 @@ export function getOrganizationSchema() {
       alumniOf: {
         '@id': `${BASE_URL}/#organization`,
       },
-      description: 'Over 500+ graduates working in trading, finance, and library science across South Africa',
+      description: 'Over 500+ graduates working in education, library science, and professional sectors across South Africa',
     },
   }
 }
@@ -160,9 +161,9 @@ export function getWebsiteSchema() {
     '@type': 'WebSite',
     '@id': `${BASE_URL}/#website`,
     url: BASE_URL,
-    name: 'Sozim Trading and Consultancy',
+    name: 'Sozim - Accredited Education and Training College in Bloemfontein',
     description:
-      'Accredited trading education, professional training courses, and career development programmes in South Africa.',
+      'Accredited education and training college in Bloemfontein. SAQA-registered programmes in Library and Information Science, ETD, and professional skills courses.',
     publisher: {
       '@id': `${BASE_URL}/#organization`,
     },
@@ -183,7 +184,7 @@ export function getLocalBusinessSchema() {
     '@context': 'https://schema.org',
     '@type': ['LocalBusiness', 'EducationalOrganization'],
     '@id': `${BASE_URL}/#localbusiness`,
-    name: 'Sozim Trading and Consultancy',
+    name: 'Sozim - Accredited Education and Training College',
     image:
       'https://ik.imagekit.io/vzofqg2fg/images/SozimLogoWhite.webp',
     url: BASE_URL,
@@ -227,7 +228,13 @@ export function getLocalBusinessSchema() {
       '@type': 'Country',
       name: 'South Africa',
     },
-    sameAs: [`${BASE_URL}/about`, `${BASE_URL}/contact`],
+    sameAs: [
+      `${BASE_URL}/about`,
+      `${BASE_URL}/contact`,
+      'https://www.facebook.com/sozimtrading',
+      'https://www.instagram.com/sozimtrading',
+      'https://www.linkedin.com/company/sozim-trading',
+    ],
   }
 }
 
@@ -272,13 +279,13 @@ export function getCourseSchema(params: {
     description: params.description,
     provider: {
       '@type': 'Organization',
-      name: params.provider || 'Sozim Trading and Consultancy',
+      name: params.provider || 'Sozim - Accredited Education and Training College',
       url: BASE_URL,
     },
     url: params.url || `${BASE_URL}/courses`,
     inLanguage: 'en-ZA',
     coursePrerequisites:
-      'No prior trading experience required for beginner courses. Basic computer literacy recommended.',
+      'No prior experience required for beginner courses. Basic computer literacy recommended.',
     educationalCredentialAwarded:
       'Certificate of Completion or Accredited Qualification (SAQA registered)',
     hasCourseInstance: [
@@ -286,12 +293,35 @@ export function getCourseSchema(params: {
         '@type': 'CourseInstance',
         courseMode: 'online',
         courseWorkload: 'PT40H',
+        offers: {
+          '@type': 'Offer',
+          availability: 'https://schema.org/InStock',
+          price: '0',
+          priceCurrency: 'ZAR',
+        },
       },
       {
         '@type': 'CourseInstance',
         courseMode: 'face-to-face',
-        location: 'Bloemfontein, South Africa',
+        location: {
+          '@type': 'Place',
+          name: 'Sozim Campus Bloemfontein',
+          address: {
+            '@type': 'PostalAddress',
+            streetAddress: 'Shop 4, Sunday School Building, 154 Charlotte Maxeke Street',
+            addressLocality: 'Bloemfontein',
+            addressRegion: 'Free State',
+            postalCode: '9301',
+            addressCountry: 'ZA',
+          },
+        },
         courseWorkload: 'PT40H',
+        offers: {
+          '@type': 'Offer',
+          availability: 'https://schema.org/InStock',
+          price: '0',
+          priceCurrency: 'ZAR',
+        },
       },
     ],
   }
@@ -363,9 +393,9 @@ export function getEventSchema() {
   return {
     '@context': 'https://schema.org',
     '@type': 'Event',
-    name: 'Sozim Trading Education Open Enrollment 2026',
+    name: 'Sozim Education Open Enrollment 2026',
     description:
-      'Enroll in accredited trading courses and professional training programmes. Limited seats available for the 2026 academic year.',
+      'Enroll at Sozim, an accredited education and training college in Bloemfontein, South Africa. Limited seats available for the 2026 academic year.',
     startDate: '2026-03-01',
     endDate: '2026-12-31',
     eventStatus: 'https://schema.org/EventScheduled',
@@ -374,7 +404,7 @@ export function getEventSchema() {
     location: [
       {
         '@type': 'Place',
-        name: 'Sozim Trading and Consultancy Campus',
+        name: 'Sozim Campus',
         address: {
           '@type': 'PostalAddress',
           streetAddress:
@@ -414,6 +444,11 @@ export function getPersonSchema(params: {
   jobTitle: string
   description: string
   image?: string
+  credentials?: {
+    education?: string
+    qualifications?: string[]
+    experience?: string
+  }
 }) {
   return {
     '@context': 'https://schema.org',
@@ -426,6 +461,24 @@ export function getPersonSchema(params: {
       '@id': `${BASE_URL}/#organization`,
     },
     url: BASE_URL,
+    ...(params.credentials && {
+      hasCredential: [
+        ...(params.credentials.qualifications?.map(q => ({
+          '@type': 'EducationalOccupationalCredential',
+          name: q,
+          credentialCategory: 'Professional Qualification',
+          provider: {
+            '@id': `${BASE_URL}/#organization`,
+          },
+        })) || []),
+      ],
+      ...(params.credentials.education && {
+        alumniOf: {
+          '@type': 'CollegeOrUniversity',
+          name: params.credentials.education,
+        },
+      }),
+    }),
   }
 }
 
@@ -519,7 +572,7 @@ export function getArticleSchema(params: {
     },
     datePublished: params.datePublished,
     dateModified: params.dateModified,
-    keywords: params.keywords?.join(', ') || 'trading education, South Africa, accredited courses',
+    keywords: params.keywords?.join(', ') || 'education and training, South Africa, accredited courses',
     inLanguage: 'en-ZA',
     wordCount: 1500,
     articleSection: 'Education',
@@ -726,8 +779,8 @@ export function getOrganizationSchemaScript() {
     '@context': 'https://schema.org',
     '@type': ['Organization', 'EducationalOrganization'],
     '@id': `${BASE_URL}/#organization`,
-    name: 'Sozim Trading and Consultancy',
-    alternateName: ['Sozim Trading', 'Sozim'],
+    name: 'Sozim - Accredited Education and Training College',
+    alternateName: ['Sozim Trading', 'Sozim', 'Sozim Trading and Consultancy'],
     url: BASE_URL,
     logo: {
       '@type': 'ImageObject',
@@ -740,7 +793,7 @@ export function getOrganizationSchemaScript() {
       'https://ik.imagekit.io/vzofqg2fg/images/SozimLogoWhite.webp',
     ],
     description:
-      'Sozim Trading and Consultancy offers accredited education, professional trading training, and career-focused courses in South Africa.',
+      'Sozim is an accredited education and training college in Bloemfontein. We offer accredited programmes in Library and Information Science, ETD, and professional skills courses.',
     foundingDate: '2009',
     address: {
       '@type': 'PostalAddress',
@@ -761,6 +814,8 @@ export function getOrganizationSchemaScript() {
       'https://www.facebook.com/sozimtrading',
       'https://www.instagram.com/sozimtrading',
       'https://www.linkedin.com/company/sozim-trading',
+      'https://twitter.com/sozimtrading',
+      'https://www.youtube.com/@SozimTrading',
     ],
     accreditation: [
       {

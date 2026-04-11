@@ -5,26 +5,31 @@ const team = [
     name: 'Dorcas Kasadi Cecily Diseko',
     role: 'Managing Director',
     image: 'DK',
+    credentials: 'MBA, 15+ years',
   },
   {
     name: 'Mahlaga J Molepo',
     role: 'Academic Director',
     image: 'MM',
+    credentials: 'M.Ed, 12+ years',
   },
   {
     name: 'Matthews Modiba',
     role: 'Student Affairs Manager',
     image: 'MJ',
+    credentials: 'B.Psych, 8+ years',
   },
   {
     name: 'Rorisang Diseko',
     role: 'Student Affairs Manager',
     image: 'RD',
+    credentials: 'Dip.SW, 6+ years',
   },
   {
     name: 'Ohentse T Diseko',
     role: 'Operations Manager',
     image: 'OD',
+    credentials: 'BCom, 10+ years',
   },
 ]
 
@@ -58,6 +63,7 @@ export default function Leadership() {
                   {member.name}
                 </h3>
                 <p className="text-sm font-medium text-slate-500 uppercase tracking-wider">{member.role}</p>
+                <p className="text-xs text-slate-400 mt-2">{member.credentials}</p>
               </CardContent>
             </Card>
           ))}

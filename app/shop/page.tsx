@@ -44,12 +44,12 @@ const shopFAQs = [
   {
     question: 'What products are available at the Sozim Store?',
     answer:
-      'The Sozim Store offers a curated selection of trading resources, educational materials, and professional tools. Our product range includes trading guides, reference materials, professional stationery, and branded merchandise. All products are selected to complement and enhance our educational programmes.',
+      'The Sozim Store offers a curated selection of educational resources, reference materials, and professional tools. Our product range includes study guides, professional stationery, and branded merchandise. All products are selected to complement and enhance our educational programmes.',
   },
   {
     question: 'How do I purchase products from the Sozim Store?',
     answer:
-      'Browse our online store, select the products you need, and proceed to checkout. We accept various payment methods. For bulk orders or custom enquiries, please contact our team directly. Delivery options and timelines vary depending on your location within South Africa.',
+      'Browse our online store, select the products you need, and proceed to checkout. We accept various payment methods. For bulk orders or custom enquiries, please contact our team directly. Delivery options and timelines vary depending on your location.',
   },
   {
     question: 'Do I need to be a Sozim student to purchase from the store?',
@@ -64,7 +64,7 @@ const shopFAQs = [
   {
     question: 'Do you ship products outside South Africa?',
     answer:
-      'Currently, we primarily serve customers within South Africa. International shipping may be available for select products — please contact us directly to enquire about international delivery options, timelines, and associated costs.',
+      'Currently, we primarily serve customers within South Africa. International shipping may be available for select products — please contact us directly to enquire about international delivery options and associated costs.',
   },
   {
     question: 'What is your return or exchange policy?',

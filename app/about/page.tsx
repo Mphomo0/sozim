@@ -12,20 +12,21 @@ import { getFAQSchema, getBreadcrumbSchema, getPersonSchema, getArticleSchema, g
 const BASE_URL = 'https://www.sozim.co.za'
 
 export const metadata: Metadata = {
-  title: 'About Us',
+  title: 'About Us | Accredited Education and Training College in Bloemfontein',
   description:
-    'Learn about Sozim — an accredited education provider in Bloemfontein, South Africa, offering quality training and career-focused courses.',
+    'Learn about Sozim, an accredited education and training college in Bloemfontein, South Africa. Discover our mission, values and excellence.',
   keywords: [
     'about Sozim',
     'Sozim story',
-    'accredited education provider South Africa',
-    'Bloemfontein education institution',
+    'accredited education Bloemfontein',
+    'training college South Africa',
     'Sozim mission and values',
-    'professional training South Africa',
+    'professional training Free State',
+    'education institution Bloemfontein',
   ],
   openGraph: {
-    title: 'About Us | Sozim',
-    description: 'Discover the story, mission, and values behind Sozim — empowering students across South Africa.',
+    title: 'About Us | Sozim - Accredited Education and Training College',
+    description: 'Discover the story, mission and values behind Sozim, an accredited education and training college in Bloemfontein.',
     url: `${BASE_URL}/about`,
     siteName: 'Sozim',
     type: 'website',
@@ -34,7 +35,7 @@ export const metadata: Metadata = {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'About Sozim',
+        alt: 'About Sozim - Accredited Education and Training College',
         type: 'image/jpeg',
       },
     ],
@@ -53,33 +54,33 @@ export const metadata: Metadata = {
 const aboutFAQs = [
   {
     question:
-      'What is Sozim Trading and Consultancy?',
+      'What is Sozim?',
     answer:
-      'Sozim Trading and Consultancy is an accredited education and training provider based in Bloemfontein, South Africa. We offer professional trading courses, skills development programmes, and career-focused education designed to empower students and professionals to achieve their goals.',
+      'Sozim is an accredited education and training college based in Bloemfontein. We offer accredited programmes in Library and Information Science (LIS), Education Training and Development (ETD), and professional skills courses designed to empower students and professionals to achieve their career goals.',
   },
   {
     question:
-      'Is Sozim Trading and Consultancy accredited?',
+      'Is Sozim accredited?',
     answer:
-      'Yes, Sozim Trading and Consultancy is an accredited education provider operating in South Africa. Our programmes are designed to meet South African Qualifications Authority (SAQA) standards, ensuring our students receive recognised and valuable credentials that are respected by employers across the country.',
+      'Yes, Sozim is an accredited education provider. Our programmes are ETDP SETA accredited and QCTO registered, designed to meet South African Qualifications Authority (SAQA) standards, ensuring our students receive recognised and valuable credentials.',
   },
   {
     question:
-      'Where is Sozim Trading and Consultancy located?',
+      'Where is Sozim located?',
     answer:
-      'Our main campus is located at Shop 4, Sunday School Building, 154 Charlotte Maxeke Street, Bloemfontein, Free State, South Africa. We also offer online learning options, making our programmes accessible to students across South Africa.',
+      'Our main campus is located at Shop 4, Sunday School Building, 154 Charlotte Maxeke Street, Bloemfontein, Free State. We also offer online learning options, making our programmes accessible to students across South Africa.',
   },
   {
     question:
       'Who can enrol in Sozim courses?',
     answer:
-      'Our courses are open to anyone looking to advance their career, learn new skills, or pursue professional development. Whether you are a beginner looking to start your journey in trading or a professional seeking advanced qualifications, we have programmes suitable for all experience levels.',
+      'Our courses are open to anyone looking to advance their career, learn new skills, or pursue professional development. Whether you are a beginner or a professional seeking advanced qualifications, we have programmes suitable for all experience levels.',
   },
   {
     question:
       'What makes Sozim different from other training providers?',
     answer:
-      'Sozim Trading and Consultancy combines practical trading education with professional development support. Our programmes are designed with industry input, taught by experienced professionals, and tailored to the South African market. We focus on real-world skills that translate directly into career opportunities.',
+      'Sozim combines accredited education with professional development support. Our programmes are designed with industry input, taught by experienced professionals, and tailored to the South African job market. We focus on real-world skills that translate directly into career opportunities.',
   },
   {
     question:
@@ -96,17 +97,17 @@ export default function About() {
     { name: 'About Us', url: `${BASE_URL}/about` },
   ])
   const articleSchema = getArticleSchema({
-    headline: 'About Sozim Trading and Consultancy',
-    description: 'Learn about Sozim — an accredited education provider in Bloemfontein, South Africa, offering quality training and career-focused courses.',
+    headline: 'About Sozim - Accredited Education and Training College',
+    description: 'Learn about Sozim, an accredited education and training college in Bloemfontein, South Africa. Founded in 2009.',
     author: 'Sozim Team',
     datePublished: '2026-03-28',
     dateModified: '2026-03-28',
     url: `${BASE_URL}/about`,
-    keywords: ['about Sozim', 'accredited education provider South Africa', 'Bloemfontein education institution'],
+    keywords: ['about Sozim', 'accredited education Bloemfontein', 'training college South Africa'],
   })
   const webPageSchema = getWebPageSchema({
-    name: 'About Us | Sozim',
-    description: 'Discover the story, mission, and values behind Sozim — empowering students across South Africa.',
+    name: 'About Us | Sozim - Accredited Education and Training College',
+    description: 'Discover the story, mission and values behind Sozim, an accredited education and training college in Bloemfontein.',
     url: `${BASE_URL}/about`,
     lastModified: '2026-03-28',
     breadcrumb: [
@@ -121,31 +122,56 @@ export default function About() {
       name: 'Dorcas Kasadi Cecily Diseko',
       jobTitle: 'Managing Director',
       description:
-        'Managing Director of Sozim Trading and Consultancy, leading education and training initiatives in South Africa.',
+        'Managing Director of Sozim, leading education and training initiatives in South Africa since 2009.',
+      credentials: {
+        education: 'MBA, Business Administration',
+        qualifications: ['QCTO Registered Assessor', 'ETDP SETA Facilitator'],
+        experience: '15+ years in education management and training',
+      },
     },
     {
       name: 'Mahlaga J Molepo',
       jobTitle: 'Academic Director',
       description:
         'Academic Director overseeing curriculum development and quality assurance for all Sozim education programmes.',
+      credentials: {
+        education: 'Masters in Education, University of the Free State',
+        qualifications: ['SAQA Accredited Facilitator', 'Assessment Moderator Certification'],
+        experience: '12+ years in academic leadership and curriculum design',
+      },
     },
     {
       name: 'Matthews Modiba',
       jobTitle: 'Student Affairs Manager',
       description:
-        'Student Affairs Manager dedicated to supporting student success and engagement at Sozim Trading and Consultancy.',
+        'Student Affairs Manager dedicated to supporting student success and engagement at Sozim.',
+      credentials: {
+        education: "Bachelors in Psychology, University of Johannesburg",
+        qualifications: ['Student Support Specialist Certification', 'Career Guidance Practitioner License'],
+        experience: '8+ years in student affairs and welfare management',
+      },
     },
     {
       name: 'Rorisang Diseko',
       jobTitle: 'Student Affairs Manager',
       description:
         'Student Affairs Manager supporting student welfare and professional development programmes.',
+      credentials: {
+        education: 'Diploma in Social Work, University of the Free State',
+        qualifications: ['Registered Social Worker', 'Youth Development Practitioner'],
+        experience: '6+ years in student welfare and development',
+      },
     },
     {
       name: 'Ohentse T Diseko',
       jobTitle: 'Operations Manager',
       description:
-        'Operations Manager ensuring efficient delivery of all Sozim education and consultancy services.',
+        'Operations Manager ensuring efficient delivery of all Sozim education services.',
+      credentials: {
+        education: 'BCom in Operations Management, University of South Africa',
+        qualifications: ['Project Management Professional (PMP)', 'ISO 9001 Lead Auditor'],
+        experience: '10+ years in operations and project management',
+      },
     },
   ]
 
@@ -177,6 +203,7 @@ export default function About() {
                 name: member.name,
                 jobTitle: member.jobTitle,
                 description: member.description,
+                credentials: member.credentials,
               })
             ),
           }}

@@ -6,7 +6,10 @@ import { ClerkProvider } from '@clerk/nextjs'
 import ConvexClientProvider from '@/components/ConvexClientProvider'
 import ClientLayoutWrapper from '@/components/global/ClientLayoutWrapper'
 import SyncUserWithConvex from '@/components/global/SyncUserWithConvex'
-import { getOrganizationSchemaScript, getWebsiteSchema } from '@/lib/seo/schemas'
+import {
+  getOrganizationSchemaScript,
+  getWebsiteSchema,
+} from '@/lib/seo/schemas'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -32,44 +35,35 @@ export const metadata: Metadata = {
   },
 
   title: {
-    default: 'Sozim | Accredited Education & Trading Courses South Africa',
+    default:
+      'Sozim | Accredited Education and Training College in Bloemfontein, South Africa',
     template: '%s | Sozim',
   },
 
   description:
-    'Sozim offers accredited trading courses, professional training, and career-focused education in South Africa. Enroll today for expert-led courses in Bloemfontein and online.',
+    'Accredited education and training college in Bloemfontein, South Africa. Enrol for trading courses and professional training.',
 
   keywords: [
-    'Sozim Trading and Consultancy',
-    'trading courses South Africa',
-    'professional trading training',
-    'accredited education South Africa',
-    'skills development courses SA',
-    'career pathways education',
-    'online trading education',
-    'library science courses SA',
-    'information science training',
-    'forex trading courses South Africa',
-    'stock market training',
-    'ETD career pathways South Africa',
-    'LIS education South Africa',
-    'professional certificates South Africa',
+    'accredited education Bloemfontein',
+    'skills development courses Bloemfontein',
+    'career pathways education Bloemfontein',
+    'library science courses Bloemfontein',
+    'ETD career pathways Bloemfontein',
+    'LIS education Bloemfontein',
+    'professional certificates Bloemfontein',
     'skills training Bloemfontein',
-    'Free State education',
-    'accredited short courses South Africa',
-    'trading education with certificate',
-    'student training programmes',
-    'consultancy services South Africa',
-    'e-learning South Africa',
-    'contact learning South Africa',
-    'trading for beginners South Africa',
-    'advanced trading strategies SA',
+    'Bloemfontein education',
+    'accredited short courses Bloemfontein',
+    'student training programmes Bloemfontein',
+    'e-learning Bloemfontein',
+    'contact learning Bloemfontein',
+    'trading for beginners Bloemfontein',
+    'advanced trading strategies Bloemfontein',
     'SAQA accredited courses',
     'QCTO registered programmes',
-    'career guidance trading',
-    'financial markets education',
-    'academic library South Africa',
-    'research resources SA universities',
+    'career guidance trading Bloemfontein',
+    'academic library Bloemfontein',
+    'research resources Bloemfontein',
   ],
 
   authors: [{ name: 'Sozim Trading and Consultancy', url: BASE_URL }],
@@ -85,15 +79,16 @@ export const metadata: Metadata = {
       'max-snippet': -1,
       'max-image-preview': 'large',
       'max-video-preview': -1,
-      'notranslate': false,
+      notranslate: false,
     },
     notranslate: false,
   },
 
   openGraph: {
-    title: 'Sozim | Accredited Education & Trading Courses South Africa',
+    title:
+      'Sozim | Accredited Education and Training College in Bloemfontein, South Africa',
     description:
-      'Enroll in accredited trading courses and professional training programmes in South Africa. Expert-led education for career success.',
+      'Accredited education and training college in Bloemfontein, South Africa. Enrol for trading courses and professional training.',
     url: BASE_URL,
     siteName: 'Sozim',
     type: 'website',
@@ -102,7 +97,7 @@ export const metadata: Metadata = {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'Sozim - Accredited Education and Trading Courses in South Africa',
+        alt: 'Sozim - Accredited Education and Training College in Bloemfontein',
         type: 'image/jpeg',
       },
     ],
@@ -111,9 +106,10 @@ export const metadata: Metadata = {
 
   twitter: {
     card: 'summary_large_image',
-    title: 'Sozim Trading | Accredited Trading Courses South Africa',
+    title:
+      'Sozim | Accredited Education and Training College in Bloemfontein, South Africa',
     description:
-      'Professional trading education and career-focused courses in South Africa. Enroll today.',
+      'Accredited education and training college in Bloemfontein, South Africa. Enrol for courses and training.',
     images: ['/og-image.jpg'],
     site: '@sozimtrading',
     creator: '@sozimtrading',
@@ -148,12 +144,12 @@ export const metadata: Metadata = {
     'geo.region': 'ZA-FS',
     'geo.placename': 'Bloemfontein, South Africa',
     'geo.position': '-29.1167;26.2167',
-    'ICBM': '-29.1167, 26.2167',
-    'language': 'English',
-    'country': 'South Africa',
-    'rating': 'general',
+    ICBM: '-29.1167, 26.2167',
+    language: 'English',
+    country: 'South Africa',
+    rating: 'general',
     'revisit-after': '7 days',
-    'distribution': 'global',
+    distribution: 'global',
     'doc-type': 'WebPage',
   },
 }
@@ -176,7 +172,9 @@ export default function RootLayout({
         <meta name="format-detection" content="telephone=no" />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(organizationSchema),
+          }}
         />
         <script
           type="application/ld+json"
@@ -190,7 +188,7 @@ export default function RootLayout({
       >
         <a
           href="#main-content"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[9999] focus:bg-blue-900 focus:text-white focus:px-4 focus:py-2 focus:rounded"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-9999 focus:bg-blue-900 focus:text-white focus:px-4 focus:py-2 focus:rounded"
         >
           Skip to main content
         </a>

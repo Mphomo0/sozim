@@ -62,12 +62,12 @@ const applyFAQs = [
   {
     question: 'Can I apply if I am based outside Bloemfontein?',
     answer:
-      'Yes, we accept applications from across South Africa and internationally. We offer both online and in-person learning options to accommodate students nationwide.',
+      'Yes, we accept applications from across South Africa. We offer both online and in-person learning options to accommodate students nationwide.',
   },
   {
     question: 'Is there an application fee?',
     answer:
-      'No, applying to Sozim Trading and Consultancy is free. There are no application fees for any of our programmes.',
+      'No, applying to Sozim is free. There are no application fees for any of our programmes.',
   },
 ]
 

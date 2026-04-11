@@ -47,14 +47,14 @@ const enquiryFAQs = [
       'You can enquire about enrolment by filling out our online contact form, calling us at (+27) 83 668 0104, or emailing admin@sozim.co.za. Our admissions team will respond within 24-48 hours with detailed information about your chosen programme, entry requirements, fees, and enrolment procedures.',
   },
   {
-    question: 'What information should I include in my learning enquiry?',
+    question: 'What information should I include in my enquiry?',
     answer:
       'Include your full name, contact details, the programme(s) you are interested in, your current education level, any relevant work experience, and any specific questions you have. The more details you provide, the better we can tailor our response to your needs and career goals.',
   },
   {
     question: 'Can I get financial assistance or bursary information?',
     answer:
-      'Yes, we can provide information about available financial assistance options, payment plans, and potential bursary opportunities. South African students may qualify for various funding schemes through SETAs, NSFAS (where applicable), and institutional payment arrangements. Contact us to discuss your financial planning options.',
+      'Yes, we can provide information about available financial assistance options, payment plans, and potential bursary opportunities. South African students may qualify for various funding schemes through SETAs and institutional payment arrangements. Contact us to discuss your financial planning options.',
   },
   {
     question: 'What happens after I submit an enquiry?',

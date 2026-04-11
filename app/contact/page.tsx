@@ -9,20 +9,20 @@ import React from 'react'
 const BASE_URL = 'https://www.sozim.co.za'
 
 export const metadata: Metadata = {
-  title: 'Contact Us',
+  title: 'Contact Us | Accredited Education and Training College in Bloemfontein',
   description:
-    'Contact Sozim in Bloemfontein, South Africa. Get in touch for course enquiries, admissions, and student support.',
+    'Contact Sozim, an accredited education and training college in Bloemfontein, South Africa. Get in touch for course enquiries.',
   keywords: [
     'contact Sozim',
     'Sozim education contact',
-    'trading courses enquiries South Africa',
+    'training college contact Bloemfontein',
     'Bloemfontein education contact',
     'Sozim admissions contact',
     'student support South Africa',
   ],
   openGraph: {
-    title: 'Contact Us | Sozim',
-    description: 'Reach out to Sozim for course enquiries, admissions, and student support.',
+    title: 'Contact Us | Sozim - Accredited Education and Training College',
+    description: 'Contact Sozim in Bloemfontein for course enquiries and student support.',
     url: `${BASE_URL}/contact`,
     siteName: 'Sozim',
     type: 'website',
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'Contact Sozim',
+        alt: 'Contact Sozim - Accredited Education and Training College',
         type: 'image/jpeg',
       },
     ],
@@ -57,7 +57,7 @@ const contactFAQs = [
   {
     question: 'Do you offer payment plans?',
     answer:
-      'Yes, we offer flexible payment plans to make our courses more affordable. Contact our admissions team to discuss the payment options available to you.',
+      'Yes, we offer flexible payment plans to make our programmes more affordable. Contact our admissions team to discuss the payment options available to you.',
   },
   {
     question: 'Can I schedule a campus tour?',
@@ -73,8 +73,8 @@ export default function Contact() {
     { name: 'Contact Us', url: `${BASE_URL}/contact` },
   ])
   const webPageSchema = getWebPageSchema({
-    name: 'Contact Us | Sozim',
-    description: 'Contact Sozim in Bloemfontein, South Africa. Get in touch for course enquiries, admissions, and student support.',
+    name: 'Contact Us | Sozim - Accredited Education and Training College',
+    description: 'Contact Sozim in Bloemfontein for course enquiries and student support.',
     url: `${BASE_URL}/contact`,
     lastModified: '2026-03-28',
     breadcrumb: [
