@@ -8,7 +8,7 @@ import type {
 export const USER_AGENT = 'Academic-Library-Harvester/3.4.0'
 export const PAGE_SIZE_DEFAULT = 24
 export const RECORDS_PER_REPOSITORY = 40
-export const INCREMENTAL_RECORDS = 10
+export const INCREMENTAL_RECORDS = 40
 
 export const ELIS_PRIMARY = 'http://eprints.rclis.org/cgi/oai2'
 export const ELIS_BACKUP = 'http://eprints.rclis.org/cgi/oai2'
