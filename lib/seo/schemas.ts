@@ -248,6 +248,7 @@ export function getWebPageSchema(params: {
   url?: string
   speakable?: string[]
   lastModified?: string
+  breadcrumb?: { name: string; url: string }[]
 }) {
   return {
     '@context': 'https://schema.org',
@@ -268,6 +269,18 @@ export function getWebPageSchema(params: {
     about: {
       '@id': `${BASE_URL}/#organization`,
     },
+
+    ...(params.breadcrumb && {
+      breadcrumb: {
+        '@type': 'BreadcrumbList',
+        itemListElement: params.breadcrumb.map((item, index) => ({
+          '@type': 'ListItem',
+          position: index + 1,
+          name: item.name,
+          item: item.url,
+        })),
+      },
+    }),
 
     ...(params.speakable && {
       speakable: {
@@ -472,5 +485,23 @@ export function getHowToSchema(params: {
       name: step.name,
       text: step.text,
     })),
+  }
+}
+
+/* =========================
+   SPEAKABLE
+========================= */
+export function getSpeakableSchema(params: {
+  headline: string
+  speakableText: string[]
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: params.headline,
+    speakable: {
+      '@type': 'SpeakableSpecification',
+      cssSelector: params.speakableText,
+    },
   }
 }
