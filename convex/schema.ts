@@ -227,4 +227,13 @@ export default defineSchema({
     completedAt: v.optional(v.number()),
     error: v.optional(v.string()),
   }),
+
+  harvestLogs: defineTable({
+    timestamp: v.number(),
+    level: v.string(), // 'info' | 'warn' | 'error'
+    context: v.string(),
+    message: v.string(),
+    details: v.optional(v.string()),
+  }).index("by_timestamp", ["timestamp"])
+    .index("by_level", ["level"]),
 });

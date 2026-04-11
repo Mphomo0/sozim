@@ -27,6 +27,10 @@ export interface ResearchLiveSearchParams {
   pageSize?: number
 }
 
+export interface ExportRisParams {
+  recordIds: string[]
+}
+
 export const libraryApi = {
   search: async (params: SearchParams): Promise<HarvestResponse> => {
     const result = await getConvexClient()!.query(api.records.getRecords, {
@@ -62,20 +66,9 @@ export const libraryApi = {
     })
   },
 
-  exportRIS: async (records: RecordType[]): Promise<Blob> => {
-    const response = await fetch('/api/ris', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ records }),
-    })
-
-    if (!response.ok) {
-      throw new Error('RIS export failed')
-    }
-
-    return response.blob()
+  exportRIS: async (recordIds: string[]): Promise<Blob> => {
+    const risContent = await getConvexClient()!.query(api.records.exportRis, { recordIds })
+    return new Blob([risContent], { type: 'text/plain;charset=utf-8' })
   },
 
   getHealth: async () => {

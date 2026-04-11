@@ -1,5 +1,6 @@
-import { internalAction } from "./_generated/server";
+import { internalAction, action } from "./_generated/server";
 import { internal } from "./_generated/api";
+import { v } from "convex/values";
 import { harvestDSpaceRepositoriesIncremental } from "../lib/harvest-dspace";
 import { harvestResearchDataIncremental } from "../lib/harvest-research";
 import { DSPACE_ENDPOINTS, INCREMENTAL_RECORDS, sleep } from "../lib/harvest-utils";
@@ -137,6 +138,38 @@ export const runDailyHarvest = internalAction({
         jobId,
         error: (error as Error).message,
       });
+    }
+  },
+});
+
+export const manualHarvest = action({
+  args: {
+    type: v.optional(v.union(v.literal("full"), v.literal("incremental"))),
+  },
+  handler: async (ctx, args): Promise<{ success: boolean; message: string; jobId: string }> => {
+    try {
+      const repoIds = Object.keys(DSPACE_ENDPOINTS);
+      const totalRepos = repoIds.length + 1;
+
+      const jobId = await ctx.runMutation(internal.harvestJobs.createHarvestJobInternal, {
+        type: args.type || "full",
+        totalRepos,
+      });
+
+      await ctx.runAction(internal.harvest.runDailyHarvest);
+
+      return {
+        success: true,
+        message: `Manual ${args.type || 'full'} harvest initiated`,
+        jobId,
+      };
+    } catch (error) {
+      console.error("Manual harvest error:", error);
+      return {
+        success: false,
+        message: (error as Error).message || 'Manual harvest failed',
+        jobId: '',
+      };
     }
   },
 });
