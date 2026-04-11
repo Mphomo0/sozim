@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import LibraryPageClient from './LibraryPageClient'
+import { getBreadcrumbSchema, getWebPageSchema } from '@/lib/seo/schemas'
 
 const BASE_URL = 'https://www.sozim.co.za'
 
@@ -41,5 +42,33 @@ export const metadata: Metadata = {
 }
 
 export default function LibraryPage() {
-  return <LibraryPageClient />
+  const breadcrumbSchema = getBreadcrumbSchema([
+    { name: 'Home', url: BASE_URL },
+    { name: 'Academic Library', url: `${BASE_URL}/library` },
+  ])
+  const webPageSchema = getWebPageSchema({
+    name: 'Academic Library | Sozim',
+    description: 'Access academic articles, theses, and research data from South African universities. Free for students.',
+    url: `${BASE_URL}/library`,
+    lastModified: '2026-03-28',
+    breadcrumb: [
+      { name: 'Home', url: BASE_URL },
+      { name: 'Academic Library', url: `${BASE_URL}/library` },
+    ],
+    speakable: ['h1', 'h2', 'p'],
+  })
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageSchema) }}
+      />
+      <LibraryPageClient />
+    </>
+  )
 }

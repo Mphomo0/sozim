@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import PageHeader from '@/components/global/PageHeader'
 import Breadcrumb from '@/components/global/Breadcrumb'
+import { getBreadcrumbSchema, getWebPageSchema } from '@/lib/seo/schemas'
 
 const BASE_URL = 'https://www.sozim.co.za'
 
@@ -36,8 +37,32 @@ export const metadata: Metadata = {
 }
 
 export default function TermsOfService() {
+  const breadcrumbSchema = getBreadcrumbSchema([
+    { name: 'Home', url: BASE_URL },
+    { name: 'Terms of Service', url: `${BASE_URL}/terms-of-service` },
+  ])
+  const webPageSchema = getWebPageSchema({
+    name: 'Terms of Service | Sozim',
+    description: 'Read Sozim terms and conditions for using our accredited education services and website.',
+    url: `${BASE_URL}/terms-of-service`,
+    lastModified: '2026-03-28',
+    breadcrumb: [
+      { name: 'Home', url: BASE_URL },
+      { name: 'Terms of Service', url: `${BASE_URL}/terms-of-service` },
+    ],
+    speakable: ['h1', 'h2', 'p'],
+  })
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageSchema) }}
+      />
       <Breadcrumb />
       <PageHeader
         title="Terms of Service"
