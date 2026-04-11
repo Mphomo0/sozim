@@ -13,7 +13,8 @@ export function downloadBlob(blob: Blob, filename: string) {
 
 export async function downloadRIS(records: Record[]) {
   const { libraryApi } = await import('./library')
-  const blob = await libraryApi.exportRIS(records as any)
+  const recordIds = records.map(r => r.id)
+  const blob = await libraryApi.exportRIS(recordIds)
   const timestamp = new Date().toISOString().split('T')[0]
   downloadBlob(blob, `library_export_${timestamp}.ris`)
 }

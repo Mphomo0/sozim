@@ -7,12 +7,13 @@ import { useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Loader2, Database, AlertTriangle } from 'lucide-react'
 import { toast } from 'react-toastify'
+import { useManualHarvest } from '@/lib/hooks/use-manual-harvest'
 
 type CategoryType = 'all' | 'research' | 'articles' | 'theses' | 'elis'
 
 export default function LibraryPageClient() {
   const searchLayoutRef = useRef<SearchLayoutRef>(null)
-  const [harvesting, setHarvesting] = useState(false)
+  const { trigger: triggerHarvest, loading: harvesting } = useManualHarvest()
   const [harvestStatus, setHarvestStatus] = useState<'idle' | 'harvesting' | 'error' | 'success'>('idle')
 
   const handleSearch = (query: string, category: CategoryType) => {
@@ -20,12 +21,10 @@ export default function LibraryPageClient() {
   }
 
   const handleHarvestNow = async () => {
-    setHarvesting(true)
     setHarvestStatus('harvesting')
     try {
-      const response = await fetch('/api/harvest-now', { method: 'POST' })
-      const data = await response.json()
-      if (data.success) {
+      const result = await triggerHarvest('full')
+      if (result.success) {
         setHarvestStatus('success')
         toast.success('Library data loaded successfully!')
         setTimeout(() => {
@@ -33,13 +32,12 @@ export default function LibraryPageClient() {
         }, 1000)
       } else {
         setHarvestStatus('error')
-        toast.error(data.error || 'Failed to load library data')
+        toast.error(result.message || 'Failed to load library data')
       }
     } catch (err) {
       setHarvestStatus('error')
       toast.error('Failed to load library data. Please try again.')
     } finally {
-      setHarvesting(false)
       setTimeout(() => setHarvestStatus('idle'), 5000)
     }
   }
