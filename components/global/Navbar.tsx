@@ -190,15 +190,15 @@ export default function Navbar() {
   return (
     <header className="relative z-50 bg-white border-b border-gray-300 tracking-wide">
       {/* Top Section */}
-      <section className="flex flex-wrap items-center gap-4 py-2 px-4 sm:px-10 min-h-[70px] border-b border-gray-300">
+      <section className="flex flex-wrap items-center gap-4 py-2 px-4 sm:px-10 min-h-17.5 border-b border-gray-300">
         {/* Logo */}
         <Link href="/" className="max-sm:hidden">
           <Image
             src="https://ik.imagekit.io/vzofqg2fg/images/SozimLogo.webp"
             alt="logo"
-            width={250}
-            height={80}
-            className="w-auto h-auto object-contain"
+            width={100}
+            height={53}
+            className="w-full h-full object-contain"
             priority
             unoptimized
           />
@@ -207,9 +207,9 @@ export default function Navbar() {
           <Image
             src="https://ik.imagekit.io/vzofqg2fg/images/SozimLogo.webp"
             alt="logo"
-            width={180}
-            height={70}
-            className="w-auto h-auto object-contain"
+            width={100}
+            height={47}
+            className="w-full h-full object-contain"
             priority
             unoptimized
           />
@@ -333,7 +333,7 @@ export default function Navbar() {
         )}
 
         <nav
-          className={`w-full lg:block max-lg:fixed max-lg:top-0 max-lg:left-0 max-lg:w-1/2 max-lg:min-w-[300px] max-lg:h-full max-lg:bg-white max-lg:p-6 max-lg:shadow-md max-lg:overflow-auto max-lg:transition-transform max-lg:duration-300 z-50 ${
+          className={`w-full lg:block max-lg:fixed max-lg:top-0 max-lg:left-0 max-lg:w-1/2 max-lg:min-w-75 max-lg:h-full max-lg:bg-white max-lg:p-6 max-lg:shadow-md max-lg:overflow-auto max-lg:transition-transform max-lg:duration-300 z-50 ${
             isOpen ? 'max-lg:translate-x-0' : 'max-lg:-translate-x-full'
           }`}
         >
@@ -352,9 +352,9 @@ export default function Navbar() {
               <Image
                 src="https://ik.imagekit.io/vzofqg2fg/images/SozimLogo.webp"
                 alt="logo"
-                width={144}
-                height={30}
-                className="w-auto h-auto"
+                width={100}
+                height={21}
+                className="w-full h-full"
                 priority
                 unoptimized
               />
@@ -390,7 +390,7 @@ export default function Navbar() {
                 >
                   {/* Desktop Dropdown */}
                   {isDesktopOpen(item.label) && (
-                    <ul className="lg:absolute lg:left-1/2 lg:-translate-x-1/2 lg:top-full lg:mt-0 lg:min-w-[300px] lg:bg-white lg:border lg:border-gray-200 lg:shadow-xl lg:rounded lg:p-4 lg:space-y-2 lg:transition-all lg:duration-200 lg:z-50">
+                    <ul className="lg:absolute lg:left-1/2 lg:-translate-x-1/2 lg:top-full lg:mt-0 lg:min-w-75 lg:bg-white lg:border lg:border-gray-200 lg:shadow-xl lg:rounded lg:p-4 lg:space-y-2 lg:transition-all lg:duration-200 lg:z-50">
                       {item.dropdown.map((sub, index) => (
                         <li
                           key={index}
