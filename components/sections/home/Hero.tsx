@@ -17,10 +17,10 @@ const SLIDES = [
   },
   {
     image: 'https://ik.imagekit.io/vzofqg2fg/images/hero3.webp',
-    title: 'Expert Led Trading',
-    description: 'Learn from industry pros and master the markets with our structured pathways.',
-    ctaText: 'View Pathways',
-    ctaLink: '/career-pathway',
+    title: 'A Message from Our Director',
+    description: 'A warm welcome from our Director',
+    ctaText: 'Read More',
+    ctaLink: '/welcome-message',
   },
   {
     image: 'https://ik.imagekit.io/vzofqg2fg/images/hero2.webp',
