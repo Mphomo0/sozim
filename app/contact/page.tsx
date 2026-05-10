@@ -9,7 +9,7 @@ import React from 'react'
 const BASE_URL = 'https://www.sozim.co.za'
 
 export const metadata: Metadata = {
-  title: 'Contact Us | Accredited Education and Training College in Bloemfontein',
+  title: 'Contact Us | Sozim - Accredited Education & Training College',
   description:
     'Contact Sozim, an accredited education and training college in Bloemfontein, South Africa. Get in touch for course enquiries.',
   keywords: [

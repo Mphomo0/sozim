@@ -16,8 +16,7 @@ import {
 const BASE_URL = 'https://www.sozim.co.za'
 
 export const metadata: Metadata = {
-  title:
-    'Sozim | Accredited Education and Training College in Bloemfontein, South Africa',
+  title: 'Sozim | Accredited Education & Training College Bloemfontein',
 description:
       'Accredited education and training college in Bloemfontein. Enrol in accredited programmes in LIS and ETD.',
   authors: [{ name: 'Sozim Team' }],

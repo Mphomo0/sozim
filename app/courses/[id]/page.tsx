@@ -6,7 +6,7 @@ import { getBreadcrumbSchema, getCourseSchema } from '@/lib/seo/schemas'
 const BASE_URL = 'https://www.sozim.co.za'
 
 export const metadata: Metadata = {
-  title: 'Course Details | Accredited Education and Training College in Bloemfontein',
+  title: 'Course Details | Sozim - Accredited Education & Training College',
   description:
     'View detailed information about our accredited programmes in LIS and ETD. Enrol in courses that advance your career.',
   keywords: [

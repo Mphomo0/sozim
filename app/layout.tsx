@@ -38,8 +38,7 @@ export const metadata: Metadata = {
   },
 
   title: {
-    default:
-      'Sozim | Accredited Education and Training College in Bloemfontein, South Africa',
+    default: 'Sozim | Accredited Education & Training College Bloemfontein',
     template: '%s | Sozim',
   },
 
