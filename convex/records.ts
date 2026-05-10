@@ -18,19 +18,16 @@ export const getRecords = query({
     })),
   },
   handler: async (ctx, args) => {
-    // Normalise category alias
     const normCat = args.category === 'theses' ? 'thesis'
       : args.category === 'articles' ? 'article'
       : args.category === 'research' ? 'research'
       : args.category;
 
-    // Apply category filter at the DB level when possible to reduce payload
-    let baseRecords =
-      normCat && normCat !== 'all'
-        ? await ctx.db.query('records').withIndex('by_category', q => q.eq('category', normCat)).collect()
-        : await ctx.db.query('records').collect();
+    const baseQuery = normCat && normCat !== 'all'
+      ? await ctx.db.query('records').withIndex('by_category', q => q.eq('category', normCat)).collect()
+      : await ctx.db.query('records').collect();
 
-    let filtered = baseRecords;
+    let filtered = baseQuery;
 
     if (args.filters) {
       const { year: fYear, repository: fRepo, type: fType, author: fAuthor } = args.filters;
@@ -66,17 +63,16 @@ export const getRecords = query({
     const start = (page - 1) * pageSize;
     const results = filtered.slice(start, start + pageSize);
 
-    // Build facets from the already-filtered base set (not repulled from DB)
-    const allAuthors = baseRecords.flatMap(r => r.authors || []);
+    const allAuthors = baseQuery.flatMap(r => r.authors || []);
     const uniqueAuthors = Array.from(new Set(allAuthors));
     const facets = {
-      years: Array.from(new Set(baseRecords.map(r => r.year).filter(y => y !== undefined)))
+      years: Array.from(new Set(baseQuery.map(r => r.year).filter(y => y !== undefined)))
         .sort((a, b) => (b || 0) - (a || 0))
-        .map(y => ({ name: y, count: baseRecords.filter(r => r.year === y).length })),
+        .map(y => ({ name: y, count: baseQuery.filter(r => r.year === y).length })),
       authors: uniqueAuthors.slice(0, 50).map(a => ({ name: a, count: allAuthors.filter(auth => auth === a).length })),
-      repositories: Array.from(new Set(baseRecords.map(r => r.source))).sort().map(s => ({ name: s, count: baseRecords.filter(r => r.source === s).length })),
-      types: Array.from(new Set(baseRecords.map(r => r.type))).sort().map(t => ({ name: t, count: baseRecords.filter(r => r.type === t).length })),
-      categories: Array.from(new Set(baseRecords.map(r => r.category))).sort().map(c => ({ name: c, count: baseRecords.filter(r => r.category === c).length })),
+      repositories: Array.from(new Set(baseQuery.map(r => r.source))).sort().map(s => ({ name: s, count: baseQuery.filter(r => r.source === s).length })),
+      types: Array.from(new Set(baseQuery.map(r => r.type))).sort().map(t => ({ name: t, count: baseQuery.filter(r => r.type === t).length })),
+      categories: Array.from(new Set(baseQuery.map(r => r.category))).sort().map(c => ({ name: c, count: baseQuery.filter(r => r.category === c).length })),
     };
 
     return {

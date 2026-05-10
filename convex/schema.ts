@@ -167,7 +167,8 @@ export default defineSchema({
     __v: v.optional(v.number()),
   }).index("by_mongo_id", ["mongoId"])
     .index("by_user", ["actualApplicantId"])
-    .index("by_course", ["actualCourseId"]),
+    .index("by_course", ["actualCourseId"])
+    .index("by_createdAt", ["createdAt"]),
 
   records: defineTable({
     id: v.string(), // Extracted unique ID (e.g. zenodo-123)

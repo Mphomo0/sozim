@@ -245,25 +245,27 @@ export const getDashboardStats = query({
     const startDate = new Date(year, 0, 1).getTime()
     const endDate = new Date(year + 1, 0, 1).getTime()
 
-    const allApplications = await ctx.db.query('applications').collect()
+    const allApplications = await ctx.db.query('applications')
+      .withIndex('by_createdAt', q => q.gte('createdAt', startDate))
+      .collect()
+
+    const filteredApps = allApplications.filter(app => {
+      const createdAt = app.createdAt
+      if (!createdAt) return false
+      const ts = typeof createdAt === 'number' ? createdAt : new Date(createdAt).getTime()
+      return ts >= startDate && ts < endDate
+    })
+
     const allUsers = await ctx.db.query('users').collect()
-
-    const filteredApps = allApplications.filter(
-      app => {
-        const createdAt = app.createdAt
-        if (!createdAt) return false
-        const ts = typeof createdAt === 'number' ? createdAt : new Date(createdAt).getTime()
-        return ts >= startDate && ts < endDate
-      }
-    )
-
     const totalUsers = allUsers.filter(u => u.role === 'USER').length
+
     const totalApplications = filteredApps.length
     const totalPending = filteredApps.filter(app => app.status === 'PENDING').length
     const totalApproved = filteredApps.filter(app => app.status === 'APPROVED').length
     const totalRejected = filteredApps.filter(app => app.status === 'REJECTED').length
 
     const yearTrendMap = new Map<number, { pending: number; approved: number; rejected: number; count: number }>()
+
     for (const app of allApplications) {
       if (app.createdAt) {
         const ts = typeof app.createdAt === 'number' ? app.createdAt : new Date(app.createdAt).getTime()

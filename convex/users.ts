@@ -9,15 +9,25 @@ export const getUsers = query({
   },
   handler: async (ctx, args) => {
     const search = args.search?.toLowerCase()
-    let users = await ctx.db.query('users').collect()
+    let users: any[] = []
 
     if (search) {
-      users = users.filter(u => 
-        u.firstName?.toLowerCase().includes(search) || 
-        u.lastName?.toLowerCase().includes(search) || 
-        u.email?.toLowerCase().includes(search) ||
-        u.clerkId?.toLowerCase().includes(search)
-      )
+      if (search.includes('@')) {
+        const byEmail = await ctx.db.query('users')
+          .withIndex('by_email', q => q.eq('email', search))
+          .collect()
+        users = byEmail
+      } else {
+        const allUsers = await ctx.db.query('users').collect()
+        users = allUsers.filter(u =>
+          u.firstName?.toLowerCase().includes(search) ||
+          u.lastName?.toLowerCase().includes(search) ||
+          u.email?.toLowerCase().includes(search) ||
+          u.clerkId?.toLowerCase().includes(search)
+        )
+      }
+    } else {
+      users = await ctx.db.query('users').collect()
     }
 
     const total = users.length

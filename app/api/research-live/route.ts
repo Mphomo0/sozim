@@ -157,6 +157,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       pageSize: Number(pageSize),
       hasMore,
       source: 'OpenAlex Live Search',
+    }, {
+      headers: {
+        'Cache-Control': 'public, max-age=300, s-maxage=600, stale-while-revalidate=1200',
+      },
     })
   } catch (error) {
     console.error('OpenAlex live search error:', error)
