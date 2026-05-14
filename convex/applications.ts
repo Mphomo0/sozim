@@ -24,12 +24,25 @@ export const getApplications = query({
               .withIndex('by_mongo_id', q => q.eq('mongoId', app.applicantId))
               .first()
         
-        // Resolve Course
-        const course = app.actualCourseId
-          ? await ctx.db.get(app.actualCourseId)
-          : await ctx.db.query('courses')
-              .withIndex('by_mongo_id', q => q.eq('mongoId', app.courseId))
-              .first()
+        // Resolve Course - try multiple methods
+        let course = null
+        
+        // 1. Try actualCourseId (Convex ID)
+        if (app.actualCourseId) {
+          course = await ctx.db.get(app.actualCourseId)
+        }
+        
+        // 2. If not found, try courseId as Convex ID (if it starts with 'j')
+        if (!course && app.courseId && typeof app.courseId === 'string' && app.courseId.startsWith('j')) {
+          course = await ctx.db.get(app.courseId as any)
+        }
+        
+        // 3. If still not found, try courseId as MongoDB ID
+        if (!course && app.courseId && typeof app.courseId === 'string' && !app.courseId.startsWith('j')) {
+          course = await ctx.db.query('courses')
+            .withIndex('by_mongo_id', q => q.eq('mongoId', app.courseId))
+            .first()
+        }
         
         return {
           ...app,
@@ -41,8 +54,8 @@ export const getApplications = query({
           } : null,
           course: course ? {
             _id: course._id,
-            name: course.name,
-            code: course.code,
+            name: (course as any).name,
+            code: (course as any).code,
           } : null
         }
       })

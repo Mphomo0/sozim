@@ -47,6 +47,9 @@ interface DocumentsFile {
 
 export default function ListApplications() {
   const [currentPage, setCurrentPage] = useState(1)
+  
+  // Fetch all courses for client-side lookup
+  const allCourses = useQuery(api.courses.getCourses)
   const [limit, setLimit] = useState(10)
   const [searchTerm, setSearchTerm] = useState('')
   const [sortBy, setSortBy] = useState<'name' | 'date'>('date')
@@ -151,9 +154,24 @@ export default function ListApplications() {
     if (app.course && app.course.name) {
       return app.course.name
     }
-    if (typeof app.courseId === 'object' && app.courseId) {
+    // 2. Try courseId as object with name property
+    if (typeof app.courseId === 'object' && app.courseId && app.courseId.name) {
       return app.courseId.name
     }
+    // 3. Try client-side lookup from allCourses
+    if (allCourses && app.actualCourseId) {
+      const found = allCourses.find((c: any) => c._id === app.actualCourseId)
+      if (found) return found.name
+    }
+    if (allCourses && app.courseId) {
+      // Try as Convex ID
+      const found = allCourses.find((c: any) => c._id === app.courseId)
+      if (found) return found.name
+      // Try as MongoDB ID
+      const foundByMongo = allCourses.find((c: any) => c.mongoId === app.courseId)
+      if (foundByMongo) return foundByMongo.name
+    }
+    // 4. Return the ID or Unknown
     return app.courseId || 'Unknown Course'
   }
 

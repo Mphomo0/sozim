@@ -64,28 +64,10 @@ export default function EditApplication() {
   const router = useRouter()
 
   const appId = typeof id === 'string' ? (id as Id<'applications'>) : undefined
-  console.log('[EditApplication] URL params:', { id })
-  console.log('[EditApplication] appId parsed:', appId)
   const appData = useQuery(api.applications.getApplicationById, appId ? { id: appId } : 'skip')
-  console.log('[EditApplication] appData from query:', appData)
-
-  // Debug: Check what fields are actually present in appData
-  useEffect(() => {
-    if (appData) {
-      console.log('[EditApplication] Available fields in appData:', Object.keys(appData))
-      console.log('[EditApplication] Specific delivery fields:', {
-        deliveryAddress: appData.deliveryAddress,
-        provinceDelivery: appData.provinceDelivery,
-        postalCodeDelivery: appData.postalCodeDelivery,
-        deliveryMethod: appData.deliveryMethod
-      })
-    }
-  }, [appData])
 
   const applicantIdRaw = appData?.actualApplicantId || appData?.applicantId
-  console.log('[EditApplication] applicantIdRaw:', applicantIdRaw)
   const applicantIdStr = typeof applicantIdRaw === 'string' ? applicantIdRaw : undefined
-  console.log('[EditApplication] applicantIdStr:', applicantIdStr)
   
   const updateApplication = useMutation(api.applications.updateApplication)
   const updateUser = useMutation(api.users.updateUser)
@@ -100,9 +82,6 @@ export default function EditApplication() {
     api.users.getUserByAnyId,
     shouldFetchFallback ? { id: applicantIdForUserFallback as string } : 'skip'
   ) as (UserData | null | undefined)
-
-  console.log('[EditApplication] Fallback user query:', fallbackUser)
-  console.log('[EditApplication] using fallback?', shouldFetchFallback)
 
   const initialValues = useMemo(() => {
     if (!appData) return undefined
@@ -468,10 +447,17 @@ export default function EditApplication() {
   }
 
   const onSubmit = async (data: EditFormValues) => {
-    if (!appId) return
+    console.log('[EditApplication] onSubmit called, appId:', appId)
+    
+    if (!appId) {
+      console.error('[EditApplication] appId is undefined!')
+      toast.error('Application ID not found')
+      return
+    }
 
     try {
       setIsUploading(true)
+      console.log('[EditApplication] Starting submit...')
 
       let finalDocuments = [...(data.documents || [])]
 
@@ -563,18 +549,30 @@ export default function EditApplication() {
         updateData.actualCourseId = data.courseId as any
       }
       
-      await updateApplication({
-        id: appId,
-        status: data.status,
-        data: updateData
-      })
+      console.log('[EditApplication] Submit - appId:', appId)
+      console.log('[EditApplication] Submit - status:', data.status)
+      console.log('[EditApplication] Submit - updateData keys:', Object.keys(updateData))
+      console.log('[EditApplication] Submit - updateData:', updateData)
 
-      toast.success('Application updated successfully!')
-      router.push('/dashboard/admin/applications')
+      try {
+        console.log('[EditApplication] Calling updateApplication mutation...')
+        await updateApplication({
+          id: appId,
+          status: data.status,
+          data: updateData
+        })
+        console.log('[EditApplication] Mutation completed successfully')
+        toast.success('Application updated successfully!')
+        router.push('/dashboard/admin/applications')
+      } catch (mutationError) {
+        console.error('[EditApplication] Mutation error:', mutationError)
+        toast.error('Failed to update application')
+      } finally {
+        setIsUploading(false)
+      }
     } catch (error) {
-      console.error(error)
+      console.error('[EditApplication] Submit error:', error)
       toast.error('Something went wrong')
-    } finally {
       setIsUploading(false)
     }
   }
@@ -638,6 +636,30 @@ export default function EditApplication() {
             </div>
           </div>
         )}
+      </div>
+
+      <div className="mb-6 p-6 border rounded-xl bg-white shadow-sm">
+        <h2 className="font-bold text-2xl text-primary mb-4">Application Status</h2>
+        <div className="flex items-center gap-4">
+          <label htmlFor="status" className="font-semibold text-gray-700">
+            Status:
+          </label>
+          <select
+            id="status"
+            {...form.register('status')}
+            className={`px-4 py-2 border rounded-lg font-medium ${
+              form.watch('status') === 'APPROVED' 
+                ? 'bg-green-100 border-green-500 text-green-800'
+                : form.watch('status') === 'REJECTED'
+                ? 'bg-red-100 border-red-500 text-red-800'
+                : 'bg-yellow-100 border-yellow-500 text-yellow-800'
+            }`}
+          >
+            <option value="PENDING">Pending</option>
+            <option value="APPROVED">Approved</option>
+            <option value="REJECTED">Rejected</option>
+          </select>
+        </div>
       </div>
 
       <form 
@@ -736,8 +758,20 @@ export default function EditApplication() {
             Cancel
           </button>
           <button
-            type="submit"
+            type="button"
             disabled={isUploading || form.formState.isSubmitting}
+            onClick={async () => {
+              console.log('[EditApplication] Submit button clicked')
+              try {
+                const data = await form.trigger()
+                console.log('[EditApplication] Form trigger result:', data)
+                const values = form.getValues()
+                console.log('[EditApplication] Form values:', values)
+                await onSubmit(values)
+              } catch (err) {
+                console.error('[EditApplication] Submit error:', err)
+              }
+            }}
             className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             {isUploading || form.formState.isSubmitting ? (
