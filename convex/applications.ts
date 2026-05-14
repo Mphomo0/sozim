@@ -150,25 +150,48 @@ export const checkExistingApplication = query({
     const userConvexId = ctx.db.normalizeId('users', args.applicantId)
     const courseConvexId = ctx.db.normalizeId('courses', args.courseId)
 
+    // If we have a Convex course ID, also get the course to check its mongoId
+    let courseMongoId: string | undefined
+    if (courseConvexId) {
+      const course = await ctx.db.get(courseConvexId)
+      courseMongoId = course?.mongoId
+    }
+
     // Check by actual IDs first (most efficient)
     if (userConvexId && courseConvexId) {
       const existing = await ctx.db.query('applications')
         .withIndex('by_user', q => q.eq('actualApplicantId', userConvexId))
-        .filter(q => q.eq(q.field('actualCourseId'), courseConvexId))
+        .filter(q => 
+          // Must match actualCourseId OR courseId (mongo format)
+          q.eq(q.field('actualCourseId'), courseConvexId) ||
+          (courseMongoId && q.eq(q.field('courseId'), courseMongoId))
+        )
         .first()
       if (existing) return true
     }
 
-    // Fallback to mongo IDs or mixed
-    const existing = await ctx.db.query('applications')
-      .filter(q => 
-        (q.eq(q.field('applicantId'), args.applicantId) && q.eq(q.field('courseId'), args.courseId)) ||
-        (userConvexId && q.eq(q.field('actualApplicantId'), userConvexId) && q.eq(q.field('courseId'), args.courseId)) ||
-        (courseConvexId && q.eq(q.field('applicantId'), args.applicantId) && q.eq(q.field('actualCourseId'), courseConvexId))
-      )
-      .first()
+    // Fallback: check by mongo IDs or mixed formats
+    // Start with user filter then check course
+    const allUserApps = userConvexId 
+      ? await ctx.db.query('applications')
+          .withIndex('by_user', q => q.eq('actualApplicantId', userConvexId))
+          .collect()
+      : []
     
-    return !!existing
+    // Check if any match the course
+    const hasExisting = allUserApps.some(app => {
+      const appCourseId = app.courseId
+      const appActualCourseId = app.actualCourseId
+      return (
+        appCourseId === args.courseId ||
+        appActualCourseId === courseConvexId ||
+        (courseMongoId && appCourseId === courseMongoId)
+      )
+    })
+    
+    if (hasExisting) return true
+    
+    return false
   },
 })
 
@@ -184,29 +207,52 @@ export const createApplication = mutation({
   handler: async (ctx, args) => {
     const { data, ...rest } = args
 
-    // 1. Resolve Course
-    const course = await ctx.db.query('courses')
-      .withIndex('by_mongo_id', q => q.eq('mongoId', args.courseId))
-      .first()
-    
-    const courseConvexId = course?._id
-
-    // 2. Resolve User
+    // 1. Resolve User first (needed for duplicate check)
     const userConvexId = ctx.db.normalizeId('users', args.applicantId)
     if (!userConvexId) {
       throw new Error('Invalid applicant ID')
+    }
+
+    // 2. Resolve Course - try Convex ID first, then Mongo ID
+    let courseConvexId: string | undefined
+    let course: any = null
+
+    // Try as Convex ID
+    if (args.courseId.startsWith('j:')) {
+      course = await ctx.db.get(args.courseId as any)
+      if (course) {
+        courseConvexId = course._id
+      }
+    }
+
+    // If not found or not a Convex ID, try Mongo ID
+    if (!course) {
+      course = await ctx.db.query('courses')
+        .withIndex('by_mongo_id', q => q.eq('mongoId', args.courseId))
+        .first()
+      if (course) {
+        courseConvexId = course._id
+      }
+    }
+
+    if (!course) {
+      throw new Error('Course not found')
     }
 
     // 3. Get user to verify clerkId
     const user = await ctx.db.get(userConvexId)
     const clerkId = user?.clerkId || args.clerkId
 
-    // 4. Check existing
+    // 4. Check existing - check BOTH mongo and convex ID formats
     const existing = await ctx.db.query('applications')
       .withIndex('by_user', q => q.eq('actualApplicantId', userConvexId))
       .filter(q => 
-        q.eq(q.field('courseId'), args.courseId) || 
-        (courseConvexId && q.eq(q.field('actualCourseId'), courseConvexId))
+        // Check by courseId (mongo format)
+        q.eq(q.field('courseId'), args.courseId) ||
+        // Check by actualCourseId (convex format)
+        (courseConvexId && q.eq(q.field('actualCourseId'), courseConvexId)) ||
+        // Also check if course has mongoId and match that
+        (course.mongoId && q.eq(q.field('courseId'), course.mongoId))
       )
       .first()
 
@@ -221,6 +267,8 @@ export const createApplication = mutation({
       actualApplicantId: userConvexId,
       clerkId: clerkId,
       actualCourseId: courseConvexId,
+      // Store mongo ID if available, otherwise keep original (for backwards compatibility)
+      ...(course.mongoId ? { courseId: course.mongoId } : {}),
       status: rest.status || 'PENDING',
       createdAt: Date.now(),
     })

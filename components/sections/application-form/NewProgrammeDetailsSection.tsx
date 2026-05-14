@@ -40,7 +40,7 @@ export default function NewProgrammeDetailsSection({ form, isAdmin: isAdminProp 
 
   const coursesRaw = useQuery(api.courses.getCourses)
   const allCourses = coursesRaw || []
-  const courses = isAdmin ? allCourses : allCourses.filter((c) => c.isOpen)
+  // Show all courses for students (not just open ones) so they can see all available programmes
   
   const [courseKey, setCourseKey] = useState(0)
   const courseValue = form.watch('courseId')
@@ -55,6 +55,9 @@ export default function NewProgrammeDetailsSection({ form, isAdmin: isAdminProp 
 
   const selectedCourse = allCourses.find((c) => c._id === courseValue)
   const isSelectedCourseClosed = courseValue && selectedCourse && !selectedCourse.isOpen
+
+  // Use all courses (not filtered) so students can see all available programmes
+  const courses = allCourses
 
   return (
     <div className="space-y-6 p-6 border rounded-xl bg-gray-50">

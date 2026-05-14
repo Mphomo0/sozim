@@ -29,7 +29,15 @@ type CourseFormProps = {
 export function CourseForm({ register, errors, control }: CourseFormProps) {
   const categoriesReq = useQuery(api.categories.getCategories)
   const loading = categoriesReq === undefined
+  const isError = categoriesReq === null
   const categories = categoriesReq || []
+  
+  useEffect(() => {
+    console.log('[CourseForm] categoriesReq:', categoriesReq)
+    console.log('[CourseForm] loading:', loading)
+    console.log('[CourseForm] isError:', isError)
+    console.log('[CourseForm] categories:', categories)
+  }, [categoriesReq, loading, isError, categories])
 
   // Field arrays
   const knowledgeFA = useFieldArray({
@@ -124,6 +132,26 @@ export function CourseForm({ register, errors, control }: CourseFormProps) {
             {loading ? (
               <div className="h-11 flex items-center px-4 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-500">
                 Loading categories...
+              </div>
+            ) : isError ? (
+              <div className="space-y-2">
+                <div className="h-11 flex items-center px-4 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">
+                  Error loading categories
+                </div>
+                <p className="text-xs text-red-500">There was a problem fetching categories. Please refresh the page.</p>
+              </div>
+            ) : categories.length === 0 ? (
+              <div className="space-y-2">
+                <select
+                  {...register('categoryId')}
+                  className="w-full h-11 px-3 bg-white border border-gray-200 focus:ring-indigo-500 focus:border-indigo-500 rounded-xl text-sm transition-all"
+                  defaultValue=""
+                >
+                  <option value="" disabled>No categories available</option>
+                </select>
+                <p className="text-xs text-amber-600">
+                  No categories found. <a href="/dashboard/admin/courses/category/new" className="underline hover:text-amber-700">Create a category first</a>
+                </p>
               </div>
             ) : (
               <select
