@@ -216,7 +216,7 @@ export default function CreateApplication({ onSuccess }: Props) {
     api.users.getUserByClerkId,
     user?.id ? { clerkId: user.id } : 'skip'
   )
-  const allCourses = useQuery(api.courses.getCourses) || []
+  const allCourses = useQuery(api.courses.getCoursesList) || []
   const courseIdValue = form.watch('courseId')
   const selectedCourse = allCourses.find((c) => c._id === courseIdValue)
   const isCourseClosed = selectedCourse && !selectedCourse.isOpen

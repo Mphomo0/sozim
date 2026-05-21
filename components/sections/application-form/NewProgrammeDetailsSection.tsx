@@ -38,7 +38,7 @@ export default function NewProgrammeDetailsSection({ form, isAdmin: isAdminProp 
 
   const isAdmin = isAdminProp !== undefined ? isAdminProp : isAdminFromUser
 
-  const coursesRaw = useQuery(api.courses.getCourses)
+  const coursesRaw = useQuery(api.courses.getCoursesList)
   const allCourses = coursesRaw || []
   // Show all courses for students (not just open ones) so they can see all available programmes
   

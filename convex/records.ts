@@ -23,57 +23,103 @@ export const getRecords = query({
       : args.category === 'research' ? 'research'
       : args.category;
 
-    const baseQuery = normCat && normCat !== 'all'
-      ? await ctx.db.query('records').withIndex('by_category', q => q.eq('category', normCat)).collect()
-      : await ctx.db.query('records').collect();
-
-    let filtered = baseQuery;
-
-    if (args.filters) {
-      const { year: fYear, repository: fRepo, type: fType, author: fAuthor } = args.filters;
-
-      if (fYear) {
-        const y = parseInt(fYear);
-        filtered = filtered.filter(r => r.year === y);
-      }
-      if (fRepo) {
-        filtered = filtered.filter(r => r.source === fRepo);
-      }
-      if (fType) {
-        filtered = filtered.filter(r => r.type === fType);
-      }
-      if (fAuthor) {
-        const auth = fAuthor.toLowerCase();
-        filtered = filtered.filter(r => r.authors.some(a => a.toLowerCase().includes(auth)));
-      }
-    }
-
-    if (args.query) {
-      const q = args.query.toLowerCase();
-      filtered = filtered.filter(r =>
-        r.title.toLowerCase().includes(q) ||
-        (r.description || '').toLowerCase().includes(q) ||
-        r.keywords.some(k => k.toLowerCase().includes(q))
-      );
-    }
-
-    const total = filtered.length;
     const page = args.page || 1;
     const pageSize = args.pageSize || 24;
     const start = (page - 1) * pageSize;
-    const results = filtered.slice(start, start + pageSize);
 
-    const allAuthors = baseQuery.flatMap(r => r.authors || []);
-    const uniqueAuthors = Array.from(new Set(allAuthors));
-    const facets = {
-      years: Array.from(new Set(baseQuery.map(r => r.year).filter(y => y !== undefined)))
-        .sort((a, b) => (b || 0) - (a || 0))
-        .map(y => ({ name: y, count: baseQuery.filter(r => r.year === y).length })),
-      authors: uniqueAuthors.slice(0, 50).map(a => ({ name: a, count: allAuthors.filter(auth => auth === a).length })),
-      repositories: Array.from(new Set(baseQuery.map(r => r.source))).sort().map(s => ({ name: s, count: baseQuery.filter(r => r.source === s).length })),
-      types: Array.from(new Set(baseQuery.map(r => r.type))).sort().map(t => ({ name: t, count: baseQuery.filter(r => r.type === t).length })),
-      categories: Array.from(new Set(baseQuery.map(r => r.category))).sort().map(c => ({ name: c, count: baseQuery.filter(r => r.category === c).length })),
-    };
+    const hasFilters = !!(args.query || args.filters?.year || args.filters?.repository || args.filters?.type || args.filters?.author);
+
+    let results: any[] = [];
+    let total = 0;
+    let baseQueryForFacetsFallback: any[] | null = null;
+
+    if (!hasFilters) {
+      // 1. Efficient total counts from main metadata to avoid reading all records
+      const mainMeta = await ctx.db.query("libraryMeta")
+        .withIndex("by_key", q => q.eq("key", "main"))
+        .first();
+
+      if (normCat === 'thesis') total = mainMeta?.counts?.theses || 0;
+      else if (normCat === 'article') total = mainMeta?.counts?.articles || 0;
+      else if (normCat === 'research') total = mainMeta?.counts?.research || 0;
+      else total = mainMeta?.counts?.total || 0;
+
+      // 2. Paginate directly on the category index to read ONLY 24 records instead of 5000
+      const queryBuilder = normCat && normCat !== 'all'
+        ? ctx.db.query('records').withIndex('by_category', q => q.eq('category', normCat))
+        : ctx.db.query('records');
+
+      const pageRecords = await queryBuilder.take(start + pageSize);
+      results = pageRecords.slice(start);
+    } else {
+      // 3. Fallback: only collect and filter in JS if active search or filters are specified
+      const baseQuery = normCat && normCat !== 'all'
+        ? await ctx.db.query('records').withIndex('by_category', q => q.eq('category', normCat)).collect()
+        : await ctx.db.query('records').collect();
+
+      baseQueryForFacetsFallback = baseQuery;
+      let filtered = baseQuery;
+
+      if (args.filters) {
+        const { year: fYear, repository: fRepo, type: fType, author: fAuthor } = args.filters;
+
+        if (fYear) {
+          const y = parseInt(fYear);
+          filtered = filtered.filter(r => r.year === y);
+        }
+        if (fRepo) {
+          filtered = filtered.filter(r => r.source === fRepo);
+        }
+        if (fType) {
+          filtered = filtered.filter(r => r.type === fType);
+        }
+        if (fAuthor) {
+          const auth = fAuthor.toLowerCase();
+          filtered = filtered.filter(r => r.authors.some(a => a.toLowerCase().includes(auth)));
+        }
+      }
+
+      if (args.query) {
+        const q = args.query.toLowerCase();
+        filtered = filtered.filter(r =>
+          r.title.toLowerCase().includes(q) ||
+          (r.description || '').toLowerCase().includes(q) ||
+          r.keywords.some(k => k.toLowerCase().includes(q))
+        );
+      }
+
+      total = filtered.length;
+      results = filtered.slice(start, start + pageSize);
+    }
+
+    // 4. Fetch pre-calculated static facets from the metadata cache (exactly 1 document read)
+    const facetsKey = `facets_${normCat || 'all'}`;
+    const cachedMeta = await ctx.db.query("libraryMeta")
+      .withIndex("by_key", q => q.eq("key", facetsKey))
+      .first();
+
+    let facets = cachedMeta?.facets;
+
+    // 5. Fallback: if facets haven't been pre-cached yet, compute them dynamically
+    if (!facets) {
+      const baseQuery = baseQueryForFacetsFallback || (
+        normCat && normCat !== 'all'
+          ? await ctx.db.query('records').withIndex('by_category', q => q.eq('category', normCat)).collect()
+          : await ctx.db.query('records').collect()
+      );
+
+      const allAuthors = baseQuery.flatMap(r => r.authors || []);
+      const uniqueAuthors = Array.from(new Set(allAuthors));
+      facets = {
+        years: Array.from(new Set(baseQuery.map(r => r.year).filter(y => y !== undefined)))
+          .sort((a, b) => (b || 0) - (a || 0))
+          .map(y => ({ name: y, count: baseQuery.filter(r => r.year === y).length })),
+        authors: uniqueAuthors.slice(0, 50).map(a => ({ name: a, count: allAuthors.filter(auth => auth === a).length })),
+        repositories: Array.from(new Set(baseQuery.map(r => r.source))).sort().map(s => ({ name: s, count: baseQuery.filter(r => r.source === s).length })),
+        types: Array.from(new Set(baseQuery.map(r => r.type))).sort().map(t => ({ name: t, count: baseQuery.filter(r => r.type === t).length })),
+        categories: Array.from(new Set(baseQuery.map(r => r.category))).sort().map(c => ({ name: c, count: baseQuery.filter(r => r.category === c).length })),
+      };
+    }
 
     return {
       results,
@@ -199,6 +245,10 @@ export const updateLibraryMeta = mutation({
       await ctx.db.patch(existing._id, data);
     } else {
       await ctx.db.insert("libraryMeta", data);
+    }
+
+    if (args.key === 'main') {
+      await precalculateAndCacheFacets(ctx);
     }
   },
 });
@@ -639,6 +689,49 @@ export const bulkUpsertRecordsInternal = internalMutation({
   },
 });
 
+// Helper to pre-calculate and store all static facets in libraryMeta
+export const precalculateAndCacheFacets = async (ctx: any) => {
+  const allRecords = await ctx.db.query('records').collect();
+  const categories = ['all', 'thesis', 'article', 'research'];
+
+  for (const cat of categories) {
+    const baseQuery = cat === 'all' 
+      ? allRecords 
+      : allRecords.filter((r: any) => r.category === cat);
+
+    const allAuthors = baseQuery.flatMap((r: any) => r.authors || []);
+    const uniqueAuthors = Array.from(new Set(allAuthors));
+
+    const facets = {
+      years: Array.from(new Set(baseQuery.map((r: any) => r.year).filter((y: any) => y !== undefined)))
+        .sort((a: any, b: any) => (b || 0) - (a || 0))
+        .map((y: any) => ({ name: y, count: baseQuery.filter((r: any) => r.year === y).length })),
+      authors: uniqueAuthors.slice(0, 50).map((a: any) => ({ name: a, count: allAuthors.filter((auth: any) => auth === a).length })),
+      repositories: Array.from(new Set(baseQuery.map((r: any) => r.source))).sort().map((s: any) => ({ name: s, count: baseQuery.filter((r: any) => r.source === s).length })),
+      types: Array.from(new Set(baseQuery.map((r: any) => r.type))).sort().map((t: any) => ({ name: t, count: baseQuery.filter((r: any) => r.type === t).length })),
+      categories: Array.from(new Set(baseQuery.map((r: any) => r.category))).sort().map((c: any) => ({ name: c, count: baseQuery.filter((r: any) => r.category === c).length })),
+    };
+
+    const key = `facets_${cat}`;
+    const existing = await ctx.db.query("libraryMeta")
+      .withIndex("by_key", (q: any) => q.eq("key", key))
+      .first();
+
+    const data = {
+      key,
+      lastUpdated: Date.now(),
+      counts: { theses: 0, articles: 0, research: 0, total: 0 },
+      facets,
+    };
+
+    if (existing) {
+      await ctx.db.patch(existing._id, data);
+    } else {
+      await ctx.db.insert("libraryMeta", data);
+    }
+  }
+};
+
 export const updateLibraryMetaInternal = internalMutation({
   args: {
     key: v.string(),
@@ -669,6 +762,10 @@ export const updateLibraryMetaInternal = internalMutation({
       await ctx.db.patch(existing._id, data);
     } else {
       await ctx.db.insert("libraryMeta", data);
+    }
+
+    if (args.key === 'main') {
+      await precalculateAndCacheFacets(ctx);
     }
   },
 });

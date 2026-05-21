@@ -27,7 +27,10 @@ export default function Navbar() {
   const { user } = useUser()
   const { signOut } = useClerk()
 
-  const coursesReq = useQuery(api.courses.getCourses)
+  const coursesReq = useQuery(
+    api.courses.searchCourses,
+    searchQuery.trim() !== '' ? { query: searchQuery } : 'skip',
+  )
   const courses = coursesReq || []
 
   const convexUser = useQuery(
@@ -72,17 +75,7 @@ export default function Navbar() {
     }
   }, [])
 
-  const filteredResults = useMemo(() => {
-    if (searchQuery.trim() === '') return []
-    const query = searchQuery.toLowerCase()
-    return courses
-      .filter(
-        (course: any) =>
-          course.title?.toLowerCase().includes(query) ||
-          course.description?.toLowerCase().includes(query),
-      )
-      .slice(0, 5)
-  }, [searchQuery, courses])
+  const filteredResults = courses
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -192,7 +185,7 @@ export default function Navbar() {
       {/* Top Section */}
       <section className="flex flex-wrap items-center gap-4 py-2 px-4 sm:px-10 min-h-17.5 border-b border-gray-300">
         {/* Logo */}
-        <Link href="/" className="max-sm:hidden">
+        <Link href="/" className="max-sm:hidden" prefetch={false}>
           <Image
             src="https://ik.imagekit.io/vzofqg2fg/images/SozimLogo.webp"
             alt="logo"
@@ -203,7 +196,7 @@ export default function Navbar() {
             unoptimized
           />
         </Link>
-        <Link href="/" className="hidden max-sm:block">
+        <Link href="/" className="hidden max-sm:block" prefetch={false}>
           <Image
             src="https://ik.imagekit.io/vzofqg2fg/images/SozimLogo.webp"
             alt="logo"
@@ -221,6 +214,7 @@ export default function Navbar() {
             <li key={item.label}>
               <Link
                 href={item.href}
+                prefetch={false}
                 className={`text-[15px] font-medium transition ${
                   isActive(item.href)
                     ? 'text-blue-900 font-semibold border-b-2 border-blue-900'
@@ -239,6 +233,7 @@ export default function Navbar() {
             <div className="flex items-center space-x-4">
               <Link
                 href={convexUser?.role === 'ADMIN' ? '/dashboard' : '/student'}
+                prefetch={false}
                 className="px-4 py-2 text-[15px] font-medium text-white bg-blue-900 rounded-full hover:bg-blue-700 transition"
               >
                 {convexUser?.role === 'ADMIN' ? 'Dashboard' : 'Student Link'}
@@ -293,7 +288,7 @@ export default function Navbar() {
                     className="w-full text-left px-4 py-3 hover:bg-slate-50 border-b border-gray-100 last:border-b-0 transition"
                   >
                     <p className="text-sm font-medium text-slate-900 line-clamp-1">
-                      {course.title}
+                      {course.name || course.title}
                     </p>
                     <p className="text-xs text-slate-500 line-clamp-1">
                       {course.description?.substring(0, 60)}...
@@ -367,6 +362,7 @@ export default function Navbar() {
                   <Link
                     key={item.label}
                     href={item.href}
+                    prefetch={false}
                     onClick={() => setIsOpen(false)}
                     className={`block text-[14px] font-semibold transition py-1.5 ${
                       isActive(item.href)
@@ -398,6 +394,7 @@ export default function Navbar() {
                         >
                           <Link
                             href={sub.title || sub.links?.[0]?.href || '#'}
+                            prefetch={false}
                             className="block text-[14px] font-bold text-blue-900 hover:text-blue-700"
                           >
                             {sub.title}
@@ -409,6 +406,7 @@ export default function Navbar() {
                                 <li key={i}>
                                   <Link
                                     href={link.href}
+                                    prefetch={false}
                                     className="block text-[13px] text-slate-500 hover:text-blue-700 transition"
                                   >
                                     {link.label}
@@ -425,6 +423,7 @@ export default function Navbar() {
                   {/* Desktop/Mobile Link */}
                   <Link
                     href={item.dropdown?.[0]?.links?.[0]?.href || '#'}
+                    prefetch={false}
                     className="hidden lg:block text-[15px] font-medium text-slate-500 hover:text-blue-600"
                   >
                     {item.label}
@@ -463,6 +462,7 @@ export default function Navbar() {
                         >
                           <Link
                             href={sub.title || sub.links?.[0]?.href || '#'}
+                            prefetch={false}
                             className="block text-[14px] font-bold text-blue-800 hover:text-blue-600 py-1"
                           >
                             {sub.title}
@@ -474,6 +474,7 @@ export default function Navbar() {
                                 <li key={i}>
                                   <Link
                                     href={link.href}
+                                    prefetch={false}
                                     className="block text-[13px] text-slate-500 hover:text-blue-700 transition"
                                   >
                                     {link.label}
@@ -494,6 +495,7 @@ export default function Navbar() {
                 >
                   <Link
                     href={item.href}
+                    prefetch={false}
                     className={`block text-[15px] font-medium transition ${
                       isActive(item.href)
                         ? 'text-blue-900 font-semibold border-b-2 border-blue-900'

@@ -8,6 +8,37 @@ export const getCourses = query({
   },
 })
 
+export const getCoursesList = query({
+  args: {},
+  handler: async (ctx) => {
+    const courses = await ctx.db.query('courses').collect()
+    return courses.map((c) => ({
+      _id: c._id,
+      name: c.name,
+      isOpen: c.isOpen,
+    }))
+  },
+})
+
+export const searchCourses = query({
+  args: { query: v.string() },
+  handler: async (ctx, args) => {
+    if (!args.query.trim()) return []
+    const searchStr = args.query.toLowerCase()
+    const courses = await ctx.db.query('courses').collect()
+    const matches = courses.filter(
+      (c) =>
+        c.name.toLowerCase().includes(searchStr) ||
+        c.description?.toLowerCase().includes(searchStr),
+    )
+    return matches.slice(0, 5).map((c) => ({
+      _id: c._id,
+      name: c.name,
+      description: c.description,
+    }))
+  },
+})
+
 export const getCourseById = query({
   args: { id: v.id('courses') },
   handler: async (ctx, args) => {

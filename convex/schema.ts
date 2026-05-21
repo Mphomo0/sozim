@@ -210,6 +210,7 @@ export default defineSchema({
       message: v.string(),
       time: v.number(),
     })),
+    facets: v.optional(v.any()),
   }).index("by_key", ["key"]),
 
   harvestJobs: defineTable({
