@@ -189,8 +189,8 @@ export default function Navbar() {
           <Image
             src="https://ik.imagekit.io/vzofqg2fg/images/SozimLogo.webp"
             alt="logo"
-            width={100}
-            height={53}
+            width={80}
+            height={42}
             className="w-full h-full object-contain"
             priority
             unoptimized
@@ -200,8 +200,8 @@ export default function Navbar() {
           <Image
             src="https://ik.imagekit.io/vzofqg2fg/images/SozimLogo.webp"
             alt="logo"
-            width={100}
-            height={47}
+            width={80}
+            height={42}
             className="w-full h-full object-contain"
             priority
             unoptimized
@@ -347,9 +347,9 @@ export default function Navbar() {
               <Image
                 src="https://ik.imagekit.io/vzofqg2fg/images/SozimLogo.webp"
                 alt="logo"
-                width={100}
-                height={21}
-                className="w-full h-full"
+                width={80}
+                height={42}
+                className="w-full h-full object-contain"
                 priority
                 unoptimized
               />

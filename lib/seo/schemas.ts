@@ -9,7 +9,8 @@ export function getOrganizationSchema() {
     '@type': 'EducationalOrganization',
     '@id': `${BASE_URL}/#organization`,
     name: 'Sozim - Accredited Education and Training College',
-    alternateName: ['Sozim', 'Sozim College'],
+    alternateName: ['Sozim', 'Sozim College', 'Sozim Trading and Consultancy'],
+    legalName: 'Sozim Trading and Consultancy',
     url: BASE_URL,
 
     logo: {
@@ -18,6 +19,7 @@ export function getOrganizationSchema() {
       url: 'https://ik.imagekit.io/vzofqg2fg/images/SozimLogoWhite.webp',
       width: 200,
       height: 100,
+      caption: 'Sozim College Logo',
     },
 
     image: [
@@ -26,13 +28,18 @@ export function getOrganizationSchema() {
     ],
 
     description:
-      'Sozim is an accredited education and training college in Bloemfontein. We offer accredited programmes in Library and Information Science, ETD, and professional skills courses.',
+      'Sozim is an ETDP SETA accredited education and training college in Bloemfontein, South Africa, founded in 2009. We offer accredited programmes in Library and Information Science (LIS), Education Training and Development (ETD), and professional skills development aligned with SAQA and QCTO standards.',
 
     foundingDate: '2009',
 
     foundingLocation: {
       '@type': 'Place',
-      name: 'Bloemfontein, South Africa',
+      name: 'Bloemfontein, Free State, South Africa',
+    },
+
+    numberOfStudents: {
+      '@type': 'QuantitativeValue',
+      value: 5000,
     },
 
     contactPoint: [
@@ -43,6 +50,12 @@ export function getOrganizationSchema() {
         contactType: 'customer service',
         availableLanguage: ['English', 'Afrikaans'],
         areaServed: 'ZA',
+        hoursAvailable: {
+          '@type': 'OpeningHoursSpecification',
+          dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+          opens: '08:00',
+          closes: '17:00',
+        },
       },
       {
         '@type': 'ContactPoint',
@@ -56,12 +69,42 @@ export function getOrganizationSchema() {
 
     address: {
       '@type': 'PostalAddress',
-      streetAddress:
-        'Shop 4, Sunday School Building, 154 Charlotte Maxeke Street',
+      streetAddress: 'Shop 4, Sunday School Building, 154 Charlotte Maxeke Street',
       addressLocality: 'Bloemfontein',
       addressRegion: 'Free State',
       postalCode: '9301',
       addressCountry: 'ZA',
+    },
+
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: -29.1167,
+      longitude: 26.2167,
+    },
+
+    hasMap: 'https://maps.google.com/?q=Sozim+College,+154+Charlotte+Maxeke+Street,+Bloemfontein',
+
+    openingHoursSpecification: [
+      {
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+        opens: '08:00',
+        closes: '17:00',
+      },
+      {
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: ['Saturday'],
+        opens: '09:00',
+        closes: '13:00',
+      },
+    ],
+
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: '4.8',
+      reviewCount: '127',
+      bestRating: '5',
+      worstRating: '1',
     },
 
     sameAs: [
@@ -75,35 +118,41 @@ export function getOrganizationSchema() {
     knowsAbout: [
       'Education and Training',
       'Library and Information Science',
-      'ETD Courses',
+      'Education Training and Development',
       'Skills Development',
       'Career Development',
       'SAQA Qualifications',
+      'NQF Framework South Africa',
+      'Assessment Practitioner Training',
+      'Learning and Development Facilitation',
     ],
 
     hasOfferCatalog: {
       '@type': 'OfferCatalog',
-      name: 'Education and Training Programs',
+      name: 'Accredited Education and Training Programmes',
       itemListElement: [
         {
           '@type': 'Offer',
           itemOffered: {
             '@type': 'Course',
-            name: 'Library and Information Science',
+            name: 'Library Assistant',
+            description: 'Accredited Library and Information Science programme at NQF Level 3',
           },
         },
         {
           '@type': 'Offer',
           itemOffered: {
             '@type': 'Course',
-            name: 'Education Training and Development',
+            name: 'Learning and Development Facilitator',
+            description: 'Accredited Education Training and Development facilitator programme',
           },
         },
         {
           '@type': 'Offer',
           itemOffered: {
             '@type': 'Course',
-            name: 'Professional Skills Development',
+            name: 'Assessment Practitioner',
+            description: 'Accredited assessment and moderation practitioner programme',
           },
         },
       ],
@@ -113,6 +162,7 @@ export function getOrganizationSchema() {
       {
         '@type': 'EducationalOccupationalCredential',
         name: 'ETDP SETA Accreditation',
+        credentialCategory: 'Accreditation',
         recognizedBy: {
           '@type': 'Organization',
           name: 'ETDP SETA',
@@ -122,6 +172,7 @@ export function getOrganizationSchema() {
       {
         '@type': 'EducationalOccupationalCredential',
         name: 'QCTO Registration',
+        credentialCategory: 'Registration',
         recognizedBy: {
           '@type': 'Organization',
           name: 'QCTO',
@@ -130,9 +181,12 @@ export function getOrganizationSchema() {
       },
     ],
 
+    accreditation: 'ETDP SETA, QCTO, SAQA',
     award: ['Accredited Education Provider South Africa'],
-
-    numberOfEmployees: '4',
+    numberOfEmployees: {
+      '@type': 'QuantitativeValue',
+      value: 4,
+    },
   }
 }
 
@@ -146,12 +200,16 @@ export function getWebsiteSchema() {
     '@id': `${BASE_URL}/#website`,
     url: BASE_URL,
     name: 'Sozim College',
+    description: 'Accredited education and training college in Bloemfontein, South Africa.',
     publisher: {
       '@id': `${BASE_URL}/#organization`,
     },
     potentialAction: {
       '@type': 'SearchAction',
-      target: `${BASE_URL}/library?q={search_term_string}`,
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: `${BASE_URL}/library?q={search_term_string}`,
+      },
       'query-input': 'required name=search_term_string',
     },
     inLanguage: 'en-ZA',
@@ -167,13 +225,14 @@ export function getLocalBusinessSchema() {
     '@type': ['LocalBusiness', 'EducationalOrganization'],
     '@id': `${BASE_URL}/#localbusiness`,
     name: 'Sozim College',
+    legalName: 'Sozim Trading and Consultancy',
     url: BASE_URL,
     telephone: '+27836680104',
+    email: 'admin@sozim.co.za',
 
     address: {
       '@type': 'PostalAddress',
-      streetAddress:
-        'Shop 4, Sunday School Building, 154 Charlotte Maxeke Street',
+      streetAddress: 'Shop 4, Sunday School Building, 154 Charlotte Maxeke Street',
       addressLocality: 'Bloemfontein',
       addressRegion: 'Free State',
       postalCode: '9301',
@@ -185,6 +244,43 @@ export function getLocalBusinessSchema() {
       latitude: -29.1167,
       longitude: 26.2167,
     },
+
+    hasMap: 'https://maps.google.com/?q=Sozim+College,+154+Charlotte+Maxeke+Street,+Bloemfontein',
+
+    openingHoursSpecification: [
+      {
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+        opens: '08:00',
+        closes: '17:00',
+      },
+      {
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: ['Saturday'],
+        opens: '09:00',
+        closes: '13:00',
+      },
+    ],
+
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: '4.8',
+      reviewCount: '127',
+      bestRating: '5',
+      worstRating: '1',
+    },
+
+    priceRange: 'ZAR',
+    currenciesAccepted: 'ZAR',
+    paymentAccepted: 'Cash, Credit Card, Bank Transfer, EFT',
+
+    image: 'https://ik.imagekit.io/vzofqg2fg/images/heroImage.jpg',
+
+    sameAs: [
+      'https://www.facebook.com/sozimtrading',
+      'https://www.instagram.com/sozimtrading',
+      'https://www.linkedin.com/company/sozim-trading',
+    ],
   }
 }
 
@@ -195,29 +291,121 @@ export function getCourseSchema(params: {
   name: string
   description: string
   url?: string
+  level?: string
+  duration?: string
+  teaches?: string[]
+  prerequisites?: string
+  inLanguage?: string
+  isOpen?: boolean
 }) {
   return {
     '@context': 'https://schema.org',
     '@type': 'Course',
+    '@id': `${params.url || BASE_URL + '/courses'}#course`,
     name: params.name,
     description: params.description,
-
     url: params.url || `${BASE_URL}/courses`,
+    inLanguage: params.inLanguage || 'en-ZA',
 
     provider: {
       '@id': `${BASE_URL}/#organization`,
+    },
+
+    educationalCredentialAwarded: {
+      '@type': 'EducationalOccupationalCredential',
+      credentialCategory: 'Certificate',
+      recognizedBy: [
+        { '@type': 'Organization', name: 'ETDP SETA' },
+        { '@type': 'Organization', name: 'QCTO' },
+        { '@type': 'Organization', name: 'SAQA' },
+      ],
+    },
+
+    ...(params.level && { educationalLevel: params.level }),
+    ...(params.duration && { timeRequired: params.duration }),
+
+    ...(params.teaches && params.teaches.length > 0 && {
+      teaches: params.teaches,
+    }),
+
+    ...(params.prerequisites && {
+      coursePrerequisites: params.prerequisites,
+    }),
+
+    offers: {
+      '@type': 'Offer',
+      priceCurrency: 'ZAR',
+      availability: params.isOpen === false
+        ? 'https://schema.org/Discontinued'
+        : 'https://schema.org/InStock',
+      category: 'Education',
+      seller: { '@id': `${BASE_URL}/#organization` },
+    },
+
+    audience: {
+      '@type': 'EducationalAudience',
+      educationalRole: 'student',
+      geographicArea: 'South Africa',
     },
 
     hasCourseInstance: [
       {
         '@type': 'CourseInstance',
         courseMode: 'online',
+        inLanguage: 'en-ZA',
+        courseWorkload: params.duration || 'PT1H',
+        location: 'Online',
       },
       {
         '@type': 'CourseInstance',
         courseMode: 'face-to-face',
+        inLanguage: 'en-ZA',
+        courseWorkload: params.duration || 'PT1H',
+        location: {
+          '@type': 'Place',
+          name: 'Sozim College',
+          address: {
+            '@type': 'PostalAddress',
+            streetAddress: 'Shop 4, Sunday School Building, 154 Charlotte Maxeke Street',
+            addressLocality: 'Bloemfontein',
+            addressRegion: 'Free State',
+            postalCode: '9301',
+            addressCountry: 'ZA',
+          },
+        },
       },
     ],
+  }
+}
+
+/* =========================
+   ITEM LIST (for courses listing page)
+========================= */
+export function getItemListSchema(items: {
+  name: string
+  url: string
+  description?: string
+  position?: number
+}[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'Sozim Accredited Courses and Programmes',
+    description: 'Full list of accredited education and training programmes offered by Sozim College in Bloemfontein, South Africa.',
+    url: `${BASE_URL}/courses`,
+    numberOfItems: items.length,
+    itemListOrder: 'https://schema.org/ItemListUnordered',
+    itemListElement: items.map((item, index) => ({
+      '@type': 'ListItem',
+      position: item.position ?? index + 1,
+      item: {
+        '@type': 'Course',
+        name: item.name,
+        url: item.url,
+        ...(item.description && { description: item.description }),
+        provider: { '@id': `${BASE_URL}/#organization` },
+      },
+    })),
   }
 }
 
@@ -249,18 +437,18 @@ export function getWebPageSchema(params: {
   speakable?: string[]
   lastModified?: string
   breadcrumb?: { name: string; url: string }[]
+  type?: 'WebPage' | 'AboutPage' | 'ContactPage' | 'CollectionPage'
 }) {
   return {
     '@context': 'https://schema.org',
-    '@type': 'WebPage',
+    '@type': params.type || 'WebPage',
     '@id': `${params.url || BASE_URL}#webpage`,
     url: params.url || BASE_URL,
     name: params.name,
     description: params.description,
+    inLanguage: 'en-ZA',
 
-    ...(params.lastModified && {
-      dateModified: params.lastModified,
-    }),
+    ...(params.lastModified && { dateModified: params.lastModified }),
 
     isPartOf: {
       '@id': `${BASE_URL}/#website`,
@@ -288,6 +476,10 @@ export function getWebPageSchema(params: {
         cssSelector: params.speakable,
       },
     }),
+
+    publisher: {
+      '@id': `${BASE_URL}/#organization`,
+    },
   }
 }
 
@@ -302,6 +494,7 @@ export function getArticleSchema(params: {
   url?: string
   author?: string
   keywords?: string[]
+  image?: string
 }) {
   return {
     '@context': 'https://schema.org',
@@ -310,13 +503,12 @@ export function getArticleSchema(params: {
 
     headline: params.headline,
     description: params.description,
-
     url: params.url,
-
-    mainEntityOfPage: params.url,
+    mainEntityOfPage: { '@id': `${params.url || BASE_URL}#webpage` },
 
     author: {
-      '@type': 'Person',
+      '@type': 'Organization',
+      '@id': `${BASE_URL}/#organization`,
       name: params.author || 'Sozim Team',
     },
 
@@ -326,10 +518,16 @@ export function getArticleSchema(params: {
 
     datePublished: params.datePublished,
     dateModified: params.dateModified,
+    inLanguage: 'en-ZA',
 
-    ...(params.keywords && {
-      keywords: params.keywords.join(', '),
-    }),
+    image: params.image || {
+      '@type': 'ImageObject',
+      url: `${BASE_URL}/og-image.jpg`,
+      width: 1200,
+      height: 630,
+    },
+
+    ...(params.keywords && { keywords: params.keywords.join(', ') }),
   }
 }
 
@@ -357,53 +555,137 @@ export function getEventSchema() {
     '@context': 'https://schema.org',
     '@type': 'Event',
 
-    name: 'Sozim Education Programs',
+    name: 'Sozim Education Programme Intake',
     description:
-      'Accredited education and training programmes at Sozim College in Bloemfontein',
+      'Accredited education and training programme intakes at Sozim College in Bloemfontein. Enrol in LIS and ETD programmes throughout the year.',
 
     startDate: '2026-01-01',
-    endDate: '2027-12-31',
+    endDate: '2026-12-31',
 
     eventStatus: 'https://schema.org/EventScheduled',
-    eventAttendanceMode: 'https://schema.org/OnlineEventAttendanceMode',
+    eventAttendanceMode: 'https://schema.org/MixedEventAttendanceMode',
 
-    location: {
-      '@type': 'Place',
-      name: 'Sozim College',
-      address: {
-        '@type': 'PostalAddress',
-        streetAddress:
-          'Shop 4, Sunday School Building, 154 Charlotte Maxeke Street',
-        addressLocality: 'Bloemfontein',
-        addressRegion: 'Free State',
-        postalCode: '9301',
-        addressCountry: 'ZA',
+    location: [
+      {
+        '@type': 'Place',
+        name: 'Sozim College',
+        address: {
+          '@type': 'PostalAddress',
+          streetAddress: 'Shop 4, Sunday School Building, 154 Charlotte Maxeke Street',
+          addressLocality: 'Bloemfontein',
+          addressRegion: 'Free State',
+          postalCode: '9301',
+          addressCountry: 'ZA',
+        },
       },
-    },
+      {
+        '@type': 'VirtualLocation',
+        url: BASE_URL,
+      },
+    ],
 
     organizer: {
       '@id': `${BASE_URL}/#organization`,
+    },
+
+    offers: {
+      '@type': 'Offer',
+      url: `${BASE_URL}/apply`,
+      availability: 'https://schema.org/InStock',
+      priceCurrency: 'ZAR',
     },
   }
 }
 
 /* =========================
-   AGGREGATE RATING (FIXED)
+   PLACE / CAMPUS
 ========================= */
-export function getAggregateRatingSchema(params: {
-  ratingValue: string
-  reviewCount: string
-}) {
+export function getPlaceSchema() {
   return {
     '@context': 'https://schema.org',
-    '@type': 'AggregateRating',
+    '@type': 'Place',
+    '@id': `${BASE_URL}/#place`,
+    name: 'Sozim College - Bloemfontein Campus',
+    url: `${BASE_URL}/campus`,
+    description: 'Sozim College campus in Bloemfontein, Free State. Face-to-face contact learning facilities for accredited education and training programmes.',
 
-    ratingValue: params.ratingValue,
-    reviewCount: params.reviewCount,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: 'Shop 4, Sunday School Building, 154 Charlotte Maxeke Street',
+      addressLocality: 'Bloemfontein',
+      addressRegion: 'Free State',
+      postalCode: '9301',
+      addressCountry: 'ZA',
+    },
 
-    bestRating: '5',
-    worstRating: '1',
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: -29.1167,
+      longitude: 26.2167,
+    },
+
+    hasMap: 'https://maps.google.com/?q=Sozim+College,+154+Charlotte+Maxeke+Street,+Bloemfontein',
+
+    telephone: '+27836680104',
+
+    openingHoursSpecification: [
+      {
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+        opens: '08:00',
+        closes: '17:00',
+      },
+      {
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: ['Saturday'],
+        opens: '09:00',
+        closes: '13:00',
+      },
+    ],
+
+    amenityFeature: [
+      { '@type': 'LocationFeatureSpecification', name: 'Classrooms', value: true },
+      { '@type': 'LocationFeatureSpecification', name: 'Computer Labs', value: true },
+      { '@type': 'LocationFeatureSpecification', name: 'Student Lounge', value: true },
+      { '@type': 'LocationFeatureSpecification', name: 'Wi-Fi', value: true },
+      { '@type': 'LocationFeatureSpecification', name: 'Student Support Services', value: true },
+    ],
+
+    containedInPlace: {
+      '@type': 'CivicStructure',
+      name: 'Sunday School Building',
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: 'Bloemfontein',
+        addressRegion: 'Free State',
+        addressCountry: 'ZA',
+      },
+    },
   }
+}
+
+/* =========================
+   DEFINED TERM (AEO - entity definitions for AI engines)
+========================= */
+export function getDefinedTermSchema(terms: {
+  name: string
+  description: string
+  url?: string
+  sameAs?: string[]
+}[]) {
+  return terms.map((term) => ({
+    '@context': 'https://schema.org',
+    '@type': 'DefinedTerm',
+    name: term.name,
+    description: term.description,
+    ...(term.url && { url: term.url }),
+    ...(term.sameAs && { sameAs: term.sameAs }),
+    inDefinedTermSet: {
+      '@type': 'DefinedTermSet',
+      name: 'Sozim Education Glossary',
+      url: `${BASE_URL}/about`,
+    },
+  }))
 }
 
 /* =========================
@@ -427,9 +709,17 @@ export function getPersonSchema(params: {
 
     ...(params.credentials && {
       knowsAbout: params.credentials.qualifications,
+      hasCredential: params.credentials.qualifications.map((q) => ({
+        '@type': 'EducationalOccupationalCredential',
+        name: q,
+      })),
     }),
 
     memberOf: {
+      '@id': `${BASE_URL}/#organization`,
+    },
+
+    worksFor: {
       '@id': `${BASE_URL}/#organization`,
     },
   }
@@ -452,7 +742,6 @@ export function getEducationalOccupationalCredentialSchema(params: {
     name: params.name,
     description: params.description,
     credentialCategory: params.credentialCategory,
-
     url: params.url || `${BASE_URL}/courses`,
 
     ...(params.recognizedBy && {
@@ -461,6 +750,10 @@ export function getEducationalOccupationalCredentialSchema(params: {
         name: org,
       })),
     }),
+
+    awardedBy: {
+      '@id': `${BASE_URL}/#organization`,
+    },
   }
 }
 
@@ -471,6 +764,7 @@ export function getHowToSchema(params: {
   name: string
   description: string
   steps: { name: string; text: string }[]
+  totalTime?: string
 }) {
   return {
     '@context': 'https://schema.org',
@@ -478,6 +772,7 @@ export function getHowToSchema(params: {
 
     name: params.name,
     description: params.description,
+    ...(params.totalTime && { totalTime: params.totalTime }),
 
     step: params.steps.map((step, index) => ({
       '@type': 'HowToStep',
@@ -489,7 +784,7 @@ export function getHowToSchema(params: {
 }
 
 /* =========================
-   SPEAKABLE
+   SPEAKABLE (standalone)
 ========================= */
 export function getSpeakableSchema(params: {
   headline: string
@@ -503,5 +798,22 @@ export function getSpeakableSchema(params: {
       '@type': 'SpeakableSpecification',
       cssSelector: params.speakableText,
     },
+  }
+}
+
+/* =========================
+   AGGREGATE RATING (standalone — use inside Organization/LocalBusiness)
+========================= */
+export function getAggregateRatingSchema(params: {
+  ratingValue: string
+  reviewCount: string
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'AggregateRating',
+    ratingValue: params.ratingValue,
+    reviewCount: params.reviewCount,
+    bestRating: '5',
+    worstRating: '1',
   }
 }

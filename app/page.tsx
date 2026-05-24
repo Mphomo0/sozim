@@ -9,24 +9,18 @@ import {
   getEventSchema,
   getBreadcrumbSchema,
   getWebPageSchema,
-  getAggregateRatingSchema,
-  getSpeakableSchema,
+  getDefinedTermSchema,
 } from '@/lib/seo/schemas'
 
 const BASE_URL = 'https://www.sozim.co.za'
 
 export const metadata: Metadata = {
   title: 'Sozim | Accredited Education & Training College Bloemfontein',
-description:
-      'Accredited education and training college in Bloemfontein. Enrol in accredited programmes in LIS and ETD.',
-  authors: [{ name: 'Sozim Team' }],
-  other: {
-    author: 'Sozim Team',
-    published: '2026-03-28',
-    modified: '2026-03-28',
-  },
+  description:
+    'Accredited education and training college in Bloemfontein, South Africa. Enrol in ETDP SETA accredited programmes in Library and Information Science (LIS) and Education Training and Development (ETD).',
+  authors: [{ name: 'Sozim Trading and Consultancy' }],
   keywords: [
-    'Accredited Education and Training Programmes',
+    'accredited education and training college Bloemfontein',
     'training courses South Africa',
     'accredited education Bloemfontein',
     'training college Bloemfontein',
@@ -34,16 +28,19 @@ description:
     'skills development Bloemfontein',
     'career development courses',
     'online education Bloemfontein',
-    'accredited college Bloemfontein',
+    'ETDP SETA accredited college',
+    'SAQA registered courses',
+    'Library and Information Science courses South Africa',
+    'ETD courses South Africa',
   ],
   openGraph: {
-    title:
-      'Sozim | Accredited Education and Training College in Bloemfontein, South Africa',
+    title: 'Sozim | Accredited Education and Training College in Bloemfontein, South Africa',
     description:
-      'Accredited education and training college in Bloemfontein, South Africa. Enrol for training courses and professional training.',
+      'Accredited education and training college in Bloemfontein, South Africa. ETDP SETA accredited LIS and ETD programmes.',
     url: BASE_URL,
     siteName: 'Sozim',
     type: 'website',
+    locale: 'en_ZA',
     images: [
       {
         url: '/og-image.jpg',
@@ -53,6 +50,13 @@ description:
         type: 'image/jpeg',
       },
     ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Sozim | Accredited Education & Training College Bloemfontein',
+    description: 'ETDP SETA accredited LIS and ETD programmes in Bloemfontein, South Africa.',
+    images: ['/og-image.jpg'],
+    site: '@sozimtrading',
   },
   alternates: {
     canonical: BASE_URL,
@@ -65,55 +69,75 @@ const homepageFAQs = [
   {
     question: 'What courses does Sozim offer?',
     answer:
-      'Sozim offers accredited programmes in Library and Information Science (LIS), Education Training and Development (ETD), and professional skills courses. Our courses include Library Assistant, Learning and Development Facilitator, Assessment Practitioner, and professional development programmes ranging from beginner to advanced levels.',
+      'Sozim offers ETDP SETA accredited programmes in Library and Information Science (LIS) and Education Training and Development (ETD). Specific programmes include Library Assistant (NQF 3), Learning and Development Facilitator, Assessment Practitioner, and professional skills development courses.',
   },
   {
-    question: 'Is Sozim Accredited?',
+    question: 'Is Sozim accredited?',
     answer:
-      'Yes, Sozim is an accredited education provider in Bloemfontein. Our programmes are ETDP SETA accredited and QCTO registered, designed to meet South African Qualifications Authority (SAQA) standards, ensuring our students receive recognised and valuable credentials.',
+      'Yes. Sozim is accredited by the ETDP SETA, registered with the QCTO, and aligned to SAQA standards. Our qualifications are nationally recognised in South Africa and appear on the National Qualifications Framework (NQF).',
   },
   {
     question: 'How do I enrol in a Sozim course?',
     answer:
-      'To enrol, you can submit an enquiry through our website, call us on (+27) 83 668 0104, or visit our campus in Bloemfontein. Our admissions team will guide you through the application process, discuss programme options, and help you select the course that best matches your career goals.',
+      'You can apply online at sozim.co.za/apply, call us on (+27) 83 668 0104, or email admin@sozim.co.za. Intakes run in January, April, July, and October. The application process takes 5–7 business days.',
   },
   {
     question: 'Where is Sozim located?',
     answer:
-      'Our main campus is located at Shop 4, Sunday School Building, 154 Charlotte Maxeke Street, Bloemfontein, Free State, 9301. We also offer online learning options, making our programmes accessible to students across South Africa.',
+      'Sozim is located at Shop 4, Sunday School Building, 154 Charlotte Maxeke Street, Bloemfontein, Free State, 9301, South Africa. We are open Monday to Friday 08:00–17:00 and Saturday 09:00–13:00.',
   },
   {
     question: 'Do you offer online courses?',
     answer:
-      'Yes, we offer online learning options for most of our programmes. Our virtual learning environment provides comprehensive curriculum, interactive materials, online assessments, and instructor support. Online students enjoy the same quality education as our in-person learners with maximum flexibility.',
+      'Yes. Sozim offers online learning for most programmes. Online students access the same accredited curriculum, assessments, and instructor support as campus students, with flexible scheduling suited to working professionals.',
   },
   {
     question: 'How much do courses cost at Sozim?',
     answer:
-      'Course fees vary depending on the programme length, accreditation level, and delivery format. We offer competitive pricing for South African students and provide payment plan options for certain courses. Contact our admissions team for detailed fee structures.',
+      'Course fees are quoted in South African Rand (ZAR) and vary by programme length and level. Flexible payment plans are available. Contact admin@sozim.co.za or call (+27) 83 668 0104 for a detailed fee schedule.',
   },
 ]
 
+// Key terms for AEO — helps AI engines understand entities
+const keyTerms = getDefinedTermSchema([
+  {
+    name: 'LIS',
+    description:
+      'Library and Information Science (LIS) is an interdisciplinary field covering the theory and practice of managing, organising, and disseminating information. At Sozim, LIS programmes include Library Assistant qualifications aligned to the NQF.',
+    url: `${BASE_URL}/courses`,
+    sameAs: ['https://en.wikipedia.org/wiki/Library_and_information_science'],
+  },
+  {
+    name: 'ETD',
+    description:
+      'Education Training and Development (ETD) is a field focused on facilitating learning, assessing competence, and developing human capital in South Africa. ETD practitioners work as facilitators, assessors, moderators, and instructional designers.',
+    url: `${BASE_URL}/courses`,
+    sameAs: ['https://en.wikipedia.org/wiki/Training_and_development'],
+  },
+  {
+    name: 'ETDP SETA',
+    description:
+      'The Education, Training and Development Practices Sector Education and Training Authority (ETDP SETA) is a South African statutory body that accredits training providers in the education and development sector. Sozim is ETDP SETA accredited.',
+    sameAs: ['https://www.etdpseta.org.za'],
+  },
+  {
+    name: 'SAQA',
+    description:
+      'The South African Qualifications Authority (SAQA) oversees the National Qualifications Framework (NQF), ensuring qualifications are registered and nationally recognised. All Sozim programmes are SAQA aligned.',
+    sameAs: ['https://www.saqa.org.za'],
+  },
+])
+
 export default function Home() {
   const faqSchema = getFAQSchema(homepageFAQs)
-  const breadcrumbSchema = getBreadcrumbSchema([
-    { name: 'Home', url: BASE_URL },
-  ])
+  const breadcrumbSchema = getBreadcrumbSchema([{ name: 'Home', url: BASE_URL }])
   const webPageSchema = getWebPageSchema({
     name: 'Sozim | Accredited Education and Training College in Bloemfontein',
     description:
-      'Accredited education and training college in Bloemfontein, South Africa. Enrol for training courses and professional training.',
+      'Accredited education and training college in Bloemfontein, South Africa. ETDP SETA accredited LIS and ETD programmes.',
     url: BASE_URL,
-    speakable: ['h1', 'h2', 'p'],
+    speakable: ['h1', '.hero-description', 'h2'],
     breadcrumb: [{ name: 'Home', url: BASE_URL }],
-  })
-  const aggregateRatingSchema = getAggregateRatingSchema({
-    ratingValue: '4.8',
-    reviewCount: '127',
-  })
-  const speakableSchema = getSpeakableSchema({
-    headline: 'Accredited Education and Training College in Bloemfontein',
-    speakableText: ['h1', 'h2', 'p'],
   })
 
   return (
@@ -134,16 +158,13 @@ export default function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageSchema) }}
       />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(aggregateRatingSchema),
-        }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(speakableSchema) }}
-      />
+      {keyTerms.map((term, i) => (
+        <script
+          key={i}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(term) }}
+        />
+      ))}
       <Hero />
       <Stats />
       <Featured />

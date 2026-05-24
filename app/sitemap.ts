@@ -1,8 +1,23 @@
 import { MetadataRoute } from 'next'
+import { fetchQuery } from 'convex/nextjs'
+import { api } from '@/convex/_generated/api'
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://www.sozim.co.za'
   const lastModified = new Date()
+
+  let coursePages: MetadataRoute.Sitemap = []
+  try {
+    const courses = await fetchQuery(api.courses.getCourses)
+    coursePages = courses.map((course) => ({
+      url: `${baseUrl}/courses/${course._id}`,
+      lastModified,
+      changeFrequency: 'monthly' as const,
+      priority: 0.8,
+    }))
+  } catch {
+    // sitemap still generates without course pages if Convex is unreachable
+  }
 
   return [
     {
@@ -23,6 +38,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'weekly',
       priority: 0.9,
     },
+    ...coursePages,
     {
       url: `${baseUrl}/career-pathway`,
       lastModified,
@@ -65,8 +81,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'weekly',
       priority: 0.9,
     },
-
-
     {
       url: `${baseUrl}/call-me-back`,
       lastModified,

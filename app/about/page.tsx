@@ -116,7 +116,13 @@ export default function About() {
     description:
       'Discover the story, mission and values behind Sozim, an accredited education and training college in Bloemfontein.',
     url: `${BASE_URL}/about`,
+    type: 'AboutPage',
     lastModified: '2026-03-28',
+    speakable: ['h1', 'h2', 'p'],
+    breadcrumb: [
+      { name: 'Home', url: BASE_URL },
+      { name: 'About Us', url: `${BASE_URL}/about` },
+    ],
   })
 
   const leadershipTeam = [

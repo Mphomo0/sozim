@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import CampusCard from '@/components/global/CampusCard'
 import PageHeader from '@/components/global/PageHeader'
 import Breadcrumb from '@/components/global/Breadcrumb'
-import { getFAQSchema, getBreadcrumbSchema } from '@/lib/seo/schemas'
+import { getFAQSchema, getBreadcrumbSchema, getPlaceSchema, getWebPageSchema } from '@/lib/seo/schemas'
 
 const BASE_URL = 'https://www.sozim.co.za'
 
@@ -79,6 +79,17 @@ export default function CampusPage() {
     { name: 'Home', url: BASE_URL },
     { name: 'Our Campus', url: `${BASE_URL}/campus` },
   ])
+  const placeSchema = getPlaceSchema()
+  const webPageSchema = getWebPageSchema({
+    name: 'Campus Locations | Sozim Trading & Consultancy',
+    description: 'Visit Sozim campuses in South Africa. Our Bloemfontein campus offers face-to-face education, professional training facilities, and dedicated student support.',
+    url: `${BASE_URL}/campus`,
+    speakable: ['h1', 'h2', 'p'],
+    breadcrumb: [
+      { name: 'Home', url: BASE_URL },
+      { name: 'Our Campus', url: `${BASE_URL}/campus` },
+    ],
+  })
 
   return (
     <>
@@ -89,6 +100,14 @@ export default function CampusPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(placeSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageSchema) }}
       />
       <Breadcrumb />
       <PageHeader

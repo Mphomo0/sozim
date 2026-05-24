@@ -77,6 +77,7 @@ export default function Contact() {
     description: 'Contact Sozim in Bloemfontein for course enquiries and student support.',
     url: `${BASE_URL}/contact`,
     lastModified: '2026-03-28',
+    type: 'ContactPage',
     breadcrumb: [
       { name: 'Home', url: BASE_URL },
       { name: 'Contact Us', url: `${BASE_URL}/contact` },

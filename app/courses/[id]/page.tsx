@@ -2,53 +2,128 @@ import type { Metadata } from 'next'
 import CourseDetail from '@/components/sections/programs/CourseDetail'
 import PageHeader from '@/components/global/PageHeader'
 import { getBreadcrumbSchema, getCourseSchema } from '@/lib/seo/schemas'
+import { fetchQuery } from 'convex/nextjs'
+import { api } from '@/convex/_generated/api'
+import type { Id } from '@/convex/_generated/dataModel'
 
 const BASE_URL = 'https://www.sozim.co.za'
 
-export const metadata: Metadata = {
-  title: 'Course Details | Sozim - Accredited Education & Training College',
-  description:
-    'View detailed information about our accredited programmes in LIS and ETD. Enrol in courses that advance your career.',
-  keywords: [
-    'course details',
-    'accredited programmes',
-    'LIS courses',
-    'ETD courses',
-    'Bloemfontein training',
-    'SAQA courses',
-  ],
-  openGraph: {
-    title: 'Course Details | Sozim - Accredited Education and Training College',
-    description:
-      'View detailed information about our accredited programmes in LIS and ETD.',
-    url: `${BASE_URL}/courses`,
-    siteName: 'Sozim',
-    type: 'website',
-    images: [
-      {
-        url: '/og-image.jpg',
-        width: 1200,
-        height: 630,
-        alt: 'Course Details - Sozim',
-        type: 'image/jpeg',
-      },
-    ],
-  },
-  alternates: {
-    canonical: `${BASE_URL}/courses`,
-  },
+export async function generateStaticParams() {
+  try {
+    const courses = await fetchQuery(api.courses.getCourses)
+    return courses.map((course) => ({ id: course._id }))
+  } catch {
+    return []
+  }
 }
 
-export default function SingleCourse() {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}): Promise<Metadata> {
+  const { id } = await params
+  const isConvexId = id && id.length === 32
+
+  if (!isConvexId) {
+    return {
+      title: 'Course Not Found | Sozim',
+      robots: { index: false, follow: false },
+    }
+  }
+
+  try {
+    const course = await fetchQuery(api.courses.getCourseById, {
+      id: id as Id<'courses'>,
+    })
+
+    if (!course) {
+      return {
+        title: 'Course Not Found | Sozim',
+        robots: { index: false, follow: false },
+      }
+    }
+
+    const courseUrl = `${BASE_URL}/courses/${id}`
+    const title = `${course.name} | Sozim`
+    const description =
+      course.description ||
+      `Learn about ${course.name} at Sozim, an accredited education and training college in Bloemfontein.`
+
+    return {
+      title,
+      description,
+      keywords: [
+        course.name,
+        'accredited course South Africa',
+        'Bloemfontein training',
+        'SAQA course',
+        course.level || '',
+        'Sozim College',
+      ].filter(Boolean),
+      openGraph: {
+        title,
+        description,
+        url: courseUrl,
+        siteName: 'Sozim',
+        type: 'website',
+        images: [
+          {
+            url: '/og-image.jpg',
+            width: 1200,
+            height: 630,
+            alt: `${course.name} - Sozim`,
+            type: 'image/jpeg',
+          },
+        ],
+      },
+      alternates: {
+        canonical: courseUrl,
+      },
+    }
+  } catch {
+    return {
+      title: 'Course Details | Sozim - Accredited Education & Training College',
+      description:
+        'View detailed information about our accredited programmes in LIS and ETD.',
+    }
+  }
+}
+
+export default async function SingleCourse({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
+  const { id } = await params
+  const isConvexId = id && id.length === 32
+
+  let initialCourse = null
+  if (isConvexId) {
+    try {
+      initialCourse = await fetchQuery(api.courses.getCourseById, {
+        id: id as Id<'courses'>,
+      })
+    } catch {
+      // fall through — CourseDetail handles the null case
+    }
+  }
+
+  const courseUrl = `${BASE_URL}/courses/${id}`
+  const courseName = initialCourse?.name || 'Course Details'
+  const courseDescription =
+    initialCourse?.description ||
+    'Accredited programmes in LIS and ETD at Sozim College.'
+
   const breadcrumbSchema = getBreadcrumbSchema([
     { name: 'Home', url: BASE_URL },
     { name: 'Courses', url: `${BASE_URL}/courses` },
-    { name: 'Course Details', url: `${BASE_URL}/courses` },
+    { name: courseName, url: courseUrl },
   ])
   const courseSchema = getCourseSchema({
-    name: 'Accredited Education and Training Programmes',
-    description: 'Accredited programmes in LIS and ETD at Sozim College.',
-    url: `${BASE_URL}/courses`,
+    name: courseName,
+    description: courseDescription,
+    url: courseUrl,
   })
 
   return (
@@ -62,10 +137,10 @@ export default function SingleCourse() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(courseSchema) }}
       />
       <PageHeader
-        title="Course Details"
+        title={courseName}
         details="Choose from our wide range of industry-recognized programs designed to advance your career."
       />
-      <CourseDetail />
+      <CourseDetail initialCourse={initialCourse} />
     </>
   )
 }

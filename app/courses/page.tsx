@@ -9,31 +9,37 @@ import {
   getWebPageSchema,
   getArticleSchema,
   getEducationalOccupationalCredentialSchema,
+  getItemListSchema,
 } from '@/lib/seo/schemas'
+import { fetchQuery } from 'convex/nextjs'
+import { api } from '@/convex/_generated/api'
 
 const BASE_URL = 'https://www.sozim.co.za'
 
 export const metadata: Metadata = {
-  title: 'Courses | Sozim - Accredited Education & Training College',
+  title: 'Courses | Sozim - Accredited Education & Training College Bloemfontein',
   description:
-    'Explore accredited courses at Sozim, an education and training college in Bloemfontein. Enrol in LIS and ETD programmes.',
+    'Explore ETDP SETA accredited courses at Sozim in Bloemfontein. Enrol in Library and Information Science (LIS) and Education Training and Development (ETD) programmes.',
   keywords: [
-    'Colleges in Bloemfontein',
-    'SAQA accredited courses Bloemfontein',
+    'accredited courses Bloemfontein',
+    'SAQA accredited courses South Africa',
     'library and information science courses',
     'ETD courses South Africa',
+    'LIS programmes Bloemfontein',
+    'ETDP SETA accredited training',
     'career development programs',
     'online courses South Africa',
-    'accredited training college',
-    'skills development courses',
+    'accredited training college Bloemfontein',
+    'skills development courses Free State',
   ],
   openGraph: {
     title: 'Courses | Sozim - Accredited Education and Training College',
     description:
-      'Explore accredited courses at Sozim, an education and training college in Bloemfontein. Enrol in LIS and ETD programmes.',
+      'Explore ETDP SETA accredited courses at Sozim in Bloemfontein. Enrol in LIS and ETD programmes.',
     url: `${BASE_URL}/courses`,
     siteName: 'Sozim',
     type: 'website',
+    locale: 'en_ZA',
     images: [
       {
         url: '/og-image.jpg',
@@ -44,69 +50,84 @@ export const metadata: Metadata = {
       },
     ],
   },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Courses | Sozim - Accredited Education & Training College',
+    description: 'ETDP SETA accredited LIS and ETD courses in Bloemfontein.',
+    images: ['/og-image.jpg'],
+  },
   alternates: {
     canonical: `${BASE_URL}/courses`,
   },
-  authors: [{ name: 'Sozim Team' }],
-  other: {
-    author: 'Sozim Team',
-    published: '2026-03-28',
-    modified: '2026-03-28',
-  },
 }
-
-const courseSchema = getCourseSchema({
-  name: 'Accredited Education and Training Programmes',
-  description:
-    'Accredited education and training programmes at Sozim in Bloemfontein. LIS and ETD programmes for career advancement.',
-  url: `${BASE_URL}/courses`,
-})
 
 const courseFAQs = [
   {
     question: 'What courses does Sozim offer?',
     answer:
-      'Sozim offers accredited programmes in Library and Information Science (LIS), Education Training and Development (ETD), and professional skills courses. Our courses include Library Assistant, Learning and Development Facilitator, Assessment Practitioner, and professional development programmes ranging from beginner to advanced levels.',
+      'Sozim offers ETDP SETA accredited programmes in Library and Information Science (LIS) and Education Training and Development (ETD). Courses include Library Assistant (NQF 3), Learning and Development Facilitator, Assessment Practitioner, and professional skills development programmes.',
   },
   {
     question: 'Are Sozim courses accredited in South Africa?',
     answer:
-      'Yes, our programmes are ETDP SETA accredited and QCTO registered, designed to meet South African Qualifications Authority (SAQA) standards. Upon successful completion, students receive accredited credentials that are recognised by employers and institutions across South Africa.',
+      'Yes. All Sozim programmes are accredited by the ETDP SETA, registered with the QCTO, and aligned to SAQA standards. Graduates receive certificates recognised by South African employers and institutions.',
   },
   {
-    question: 'How long do courses take to complete?',
+    question: 'How long do Sozim courses take to complete?',
     answer:
-      'Course duration varies depending on the programme selected. Short certificate courses can be completed in 4-8 weeks, while more comprehensive programmes may run for 3-6 months. We offer both full-time and part-time study options, as well as online learning formats to accommodate different schedules.',
+      'Short certificate courses take 4–8 weeks. Comprehensive accredited programmes run 3–6 months. Both full-time and part-time options are available, along with online and contact learning formats.',
   },
   {
-    question: 'Do I receive a certificate after completing a course?',
+    question: 'Do I receive a certificate after completing a Sozim course?',
     answer:
-      'Yes, students who successfully complete any of our programmes receive a certificate of completion. Accredited programmes also qualify for SAQA-registered credentials that can be used for employment, further education, or professional development. Certificates are issued upon meeting all course requirements.',
+      'Yes. Graduates receive a certificate of completion. Accredited programmes also qualify for SAQA-registered credentials recognised for employment, further education, and professional development.',
   },
   {
-    question:
-      'Can I study courses online from anywhere in South Africa?',
+    question: 'Can I study online from anywhere in South Africa?',
     answer:
-      'Yes. Sozim offers online learning options for most of our programmes, making quality education accessible to students across South Africa. Our virtual learning environment provides the same comprehensive curriculum as our in-person courses, with flexible scheduling to suit working professionals and full-time students.',
+      'Yes. Sozim offers online learning for most programmes. The virtual learning environment delivers the same accredited curriculum as campus courses, with flexible scheduling for working professionals.',
   },
   {
     question: 'What are the entry requirements for Sozim courses?',
     answer:
-      'Entry requirements vary by course level. Beginner courses typically have no formal prerequisites. Advanced programmes may require foundational knowledge or prior completion of introductory courses. Check individual course pages for specific requirements.',
+      'Beginner courses have no formal prerequisites. Advanced programmes may require prior study or foundational knowledge. Check individual course pages for specific requirements.',
   },
   {
     question: 'Do you offer career support after completing a course?',
     answer:
-      'While we do not guarantee job placement, we provide comprehensive career guidance and support. Our programmes include access to career pathway resources, industry connections, and professional development support. Some advanced courses may include mentorship components.',
+      'Yes. Sozim provides career pathway guidance, professional development resources, and industry connections. Our career pathways section outlines progression routes from each programme into employment.',
   },
   {
-    question: 'How much do courses cost at Sozim?',
+    question: 'How much do Sozim courses cost?',
     answer:
-      'Course fees vary depending on the programme length and accreditation level. We offer competitive pricing for South African students and provide payment plan options for certain courses. Contact our admissions team for detailed fee structures.',
+      'Fees are quoted in ZAR and vary by programme level and duration. Flexible payment plans are available. Contact admin@sozim.co.za or call (+27) 83 668 0104 for a fee schedule.',
   },
 ]
 
-export default function CoursesPage() {
+export default async function CoursesPage() {
+  const [initialCourses, initialCategories] = await Promise.all([
+    fetchQuery(api.courses.getCourses),
+    fetchQuery(api.categories.getCategories),
+  ])
+
+  const courseSchema = getCourseSchema({
+    name: 'Accredited Education and Training Programmes',
+    description:
+      'ETDP SETA accredited education and training programmes at Sozim in Bloemfontein. LIS and ETD programmes for career advancement.',
+    url: `${BASE_URL}/courses`,
+  })
+
+  // Dynamic ItemList from real course data — tells Google exactly what courses exist
+  const itemListSchema = initialCourses.length > 0
+    ? getItemListSchema(
+        initialCourses.map((course) => ({
+          name: course.name,
+          url: `${BASE_URL}/courses/${course._id}`,
+          description: course.description,
+        }))
+      )
+    : null
+
   const faqSchema = getFAQSchema(courseFAQs)
   const breadcrumbSchema = getBreadcrumbSchema([
     { name: 'Home', url: BASE_URL },
@@ -115,33 +136,33 @@ export default function CoursesPage() {
   const webPageSchema = getWebPageSchema({
     name: 'Courses | Sozim - Accredited Education and Training College',
     description:
-      'Explore accredited courses at Sozim in Bloemfontein. Enrol in LIS and ETD programmes.',
+      'Explore ETDP SETA accredited courses at Sozim in Bloemfontein. Enrol in LIS and ETD programmes.',
     url: `${BASE_URL}/courses`,
-    lastModified: '2026-03-28',
+    type: 'CollectionPage',
+    speakable: ['h1', 'h2'],
     breadcrumb: [
       { name: 'Home', url: BASE_URL },
       { name: 'Courses', url: `${BASE_URL}/courses` },
     ],
-    speakable: ['h1', 'h2', 'p'],
   })
   const articleSchema = getArticleSchema({
-    headline: 'Accredited Courses - Education and Training College',
+    headline: 'Accredited Courses - Education and Training College Bloemfontein',
     description:
-      'Explore accredited courses at Sozim in Bloemfontein. Enrol in LIS and ETD programmes.',
-    author: 'Sozim Team',
+      'Explore ETDP SETA accredited courses at Sozim in Bloemfontein. Enrol in LIS and ETD programmes.',
     datePublished: '2026-03-28',
-    dateModified: '2026-03-28',
+    dateModified: '2026-05-24',
     url: `${BASE_URL}/courses`,
     keywords: [
       'courses South Africa',
       'accredited courses Bloemfontein',
+      'LIS courses',
+      'ETD courses',
       'training college',
     ],
   })
   const credentialSchema = getEducationalOccupationalCredentialSchema({
     name: 'Accredited Education and Training Programmes',
-    description:
-      'Accredited programmes recognised by ETDP SETA, QCTO and SAQA.',
+    description: 'Accredited programmes recognised by ETDP SETA, QCTO and SAQA.',
     credentialCategory: 'Professional Certificate',
     url: `${BASE_URL}/courses`,
     recognizedBy: ['ETDP SETA', 'QCTO', 'SAQA'],
@@ -153,6 +174,12 @@ export default function CoursesPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(courseSchema) }}
       />
+      {itemListSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
+        />
+      )}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
@@ -178,7 +205,7 @@ export default function CoursesPage() {
         title="Our Programs"
         details="Choose from our wide range of industry-recognized programs designed to advance your career."
       />
-      <OurPrograms />
+      <OurPrograms initialCourses={initialCourses} initialCategories={initialCategories} />
     </>
   )
 }

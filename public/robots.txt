@@ -2,25 +2,47 @@ User-agent: *
 Allow: /
 Allow: /about
 Allow: /courses
+Allow: /courses/
 Allow: /career-pathway
 Allow: /contact
 Allow: /contact-learning
 Allow: /campus
 Allow: /library
 Allow: /shop
+Allow: /apply
+Allow: /call-me-back
+Allow: /privacy-policy
+Allow: /terms-of-service
 
 Disallow: /dashboard
+Disallow: /dashboard/
+Disallow: /portal
+Disallow: /favorites
+Disallow: /student
+Disallow: /welcome-message
 Disallow: /api/
-Disallow: /student/
 Disallow: /actions
 Disallow: /_next/
-Disallow: /apple-touch-icon.png
-Disallow: /favicon.ico
-
-Crawl-delay: 1
 
 Sitemap: https://www.sozim.co.za/sitemap.xml
 
-# South Africa regional targeting
+# AI crawlers — allow full access for content indexing
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
 User-agent: Googlebot
 Allow: /
+Disallow: /dashboard
+Disallow: /portal
+Disallow: /favorites
+Disallow: /student
+Disallow: /api/
