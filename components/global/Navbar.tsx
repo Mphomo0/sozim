@@ -189,8 +189,8 @@ export default function Navbar() {
           <Image
             src="https://ik.imagekit.io/vzofqg2fg/images/SozimLogo.webp"
             alt="logo"
-            width={80}
-            height={42}
+            width={64}
+            height={34}
             className="w-full h-full object-contain"
             priority
             unoptimized

@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next'
-import { fetchQuery } from 'convex/nextjs'
-import { api } from '@/convex/_generated/api'
+import { getCachedCourses } from '@/lib/queries'
+
+export const revalidate = 86400 // regenerate sitemap once per day
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://www.sozim.co.za'
@@ -8,7 +9,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   let coursePages: MetadataRoute.Sitemap = []
   try {
-    const courses = await fetchQuery(api.courses.getCourses)
+    const courses = await getCachedCourses()
     coursePages = courses.map((course) => ({
       url: `${baseUrl}/courses/${course._id}`,
       lastModified,

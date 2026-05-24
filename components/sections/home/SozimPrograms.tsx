@@ -1,19 +1,17 @@
-'use client'
-
-import { useState } from 'react'
 import { BookOpen } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import { useQuery } from 'convex/react'
-import { api } from '@/convex/_generated/api'
+import type { Doc } from '@/convex/_generated/dataModel'
 
-export default function SozimPrograms() {
-  const coursesRaw = useQuery(api.courses.getCourses)
-  const categoriesRaw = useQuery(api.categories.getCategories)
+interface Props {
+  initialCourses: Doc<'courses'>[]
+  initialCategories: Doc<'courseCategories'>[]
+}
 
-  const programs = coursesRaw || []
-  const categories = categoriesRaw || []
+export default function SozimPrograms({ initialCourses, initialCategories }: Props) {
+  const programs = initialCourses
+  const categories = initialCategories
 
   const getCategoryName = (course: any) => {
     const cat = categories.find(

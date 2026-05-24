@@ -11,8 +11,9 @@ import {
   getEducationalOccupationalCredentialSchema,
   getItemListSchema,
 } from '@/lib/seo/schemas'
-import { fetchQuery } from 'convex/nextjs'
-import { api } from '@/convex/_generated/api'
+import { getCachedCourses, getCachedCategories } from '@/lib/queries'
+
+export const revalidate = 1800 // re-render at most once per 30 min
 
 const BASE_URL = 'https://www.sozim.co.za'
 
@@ -106,8 +107,8 @@ const courseFAQs = [
 
 export default async function CoursesPage() {
   const [initialCourses, initialCategories] = await Promise.all([
-    fetchQuery(api.courses.getCourses),
-    fetchQuery(api.categories.getCategories),
+    getCachedCourses(),
+    getCachedCategories(),
   ])
 
   const courseSchema = getCourseSchema({

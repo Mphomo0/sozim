@@ -9,11 +9,15 @@ export default function SyncUserWithConvex() {
   const { user, isLoaded, isSignedIn } = useUser()
   const convexUser = useQuery(
     api.users.getUserByClerkId,
-    user?.id ? { clerkId: user.id } : "skip"
+    user?.id ? { clerkId: user.id } : 'skip',
   )
+  // Only run the email lookup when the clerkId query returned null (not undefined=loading).
+  // This avoids a redundant Convex subscription for the majority of users who are already synced.
   const convexUserByEmail = useQuery(
     api.users.getUserByEmail,
-    user?.primaryEmailAddress?.emailAddress ? { email: user.primaryEmailAddress.emailAddress } : "skip"
+    convexUser === null && user?.primaryEmailAddress?.emailAddress
+      ? { email: user.primaryEmailAddress.emailAddress }
+      : 'skip',
   )
   const createUser = useMutation(api.users.createUser)
   const updateUser = useMutation(api.users.updateUser)

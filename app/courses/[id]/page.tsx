@@ -2,15 +2,16 @@ import type { Metadata } from 'next'
 import CourseDetail from '@/components/sections/programs/CourseDetail'
 import PageHeader from '@/components/global/PageHeader'
 import { getBreadcrumbSchema, getCourseSchema } from '@/lib/seo/schemas'
-import { fetchQuery } from 'convex/nextjs'
-import { api } from '@/convex/_generated/api'
+import { getCachedCourses, getCachedCourseById } from '@/lib/queries'
 import type { Id } from '@/convex/_generated/dataModel'
 
 const BASE_URL = 'https://www.sozim.co.za'
 
+export const revalidate = 3600 // re-render at most once per hour
+
 export async function generateStaticParams() {
   try {
-    const courses = await fetchQuery(api.courses.getCourses)
+    const courses = await getCachedCourses()
     return courses.map((course) => ({ id: course._id }))
   } catch {
     return []
@@ -33,9 +34,7 @@ export async function generateMetadata({
   }
 
   try {
-    const course = await fetchQuery(api.courses.getCourseById, {
-      id: id as Id<'courses'>,
-    })
+    const course = await getCachedCourseById(id as Id<'courses'>)
 
     if (!course) {
       return {
@@ -101,9 +100,9 @@ export default async function SingleCourse({
   let initialCourse = null
   if (isConvexId) {
     try {
-      initialCourse = await fetchQuery(api.courses.getCourseById, {
-        id: id as Id<'courses'>,
-      })
+      // getCachedCourseById deduplicates with the generateMetadata call above —
+      // Convex is only queried once per request regardless.
+      initialCourse = await getCachedCourseById(id as Id<'courses'>)
     } catch {
       // fall through — CourseDetail handles the null case
     }

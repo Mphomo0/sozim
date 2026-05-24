@@ -11,6 +11,9 @@ import {
   getWebPageSchema,
   getDefinedTermSchema,
 } from '@/lib/seo/schemas'
+import { getCachedCourses, getCachedCategories } from '@/lib/queries'
+
+export const revalidate = 3600 // regenerate homepage at most once per hour
 
 const BASE_URL = 'https://www.sozim.co.za'
 
@@ -128,7 +131,11 @@ const keyTerms = getDefinedTermSchema([
   },
 ])
 
-export default function Home() {
+export default async function Home() {
+  const [initialCourses, initialCategories] = await Promise.all([
+    getCachedCourses(),
+    getCachedCategories(),
+  ])
   const faqSchema = getFAQSchema(homepageFAQs)
   const breadcrumbSchema = getBreadcrumbSchema([{ name: 'Home', url: BASE_URL }])
   const webPageSchema = getWebPageSchema({
@@ -168,7 +175,7 @@ export default function Home() {
       <Hero />
       <Stats />
       <Featured />
-      <SozimPrograms />
+      <SozimPrograms initialCourses={initialCourses} initialCategories={initialCategories} />
       <CTA />
     </div>
   )

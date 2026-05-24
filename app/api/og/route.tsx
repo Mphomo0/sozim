@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
   const title = searchParams.get('title') || 'Sozim Trading and Consultancy'
   const description = searchParams.get('description') || 'Accredited education and professional trading courses in South Africa'
 
-  return new ImageResponse(
+  const imgResponse = new ImageResponse(
     (
       <div
         style={{
@@ -144,4 +144,10 @@ export async function GET(request: NextRequest) {
       height: 630,
     }
   )
+
+  imgResponse.headers.set(
+    'Cache-Control',
+    'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800',
+  )
+  return imgResponse
 }
