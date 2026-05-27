@@ -107,7 +107,7 @@ export async function POST(req: Request): Promise<NextResponse> {
           research: 0,
         })
 
-        await sleep(800)
+        await sleep(300)
       }
     }
 

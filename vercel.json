@@ -1,0 +1,22 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/daily-harvest",
+      "schedule": "0 2 * * *"
+    }
+  ],
+  "functions": {
+    "app/api/elis-live-search/route.ts": {
+      "maxDuration": 15
+    },
+    "app/api/cron/daily-harvest/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/harvest-now/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/research-live/route.ts": {
+      "maxDuration": 10
+    }
+  }
+}

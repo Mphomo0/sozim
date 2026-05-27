@@ -1,4 +1,7 @@
 import type { Metadata } from 'next'
+
+export const revalidate = 3600
+
 import PageHeader from '@/components/global/PageHeader'
 import CallbackForm from '@/components/sections/contact/CallbackForm'
 import Breadcrumb from '@/components/global/Breadcrumb'

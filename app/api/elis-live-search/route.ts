@@ -132,7 +132,7 @@ async function searchEliSDirectly(
       pages++
 
       if (!token) break
-      await sleep(800)
+      await sleep(200)
     }
 
    

@@ -183,33 +183,37 @@ export default function Navbar() {
   return (
     <header className="relative z-50 bg-white border-b border-gray-300 tracking-wide">
       {/* Top Section */}
-      <section className="flex flex-wrap items-center gap-4 py-2 px-4 sm:px-10 min-h-17.5 border-b border-gray-300">
+      <section className="flex items-center px-6 sm:px-10 py-4 border-b border-gray-300 min-h-18">
         {/* Logo */}
-        <Link href="/" className="max-sm:hidden" prefetch={false}>
+        <Link href="/" className="max-sm:hidden shrink-0" prefetch={false}>
           <Image
             src="https://ik.imagekit.io/vzofqg2fg/images/SozimLogo.webp"
             alt="logo"
-            width={64}
-            height={34}
-            className="w-full h-full object-contain"
+            width={120}
+            height={64}
+            className="h-11 w-auto object-contain"
             priority
             unoptimized
           />
         </Link>
-        <Link href="/" className="hidden max-sm:block" prefetch={false}>
+        <Link
+          href="/"
+          className="hidden max-sm:block shrink-0"
+          prefetch={false}
+        >
           <Image
             src="https://ik.imagekit.io/vzofqg2fg/images/SozimLogo.webp"
             alt="logo"
             width={80}
             height={42}
-            className="w-full h-full object-contain"
+            className="h-9 w-auto object-contain"
             priority
             unoptimized
           />
         </Link>
 
         {/* Top Menu */}
-        <ul className="flex space-x-8 max-lg:hidden lg:absolute lg:top-1/2 lg:left-1/2 lg:-translate-x-1/2 lg:-translate-y-1/2">
+        <ul className="hidden lg:flex flex-1 justify-center items-center space-x-8">
           {topMenuItems.map((item) => (
             <li key={item.label}>
               <Link
@@ -228,7 +232,7 @@ export default function Navbar() {
         </ul>
 
         {/* Right Section: Login + Search */}
-        <div className="flex items-center ml-auto space-x-4 lg:absolute lg:right-10">
+        <div className="flex items-center ml-auto lg:ml-0 space-x-4">
           {user ? (
             <div className="flex items-center space-x-4">
               <Link
@@ -319,7 +323,7 @@ export default function Navbar() {
       </section>
 
       {/* Main Navigation */}
-      <div className="flex flex-wrap items-start gap-4 px-10 py-3 relative">
+      <div className="flex flex-wrap items-start gap-4 px-6 sm:px-10 py-3 relative">
         {isOpen && (
           <div
             className="fixed inset-0 bg-black opacity-50 z-40"

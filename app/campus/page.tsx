@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+
+export const revalidate = 86400
 import CampusCard from '@/components/global/CampusCard'
 import PageHeader from '@/components/global/PageHeader'
 import Breadcrumb from '@/components/global/Breadcrumb'

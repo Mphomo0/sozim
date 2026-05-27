@@ -1,4 +1,7 @@
 import type { Metadata } from 'next'
+
+export const revalidate = 3600
+
 import ProductsGrid from '@/components/sections/store/ProductsGrid'
 import PageHeader from '@/components/global/PageHeader'
 import Breadcrumb from '@/components/global/Breadcrumb'

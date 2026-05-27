@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+
+export const revalidate = 86400
 import PageHeader from '@/components/global/PageHeader'
 import ContactsInfoCard from '@/components/sections/contact/ContactsInfoCard'
 import InfoMap from '@/components/sections/contact/InfoMap'

@@ -1,4 +1,7 @@
 import type { Metadata } from 'next'
+
+export const revalidate = 86400
+
 import PageHeader from '@/components/global/PageHeader'
 import CareerPathwayComp from '@/components/sections/careerpathways/CareerPathwayComp'
 import Breadcrumb from '@/components/global/Breadcrumb'

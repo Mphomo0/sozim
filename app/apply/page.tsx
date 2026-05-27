@@ -1,4 +1,7 @@
 import type { Metadata } from 'next'
+
+export const revalidate = 3600
+
 import { Button } from '@/components/ui/button'
 import {
   ArrowRight,

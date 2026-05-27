@@ -2,6 +2,9 @@ import { query, mutation, internalMutation, internalQuery, action } from "./_gen
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
 
+// Bounded take limit to avoid Convex 16MB function execution byte limit
+const MAX_BOUNDED_TAKE = 5000;
+
 // --- Queries ---
 
 export const getRecords = query({
@@ -52,10 +55,11 @@ export const getRecords = query({
       const pageRecords = await queryBuilder.take(start + pageSize);
       results = pageRecords.slice(start);
     } else {
-      // 3. Fallback: only collect and filter in JS if active search or filters are specified
+      // 3. Fallback: bounded take + client-side filtering when search/filters active
+      // Using take() instead of collect() to stay within Convex 16MB limit
       const baseQuery = normCat && normCat !== 'all'
-        ? await ctx.db.query('records').withIndex('by_category', q => q.eq('category', normCat)).collect()
-        : await ctx.db.query('records').collect();
+        ? await ctx.db.query('records').withIndex('by_category', q => q.eq('category', normCat)).take(MAX_BOUNDED_TAKE)
+        : await ctx.db.query('records').take(MAX_BOUNDED_TAKE);
 
       baseQueryForFacetsFallback = baseQuery;
       let filtered = baseQuery;
@@ -100,12 +104,12 @@ export const getRecords = query({
 
     let facets = cachedMeta?.facets;
 
-    // 5. Fallback: if facets haven't been pre-cached yet, compute them dynamically
+    // 5. Fallback: if facets haven't been pre-cached yet, compute them from bounded data
     if (!facets) {
       const baseQuery = baseQueryForFacetsFallback || (
         normCat && normCat !== 'all'
-          ? await ctx.db.query('records').withIndex('by_category', q => q.eq('category', normCat)).collect()
-          : await ctx.db.query('records').collect()
+          ? await ctx.db.query('records').withIndex('by_category', q => q.eq('category', normCat)).take(MAX_BOUNDED_TAKE)
+          : await ctx.db.query('records').take(MAX_BOUNDED_TAKE)
       );
 
       const allAuthors = baseQuery.flatMap(r => r.authors || []);
@@ -132,13 +136,13 @@ export const getRecords = query({
   },
 });
 
-// Efficient category counts — uses indexes to avoid full table scan
+// Efficient category counts — uses indexes + bounded take to avoid full table scan
 export const countByCategory = query({
   args: {},
   handler: async (ctx) => {
-    const theses = await ctx.db.query('records').withIndex('by_category', q => q.eq('category', 'thesis')).collect();
-    const articles = await ctx.db.query('records').withIndex('by_category', q => q.eq('category', 'article')).collect();
-    const research = await ctx.db.query('records').withIndex('by_category', q => q.eq('category', 'research')).collect();
+    const theses = await ctx.db.query('records').withIndex('by_category', q => q.eq('category', 'thesis')).take(MAX_BOUNDED_TAKE);
+    const articles = await ctx.db.query('records').withIndex('by_category', q => q.eq('category', 'article')).take(MAX_BOUNDED_TAKE);
+    const research = await ctx.db.query('records').withIndex('by_category', q => q.eq('category', 'research')).take(MAX_BOUNDED_TAKE);
     
     return {
       thesis: theses.length,
@@ -691,7 +695,7 @@ export const bulkUpsertRecordsInternal = internalMutation({
 
 // Helper to pre-calculate and store all static facets in libraryMeta
 export const precalculateAndCacheFacets = async (ctx: any) => {
-  const allRecords = await ctx.db.query('records').collect();
+  const allRecords = await ctx.db.query('records').take(MAX_BOUNDED_TAKE);
   const categories = ['all', 'thesis', 'article', 'research'];
 
   for (const cat of categories) {
@@ -773,9 +777,9 @@ export const updateLibraryMetaInternal = internalMutation({
 export const countByCategoryInternal = internalQuery({
   args: {},
   handler: async (ctx) => {
-    const theses = await ctx.db.query('records').withIndex('by_category', q => q.eq('category', 'thesis')).collect();
-    const articles = await ctx.db.query('records').withIndex('by_category', q => q.eq('category', 'article')).collect();
-    const research = await ctx.db.query('records').withIndex('by_category', q => q.eq('category', 'research')).collect();
+    const theses = await ctx.db.query('records').withIndex('by_category', q => q.eq('category', 'thesis')).take(MAX_BOUNDED_TAKE);
+    const articles = await ctx.db.query('records').withIndex('by_category', q => q.eq('category', 'article')).take(MAX_BOUNDED_TAKE);
+    const research = await ctx.db.query('records').withIndex('by_category', q => q.eq('category', 'research')).take(MAX_BOUNDED_TAKE);
     
     return {
       thesis: theses.length,

@@ -168,10 +168,10 @@ export const SearchLayout = forwardRef<SearchLayoutRef, SearchLayoutProps>(funct
   }, [error])
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Sidebar Filters */}
-        <div className="lg:col-span-1 lg:sticky lg:top-8 h-fit">
+        {/* Sidebar Filters — appears below results on mobile, left on desktop */}
+        <div className="order-2 lg:order-1 lg:col-span-1 lg:sticky lg:top-8 h-fit">
           <SearchFilters
             filters={filters}
             setFilters={setFilters}
@@ -182,7 +182,7 @@ export const SearchLayout = forwardRef<SearchLayoutRef, SearchLayoutProps>(funct
         </div>
 
         {/* Main Content */}
-        <div className="lg:col-span-3 space-y-6">
+        <div className="order-1 lg:order-2 lg:col-span-3 space-y-6 min-w-0">
           {/* Results Header */}
           <div className="flex items-center justify-between">
             <div className="text-sm text-gray-600">

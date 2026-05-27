@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+
+export const revalidate = 86400 // 24 hours — content rarely changes
 import PageHeader from '@/components/global/PageHeader'
 import Accreditation from '@/components/sections/about/Accreditation'
 import Achievements from '@/components/sections/about/Achievements'

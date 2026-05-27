@@ -57,14 +57,14 @@ export function ArticleGrid({
   return (
     <div className="space-y-4">
       {/* Selection Controls */}
-      <div className="flex items-center justify-between bg-gray-50 p-4 rounded-lg">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 bg-gray-50 p-4 rounded-lg">
+        <div className="flex items-center gap-3 flex-1">
           <Checkbox
             checked={allSelected}
             onCheckedChange={() =>
               allSelected ? onClearSelection() : onSelectAll()
             }
-            className="w-5 h-5"
+            className="w-5 h-5 shrink-0"
           />
           <span className="text-sm text-gray-700">
             {selectedRecords.size > 0
@@ -73,21 +73,21 @@ export function ArticleGrid({
           </span>
         </div>
         {selectedRecords.size > 0 && (
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2 shrink-0">
             <Button
               onClick={onClearSelection}
               variant="outline"
               size="sm"
-              className="text-sm max-sm:w-auto"
+              className="text-sm"
             >
-              Clear Selection
+              Clear
             </Button>
             <Button
               onClick={onExportSelected}
-              className="bg-blue-900 hover:bg-blue-800 text-white text-sm max-sm:w-auto"
+              className="bg-blue-900 hover:bg-blue-800 text-white text-sm"
               size="sm"
             >
-              <FileText className="w-4 h-4 mr-2" />
+              <FileText className="w-4 h-4 mr-1.5" />
               Export RIS ({selectedRecords.size})
             </Button>
           </div>
@@ -106,9 +106,9 @@ export function ArticleGrid({
             }`}
           >
             {/* Header */}
-            <div className="bg-gradient-to-r from-blue-900 to-blue-800 text-white px-5 py-4">
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
+            <div className="bg-linear-to-r from-blue-900 to-blue-800 text-white px-5 py-4">
+              <div className="flex justify-between items-start gap-3">
+                <div className="flex-1 min-w-0">
                   <span className="inline-block px-3 py-1 bg-white/20 rounded-full text-xs font-semibold mb-2">
                     {record.type}
                   </span>
@@ -116,10 +116,10 @@ export function ArticleGrid({
                     {record.title}
                   </h3>
                 </div>
-                <div className="flex items-center gap-2 text-xs bg-white/10 px-3 py-1.5 rounded-lg">
-                  <User className="w-4 h-4" />
-                  <span className="text-white/90">
-                    {record.authors?.[0] || 'Unknown Author'}
+                <div className="flex items-center gap-1.5 text-xs bg-white/10 px-2.5 py-1.5 rounded-lg shrink-0 max-w-[40%] min-w-0">
+                  <User className="w-3.5 h-3.5 shrink-0" />
+                  <span className="text-white/90 truncate">
+                    {record.authors?.[0] || 'Unknown'}
                   </span>
                 </div>
               </div>
@@ -136,23 +136,21 @@ export function ArticleGrid({
 
               {/* Meta Info */}
               <div className="grid grid-cols-2 gap-3 pt-3 border-t border-gray-100">
-                <div className="space-y-1">
+                <div className="space-y-1 min-w-0">
                   <div className="flex items-center gap-2 text-xs text-gray-500">
-                    <Calendar className="w-3.5 h-3.5" />
-                    <span>Publication Year</span>
+                    <Calendar className="w-3.5 h-3.5 shrink-0" />
+                    <span>Year</span>
                   </div>
-                  {record.year && (
-                    <span className="text-sm font-semibold text-gray-900">
-                      {record.year}
-                    </span>
-                  )}
+                  <span className="text-sm font-semibold text-gray-900">
+                    {record.year || '—'}
+                  </span>
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-1 min-w-0">
                   <div className="flex items-center gap-2 text-xs text-gray-500">
-                    <Tag className="w-3.5 h-3.5" />
+                    <Tag className="w-3.5 h-3.5 shrink-0" />
                     <span>Source</span>
                   </div>
-                  <span className="text-sm font-medium text-gray-800">
+                  <span className="text-sm font-medium text-gray-800 wrap-break-words line-clamp-2">
                     {record.source}
                   </span>
                 </div>
@@ -206,14 +204,14 @@ export function ArticleGrid({
 
             {/* Footer Actions */}
             <div className="bg-gray-50 px-5 py-3 border-t border-gray-200">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 shrink-0">
                   <Checkbox
                     checked={selectedRecords.has(record.id)}
                     onCheckedChange={() => onToggleRecord(record.id)}
-                    className="w-4 h-4"
+                    className="w-4 h-4 shrink-0"
                   />
-                  <span className="text-xs text-gray-600">
+                  <span className="text-xs text-gray-600 whitespace-nowrap">
                     {selectedRecords.has(record.id) ? 'Selected' : 'Select'}
                   </span>
                 </div>
@@ -222,18 +220,18 @@ export function ArticleGrid({
                     onClick={() =>
                       window.open(record.url, '_blank', 'noopener,noreferrer')
                     }
-                    className="bg-gradient-to-r from-blue-900 to-blue-800 hover:from-blue-800 hover:to-blue-700 text-white text-sm px-5 font-medium shadow-sm hover:shadow-md transition-all duration-200 max-sm:w-auto"
+                    className="bg-linear-to-r from-blue-900 to-blue-800 hover:from-blue-800 hover:to-blue-700 text-white text-sm px-3 sm:px-5 font-medium shadow-sm hover:shadow-md transition-all duration-200 shrink-0"
                   >
-                    <ExternalLink className="w-4 h-4 mr-2" />
-                    Read Full Article
+                    <ExternalLink className="w-4 h-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Read Full Article</span>
                   </Button>
                 ) : (
                   <Button
                     disabled
-                    className="bg-gray-200 text-gray-400 text-sm px-5 font-medium cursor-not-allowed max-sm:w-auto"
+                    className="bg-gray-200 text-gray-400 text-sm px-3 sm:px-5 font-medium cursor-not-allowed shrink-0"
                   >
-                    <FileText className="w-4 h-4 mr-2" />
-                    No Link Available
+                    <FileText className="w-4 h-4 sm:mr-2" />
+                    <span className="hidden sm:inline">No Link</span>
                   </Button>
                 )}
               </div>
