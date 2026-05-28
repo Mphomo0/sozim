@@ -220,12 +220,17 @@ export default function CreateApplication({ onSuccess }: Props) {
   const courseIdValue = form.watch('courseId')
   const selectedCourse = allCourses.find((c) => c._id === courseIdValue)
   const isCourseClosed = selectedCourse && !selectedCourse.isOpen
+  const isUserLookupPending = user?.id && getUserByClerkId === undefined
+  const hasClerkUser = getUserByClerkId !== undefined && getUserByClerkId !== null
+  const shouldCheckExistingApplication = hasClerkUser && !!courseIdValue
   const checkExistingApplication = useQuery(
     api.applications.checkExistingApplication,
-    getUserByClerkId && courseIdValue
+    shouldCheckExistingApplication
       ? { applicantId: getUserByClerkId._id, courseId: courseIdValue }
       : 'skip'
   )
+  const isCheckingExistingApplication =
+    shouldCheckExistingApplication && checkExistingApplication === undefined
 
   async function onSubmit(values: FormValues) {
     try {
@@ -245,6 +250,13 @@ export default function CreateApplication({ onSuccess }: Props) {
       }
 
       // Resolve convex user from Clerk ID
+      if (getUserByClerkId === undefined) {
+        toast.error(
+          'Checking your profile. Please wait a moment and try again.'
+        )
+        return
+      }
+
       if (!getUserByClerkId) {
         toast.error(
           'Your profile is not set up yet. Please click your user icon in the top-right corner to update your profile before applying.'
@@ -490,9 +502,24 @@ export default function CreateApplication({ onSuccess }: Props) {
             )}
           </div>
 
+          {(isUserLookupPending || isCheckingExistingApplication) && (
+            <p className='text-sm text-gray-600'>
+              {isUserLookupPending
+                ? 'Verifying your profile before submission...'
+                : 'Checking for an existing application...'}
+            </p>
+          )}
+
           <Button
             type='submit'
-            disabled={isUploading || selectedFiles.length === 0 || checkExistingApplication || isCourseClosed}
+            disabled={
+              isUploading ||
+              selectedFiles.length === 0 ||
+              checkExistingApplication ||
+              isCourseClosed ||
+              isUserLookupPending ||
+              isCheckingExistingApplication
+            }
             className='w-full text-lg'
           >
             {isUploading ? (
@@ -500,6 +527,8 @@ export default function CreateApplication({ onSuccess }: Props) {
                 <Loader2 className='mr-2 h-5 w-5 animate-spin' />
                 Uploading Files...
               </>
+            ) : isUserLookupPending || isCheckingExistingApplication ? (
+              'Checking Application...'
             ) : checkExistingApplication ? (
               'Already Applied'
             ) : isCourseClosed ? (
