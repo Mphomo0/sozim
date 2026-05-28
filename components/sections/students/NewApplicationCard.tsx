@@ -363,6 +363,7 @@ export default function CreateApplication({ onSuccess }: Props) {
         onSuccess()
       }
     } catch (err) {
+      console.error('[CreateApplication] Submission error:', err)
       const message = err instanceof Error ? err.message : 'Submission failed'
       toast.error(message)
     } finally {
