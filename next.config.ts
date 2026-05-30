@@ -42,16 +42,43 @@ const nextConfig: NextConfig = {
     ],
   },
 
-  // Cache the OG image route at the CDN layer.
-  // _next/static and public assets get immutable headers automatically from Vercel.
   async headers() {
+    const securityHeaders = [
+      { key: 'X-Content-Type-Options', value: 'nosniff' },
+      { key: 'X-Frame-Options', value: 'DENY' },
+      { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+    ]
+
     return [
+      {
+        source: '/(.*)',
+        headers: securityHeaders,
+      },
       {
         source: '/api/og',
         headers: [
           {
             key: 'Cache-Control',
             value: 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800',
+          },
+        ],
+      },
+      {
+        source:
+          '/:path(about|campus|career-pathway|privacy-policy|terms-of-service|contact-learning|welcome-message)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, s-maxage=86400, stale-while-revalidate=604800',
+          },
+        ],
+      },
+      {
+        source: '/:path(apply|call-me-back|contact|shop)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, s-maxage=3600, stale-while-revalidate=86400',
           },
         ],
       },

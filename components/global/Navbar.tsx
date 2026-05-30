@@ -9,6 +9,13 @@ import { useQuery } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 import { Search, X } from 'lucide-react'
 
+const topMenuItems = [
+  { label: 'Apply Now', href: '/apply' },
+  { label: 'Call Me Back', href: '/call-me-back' },
+  { label: 'Student Portal', href: '/portal' },
+  { label: 'Contact Us', href: '/contact' },
+]
+
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const [searchActive, setSearchActive] = useState(false)
@@ -39,39 +46,20 @@ export default function Navbar() {
   )
 
   useEffect(() => {
-    const stored = localStorage.getItem('shopFavorites')
-    if (stored) {
-      const favs = JSON.parse(stored)
-      setFavoritesCount(favs.length)
-    }
-  }, [])
-
-  useEffect(() => {
-    const handleStorageChange = () => {
+    const getFavCount = () => {
       const stored = localStorage.getItem('shopFavorites')
-      if (stored) {
-        const favs = JSON.parse(stored)
-        setFavoritesCount(favs.length)
-      } else {
-        setFavoritesCount(0)
-      }
-    }
-    window.addEventListener('storage', handleStorageChange)
-
-    const checkFavorites = () => {
-      const stored = localStorage.getItem('shopFavorites')
-      if (stored) {
-        const favs = JSON.parse(stored)
-        setFavoritesCount(favs.length)
-      } else {
-        setFavoritesCount(0)
-      }
+      return stored ? JSON.parse(stored).length : 0
     }
 
-    window.addEventListener('focus', checkFavorites)
+    setFavoritesCount(getFavCount())
+
+    const handleChange = () => setFavoritesCount(getFavCount())
+
+    window.addEventListener('storage', handleChange)
+    window.addEventListener('focus', handleChange)
     return () => {
-      window.removeEventListener('storage', handleStorageChange)
-      window.removeEventListener('focus', checkFavorites)
+      window.removeEventListener('storage', handleChange)
+      window.removeEventListener('focus', handleChange)
     }
   }, [])
 
@@ -94,14 +82,7 @@ export default function Navbar() {
     setShowResults(false)
   }
 
-  const topMenuItems = [
-    { label: 'Apply Now', href: '/apply' },
-    { label: 'Call Me Back', href: '/call-me-back' },
-    { label: 'Student Portal', href: '/portal' },
-    { label: 'Contact Us', href: '/contact' },
-  ]
-
-  const mainMenuItems = [
+  const mainMenuItems = useMemo(() => [
     { label: 'Home', href: '/' },
     { label: 'About Us', href: '/about' },
     {
@@ -156,7 +137,7 @@ export default function Navbar() {
     ...(favoritesCount > 0
       ? [{ label: `Favorites (${favoritesCount})`, href: '/favorites' }]
       : []),
-  ]
+  ], [favoritesCount])
 
   const toggleDropdown = (label: string) => {
     setOpenDropdowns((prev) => ({

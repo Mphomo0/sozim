@@ -9,16 +9,16 @@ interface Props {
   initialCategories: Doc<'courseCategories'>[]
 }
 
-export default function SozimPrograms({ initialCourses, initialCategories }: Props) {
-  const programs = initialCourses
-  const categories = initialCategories
-
+export default function SozimPrograms({
+  initialCourses,
+  initialCategories,
+}: Props) {
   const getCategoryName = (course: any) => {
-    const cat = categories.find(
-      (c) => 
-        c._id === course.actualCategoryId || 
-        c.mongoId === course.categoryId || 
-        c._id === course.categoryId
+    const cat = initialCategories.find(
+      (c) =>
+        c._id === course.actualCategoryId ||
+        c.mongoId === course.categoryId ||
+        c._id === course.categoryId,
     )
     return cat ? cat.name : 'Uncategorized'
   }
@@ -26,11 +26,11 @@ export default function SozimPrograms({ initialCourses, initialCategories }: Pro
   return (
     <section className="bg-slate-50 py-24 relative overflow-hidden">
       {/* Decorative gradient orb */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[800px] w-[800px] rounded-full bg-blue-100/30 blur-3xl pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-200 w-200 rounded-full bg-blue-100/30 blur-3xl pointer-events-none" />
 
       <div className="container relative z-10 mx-auto px-4">
         <div className="mb-16 text-center">
-          <h2 className="mb-4 text-4xl font-extrabold tracking-tight md:text-5xl bg-gradient-to-r from-slate-900 via-blue-800 to-sky-700 bg-clip-text text-transparent">
+          <h2 className="mb-4 text-4xl font-extrabold tracking-tight md:text-5xl bg-linear-to-r from-slate-900 via-blue-800 to-sky-700 bg-clip-text text-transparent">
             Popular Programs
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto font-light">
@@ -38,7 +38,7 @@ export default function SozimPrograms({ initialCourses, initialCategories }: Pro
           </p>
         </div>
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {programs.map((program) => (
+          {initialCourses.map((program) => (
             <Card
               key={program._id}
               className="group relative overflow-hidden border border-slate-200/60 bg-white/80 backdrop-blur-sm transition-all duration-500 hover:shadow-2xl hover:shadow-blue-500/10 hover:-translate-y-2 flex flex-col"
@@ -78,7 +78,10 @@ export default function SozimPrograms({ initialCourses, initialCategories }: Pro
         </div>
         <div className="mt-16 text-center">
           <Link href="/courses">
-            <Button size="lg" className="h-14 px-8 rounded-full text-lg shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:-translate-y-1 transition-all duration-300 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 border-0 text-white">
+            <Button
+              size="lg"
+              className="h-14 px-8 rounded-full text-lg shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:-translate-y-1 transition-all duration-300 bg-linear-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 border-0 text-white"
+            >
               View All Programs
             </Button>
           </Link>
