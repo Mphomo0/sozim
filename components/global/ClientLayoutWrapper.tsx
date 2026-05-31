@@ -1,9 +1,14 @@
 'use client'
 
+import dynamic from 'next/dynamic'
 import { usePathname } from 'next/navigation'
 import Navbar from '@/components/global/Navbar'
 import Footer from '@/components/global/Footer'
-import ChatbotWidget from '@/components/sections/chatbot/ChatbotWidget'
+
+const ChatbotWidget = dynamic(
+  () => import('@/components/sections/chatbot/ChatbotWidget'),
+  { ssr: false },
+)
 
 export default function ClientLayoutWrapper({
   children,

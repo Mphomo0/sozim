@@ -25,6 +25,12 @@ const geistMono = Geist_Mono({
 
 const BASE_URL = 'https://www.sozim.co.za'
 
+const LAYOUT_SCHEMAS_JSON = JSON.stringify([
+  getWebsiteSchema(),
+  getOrganizationSchema(),
+  getLocalBusinessSchema(),
+])
+
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
 
@@ -129,10 +135,6 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const websiteSchema = getWebsiteSchema()
-  const organizationSchema = getOrganizationSchema()
-  const localBusinessSchema = getLocalBusinessSchema()
-
   return (
     <html lang="en-ZA" suppressHydrationWarning>
       <head>
@@ -143,16 +145,9 @@ export default function RootLayout({
         <meta name="color-scheme" content="light dark" />
         <meta name="format-detection" content="telephone=no" />
 
-        {/* ✅ FIXED: Multiple structured data schemas */}
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify([
-              websiteSchema,
-              organizationSchema,
-              localBusinessSchema,
-            ]),
-          }}
+          dangerouslySetInnerHTML={{ __html: LAYOUT_SCHEMAS_JSON }}
         />
       </head>
 

@@ -66,8 +66,6 @@ export const metadata: Metadata = {
   },
 }
 
-const eventSchema = getEventSchema()
-
 const homepageFAQs = [
   {
     question: 'What courses does Sozim offer?',
@@ -101,8 +99,23 @@ const homepageFAQs = [
   },
 ]
 
-// Key terms for AEO — helps AI engines understand entities
-const keyTerms = getDefinedTermSchema([
+// All schemas below are static — computed once at module load, not per request.
+const EVENT_SCHEMA_JSON = JSON.stringify(getEventSchema())
+const FAQ_SCHEMA_JSON = JSON.stringify(getFAQSchema(homepageFAQs))
+const BREADCRUMB_SCHEMA_JSON = JSON.stringify(
+  getBreadcrumbSchema([{ name: 'Home', url: BASE_URL }]),
+)
+const WEBPAGE_SCHEMA_JSON = JSON.stringify(
+  getWebPageSchema({
+    name: 'Sozim | Accredited Education and Training College in Bloemfontein',
+    description:
+      'Accredited education and training college in Bloemfontein, South Africa. ETDP SETA accredited LIS and ETD programmes.',
+    url: BASE_URL,
+    speakable: ['h1', '.hero-description', 'h2'],
+    breadcrumb: [{ name: 'Home', url: BASE_URL }],
+  }),
+)
+const KEY_TERMS_JSONS = getDefinedTermSchema([
   {
     name: 'LIS',
     description:
@@ -129,47 +142,37 @@ const keyTerms = getDefinedTermSchema([
       'The South African Qualifications Authority (SAQA) oversees the National Qualifications Framework (NQF), ensuring qualifications are registered and nationally recognised. All Sozim programmes are SAQA aligned.',
     sameAs: ['https://www.saqa.org.za'],
   },
-])
+]).map((t) => JSON.stringify(t))
 
 export default async function Home() {
   const [initialCourses, initialCategories] = await Promise.all([
     getCachedCourses(),
     getCachedCategories(),
   ])
-  const faqSchema = getFAQSchema(homepageFAQs)
-  const breadcrumbSchema = getBreadcrumbSchema([{ name: 'Home', url: BASE_URL }])
-  const webPageSchema = getWebPageSchema({
-    name: 'Sozim | Accredited Education and Training College in Bloemfontein',
-    description:
-      'Accredited education and training college in Bloemfontein, South Africa. ETDP SETA accredited LIS and ETD programmes.',
-    url: BASE_URL,
-    speakable: ['h1', '.hero-description', 'h2'],
-    breadcrumb: [{ name: 'Home', url: BASE_URL }],
-  })
 
   return (
     <div className="mb-0">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(eventSchema) }}
+        dangerouslySetInnerHTML={{ __html: EVENT_SCHEMA_JSON }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        dangerouslySetInnerHTML={{ __html: FAQ_SCHEMA_JSON }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+        dangerouslySetInnerHTML={{ __html: BREADCRUMB_SCHEMA_JSON }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageSchema) }}
+        dangerouslySetInnerHTML={{ __html: WEBPAGE_SCHEMA_JSON }}
       />
-      {keyTerms.map((term, i) => (
+      {KEY_TERMS_JSONS.map((json, i) => (
         <script
           key={i}
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(term) }}
+          dangerouslySetInnerHTML={{ __html: json }}
         />
       ))}
       <Hero />

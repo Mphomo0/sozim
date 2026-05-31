@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -11,7 +12,8 @@ const SLIDES = [
   {
     image: 'https://ik.imagekit.io/vzofqg2fg/images/heroImage.jpg',
     title: 'Transform Your Future',
-    description: 'Join thousands of students achieving their dreams through world-class education.',
+    description:
+      'Join thousands of students achieving their dreams through world-class education.',
     ctaText: 'Explore Courses',
     ctaLink: '/courses',
   },
@@ -28,7 +30,7 @@ const SLIDES = [
     description: 'Connect with a network of learners and potential employers.',
     ctaText: 'Join Sozim',
     ctaLink: '/contact-learning',
-  }
+  },
 ]
 
 export default function Hero() {
@@ -46,24 +48,25 @@ export default function Hero() {
   }, [paginate])
 
   return (
-    <section className="relative h-[600px] md:h-[900px] flex items-center justify-center overflow-hidden bg-slate-950">
+    <section className="relative h-150 md:h-225 flex items-center justify-center overflow-hidden bg-slate-950">
       <AnimatePresence initial={false} custom={direction} mode="popLayout">
         <motion.div
-           key={current}
-           custom={direction}
-           initial={{ opacity: 0, scale: 1.1 }}
-           animate={{ opacity: 1, scale: 1 }}
-           exit={{ opacity: 0, scale: 0.95 }}
-           transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-           className="absolute inset-0"
+          key={current}
+          custom={direction}
+          initial={{ opacity: 0, scale: 1.1 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+          transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+          className="absolute inset-0"
         >
-          <div
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-            style={{
-              backgroundImage: `url('${SLIDES[current].image}')`,
-            }}
+          <Image
+            src={SLIDES[current].image}
+            alt={SLIDES[current].title}
+            fill
+            className="object-cover object-center"
+            priority={current === 0}
           />
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-950/95 via-blue-900/80 to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-br from-blue-950/95 via-blue-900/80 to-transparent" />
         </motion.div>
       </AnimatePresence>
 
@@ -85,16 +88,30 @@ export default function Hero() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               {SLIDES[current].ctaLink === '/register' ? (
                 <SignUpButton mode="modal">
-                  <Button size="lg" className="text-lg h-14 px-8 rounded-full shadow-xl shadow-blue-500/25 hover:shadow-blue-500/40 hover:-translate-y-1 transition-all duration-300">
+                  <Button
+                    size="lg"
+                    className="text-lg h-14 px-8 rounded-full shadow-xl shadow-blue-500/25 hover:shadow-blue-500/40 hover:-translate-y-1 transition-all duration-300"
+                  >
                     {SLIDES[current].ctaText}
                   </Button>
                 </SignUpButton>
               ) : (
-                <Button size="lg" asChild className="text-lg h-14 px-8 rounded-full shadow-xl shadow-blue-500/25 hover:shadow-blue-500/40 hover:-translate-y-1 transition-all duration-300">
-                  <Link href={SLIDES[current].ctaLink}>{SLIDES[current].ctaText}</Link>
+                <Button
+                  size="lg"
+                  asChild
+                  className="text-lg h-14 px-8 rounded-full shadow-xl shadow-blue-500/25 hover:shadow-blue-500/40 hover:-translate-y-1 transition-all duration-300"
+                >
+                  <Link href={SLIDES[current].ctaLink}>
+                    {SLIDES[current].ctaText}
+                  </Link>
                 </Button>
               )}
-              <Button size="lg" variant="secondary" asChild className="text-lg h-14 px-8 rounded-full bg-white/10 text-white backdrop-blur-md border border-white/20 hover:bg-white/20 hover:-translate-y-1 transition-all duration-300">
+              <Button
+                size="lg"
+                variant="secondary"
+                asChild
+                className="text-lg h-14 px-8 rounded-full bg-white/10 text-white backdrop-blur-md border border-white/20 hover:bg-white/20 hover:-translate-y-1 transition-all duration-300"
+              >
                 <Link href="/about">Learn More</Link>
               </Button>
             </div>
@@ -133,7 +150,7 @@ export default function Hero() {
       </button>
 
       {/* Premium subtle bottom gradient transition */}
-      <div className="absolute bottom-0 inset-x-0 h-32 bg-gradient-to-t from-background to-transparent pointer-events-none" />
+      <div className="absolute bottom-0 inset-x-0 h-32 bg-linear-to-t from-background to-transparent pointer-events-none" />
     </section>
   )
 }
