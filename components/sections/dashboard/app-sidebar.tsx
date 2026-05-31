@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { BookOpen, ClipboardList, CircleUser, Globe, ArrowLeft, Newspaper } from 'lucide-react'
+import { BookOpen, ClipboardList, CircleUser, Globe, ArrowLeft, Newspaper, MessageCircle } from 'lucide-react'
 import { NavMain } from '@/components/sections/dashboard/nav-main'
 import { NavUser } from '@/components/sections/dashboard/nav-user'
 import {
@@ -74,6 +74,17 @@ const data = {
         {
           title: 'Tags',
           url: '/dashboard/news/tags',
+        },
+      ],
+    },
+    {
+      title: 'Chatbot',
+      url: '#',
+      icon: MessageCircle,
+      items: [
+        {
+          title: 'Manage',
+          url: '/dashboard/admin/chatbot',
         },
       ],
     },

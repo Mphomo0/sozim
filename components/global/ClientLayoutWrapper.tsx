@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation'
 import Navbar from '@/components/global/Navbar'
 import Footer from '@/components/global/Footer'
+import ChatbotWidget from '@/components/sections/chatbot/ChatbotWidget'
 
 export default function ClientLayoutWrapper({
   children,
@@ -19,6 +20,7 @@ export default function ClientLayoutWrapper({
       {!isDashboard && <Navbar />}
       <main>{children}</main>
       {!isDashboard && <Footer />}
+      {!isDashboard && <ChatbotWidget />}
     </>
   )
 }

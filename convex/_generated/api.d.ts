@@ -10,6 +10,7 @@
 
 import type * as applications from "../applications.js";
 import type * as categories from "../categories.js";
+import type * as chatbot from "../chatbot.js";
 import type * as clerkSync from "../clerkSync.js";
 import type * as courses from "../courses.js";
 import type * as crons from "../crons.js";
@@ -22,6 +23,7 @@ import type * as newsTags from "../newsTags.js";
 import type * as records from "../records.js";
 import type * as test_helpers from "../test_helpers.js";
 import type * as users from "../users.js";
+import type * as websiteIndexer from "../websiteIndexer.js";
 
 import type {
   ApiFromModules,
@@ -32,6 +34,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   applications: typeof applications;
   categories: typeof categories;
+  chatbot: typeof chatbot;
   clerkSync: typeof clerkSync;
   courses: typeof courses;
   crons: typeof crons;
@@ -44,6 +47,7 @@ declare const fullApi: ApiFromModules<{
   records: typeof records;
   test_helpers: typeof test_helpers;
   users: typeof users;
+  websiteIndexer: typeof websiteIndexer;
 }>;
 
 /**

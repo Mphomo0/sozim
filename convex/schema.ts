@@ -276,4 +276,57 @@ export default defineSchema({
     createdAt: v.number(),
     updatedAt: v.number(),
   }).index("by_slug", ["slug"]),
+
+  websiteContentChunks: defineTable({
+    url: v.string(),
+    title: v.string(),
+    content: v.string(),
+    contentHash: v.string(),
+    type: v.union(
+      v.literal("page"),
+      v.literal("blog"),
+      v.literal("service"),
+      v.literal("product"),
+      v.literal("faq"),
+      v.literal("other"),
+    ),
+    indexedAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_url", ["url"])
+    .index("by_contentHash", ["contentHash"])
+    .index("by_indexedAt", ["indexedAt"]),
+
+  chatSessions: defineTable({
+    sessionId: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    expiresAt: v.number(),
+  })
+    .index("by_sessionId", ["sessionId"])
+    .index("by_expiresAt", ["expiresAt"]),
+
+  chatMessages: defineTable({
+    sessionId: v.string(),
+    role: v.union(v.literal("user"), v.literal("assistant")),
+    message: v.string(),
+    createdAt: v.number(),
+    expiresAt: v.number(),
+  })
+    .index("by_sessionId", ["sessionId"])
+    .index("by_expiresAt", ["expiresAt"]),
+
+  indexingLogs: defineTable({
+    status: v.union(
+      v.literal("success"),
+      v.literal("failed"),
+      v.literal("running"),
+    ),
+    startedAt: v.number(),
+    finishedAt: v.optional(v.number()),
+    pagesIndexed: v.optional(v.number()),
+    chunksCreated: v.optional(v.number()),
+    chunksDeleted: v.optional(v.number()),
+    error: v.optional(v.string()),
+  }).index("by_startedAt", ["startedAt"]),
 });
