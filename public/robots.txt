@@ -10,6 +10,8 @@ Allow: /campus
 Allow: /library
 Allow: /shop
 Allow: /apply
+Allow: /news
+Allow: /news/
 Allow: /call-me-back
 Allow: /privacy-policy
 Allow: /terms-of-service

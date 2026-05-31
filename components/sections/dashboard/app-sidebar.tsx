@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { BookOpen, ClipboardList, CircleUser, Globe, ArrowLeft } from 'lucide-react'
+import { BookOpen, ClipboardList, CircleUser, Globe, ArrowLeft, Newspaper } from 'lucide-react'
 import { NavMain } from '@/components/sections/dashboard/nav-main'
 import { NavUser } from '@/components/sections/dashboard/nav-user'
 import {
@@ -55,6 +55,25 @@ const data = {
         {
           title: 'Course Categories',
           url: '/dashboard/admin/courses/category',
+        },
+      ],
+    },
+    {
+      title: 'News',
+      url: '#',
+      icon: Newspaper,
+      items: [
+        {
+          title: 'All Articles',
+          url: '/dashboard/news',
+        },
+        {
+          title: 'Categories',
+          url: '/dashboard/news/categories',
+        },
+        {
+          title: 'Tags',
+          url: '/dashboard/news/tags',
         },
       ],
     },

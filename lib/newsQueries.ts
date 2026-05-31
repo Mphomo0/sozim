@@ -1,23 +1,6 @@
 import { cache } from 'react'
 import { fetchQuery } from 'convex/nextjs'
 import { api } from '@/convex/_generated/api'
-import type { Id } from '@/convex/_generated/dataModel'
-
-// React cache() deduplicates identical calls within the same request.
-// generateMetadata and the page component can both call these without
-// double-fetching Convex.
-
-export const getCachedCourses = cache(() =>
-  fetchQuery(api.courses.getCourses)
-)
-
-export const getCachedCategories = cache(() =>
-  fetchQuery(api.categories.getCategories)
-)
-
-export const getCachedCourseById = cache((id: Id<'courses'>) =>
-  fetchQuery(api.courses.getCourseById, { id })
-)
 
 export const getCachedNewsPosts = cache(() =>
   fetchQuery(api.newsPosts.getPublishedNewsPosts, {})
@@ -41,4 +24,19 @@ export const getCachedNewsCategoryBySlug = cache((slug: string) =>
 
 export const getCachedNewsTagBySlug = cache((slug: string) =>
   fetchQuery(api.newsTags.getNewsTagBySlug, { slug })
+)
+
+export const getCachedNewsPostsByCategorySlug = cache((slug: string) =>
+  fetchQuery(api.newsPosts.getNewsPostsByCategorySlug, { slug })
+)
+
+export const getCachedNewsPostsByTagSlug = cache((slug: string) =>
+  fetchQuery(api.newsPosts.getNewsPostsByTagSlug, { slug })
+)
+
+export const getCachedRelatedNewsPosts = cache((postId: string, limit?: number) =>
+  fetchQuery(api.newsPosts.getRelatedNewsPosts, {
+    postId: postId as any,
+    limit,
+  })
 )

@@ -238,4 +238,42 @@ export default defineSchema({
     details: v.optional(v.string()),
   }).index("by_timestamp", ["timestamp"])
     .index("by_level", ["level"]),
+
+  newsPosts: defineTable({
+    title: v.string(),
+    slug: v.string(),
+    excerpt: v.optional(v.string()),
+    content: v.string(),
+    featuredImage: v.optional(v.string()),
+    status: v.union(v.literal("draft"), v.literal("published")),
+    publishedAt: v.optional(v.number()),
+    seoTitle: v.optional(v.string()),
+    seoDescription: v.optional(v.string()),
+    categoryIds: v.array(v.id("newsCategories")),
+    tagIds: v.array(v.id("newsTags")),
+    authorId: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_slug", ["slug"])
+    .index("by_status", ["status"])
+    .index("by_publishedAt", ["publishedAt"])
+    .index("by_status_publishedAt", ["status", "publishedAt"]),
+
+  newsCategories: defineTable({
+    name: v.string(),
+    slug: v.string(),
+    description: v.optional(v.string()),
+    seoTitle: v.optional(v.string()),
+    seoDescription: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_slug", ["slug"]),
+
+  newsTags: defineTable({
+    name: v.string(),
+    slug: v.string(),
+    description: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_slug", ["slug"]),
 });

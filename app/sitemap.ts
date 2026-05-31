@@ -1,5 +1,10 @@
 import { MetadataRoute } from 'next'
 import { getCachedCourses } from '@/lib/queries'
+import {
+  getCachedNewsPosts,
+  getCachedNewsCategories,
+  getCachedNewsTags,
+} from '@/lib/newsQueries'
 
 export const revalidate = 86400 // regenerate sitemap once per day
 
@@ -19,6 +24,42 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   } catch {
     // sitemap still generates without course pages if Convex is unreachable
   }
+
+  let newsPages: MetadataRoute.Sitemap = []
+  try {
+    const posts = await getCachedNewsPosts()
+    newsPages = posts.map((post) => ({
+      url: `${baseUrl}/news/${post.slug}`,
+      lastModified: new Date(post.updatedAt),
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    }))
+  } catch {}
+
+  let newsCategoryPages: MetadataRoute.Sitemap = []
+  try {
+    const categories = await getCachedNewsCategories()
+    newsCategoryPages = [
+      { url: `${baseUrl}/news/category`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.6 },
+      ...categories.map((cat) => ({
+        url: `${baseUrl}/news/category/${cat.slug}`,
+        lastModified: new Date(cat.updatedAt),
+        changeFrequency: 'monthly' as const,
+        priority: 0.6,
+      })),
+    ]
+  } catch {}
+
+  let newsTagPages: MetadataRoute.Sitemap = []
+  try {
+    const tags = await getCachedNewsTags()
+    newsTagPages = tags.map((tag) => ({
+      url: `${baseUrl}/news/tag/${tag.slug}`,
+      lastModified: new Date(tag.updatedAt),
+      changeFrequency: 'monthly' as const,
+      priority: 0.5,
+    }))
+  } catch {}
 
   return [
     {
@@ -40,6 +81,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
     },
     ...coursePages,
+    {
+      url: `${baseUrl}/news`,
+      lastModified,
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+    ...newsPages,
+    ...newsCategoryPages,
+    ...newsTagPages,
     {
       url: `${baseUrl}/career-pathway`,
       lastModified,
