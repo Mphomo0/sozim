@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useCallback, useEffect, useMemo } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useClerk, useUser, SignInButton, UserButton } from '@clerk/nextjs'
@@ -63,9 +63,18 @@ export default function Navbar() {
     }
   }, [])
 
-  const filteredResults = courses
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [isOpen])
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
+  const handleSearchSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault()
     if (searchQuery.trim()) {
       router.push(`/courses?search=${encodeURIComponent(searchQuery)}`)
@@ -73,14 +82,14 @@ export default function Navbar() {
       setSearchQuery('')
       setShowResults(false)
     }
-  }
+  }, [router, searchQuery])
 
-  const handleResultClick = (courseId: string) => {
+  const handleResultClick = useCallback((courseId: string) => {
     router.push(`/courses/${courseId}`)
     setSearchActive(false)
     setSearchQuery('')
     setShowResults(false)
-  }
+  }, [router])
 
   const mainMenuItems = useMemo(() => [
     { label: 'Home', href: '/' },
@@ -164,7 +173,7 @@ export default function Navbar() {
   return (
     <header className="relative z-50 bg-white border-b border-gray-300 tracking-wide">
       {/* Top Section */}
-      <section className="flex items-center px-6 sm:px-10 py-4 border-b border-gray-300 min-h-18">
+      <section className="flex flex-wrap items-center gap-x-4 gap-y-2 px-6 sm:px-10 py-4 border-b border-gray-300 min-h-18">
         {/* Logo */}
         <Link href="/" className="max-sm:hidden shrink-0" prefetch={false}>
           <Image
@@ -213,13 +222,19 @@ export default function Navbar() {
         </ul>
 
         {/* Right Section: Login + Search */}
-        <div className="flex items-center ml-auto lg:ml-0 space-x-4">
+        <div className="flex items-center ml-auto lg:ml-0 space-x-2 sm:space-x-4 min-w-0">
           {user ? (
-            <div className="flex items-center space-x-4">
+            <div
+              className={`flex items-center space-x-2 sm:space-x-4 shrink-0 transition-all duration-300 ${
+                searchActive
+                  ? 'max-sm:opacity-0 max-sm:w-0 max-sm:overflow-hidden max-sm:pointer-events-none'
+                  : ''
+              }`}
+            >
               <Link
                 href={convexUser?.role === 'ADMIN' ? '/dashboard' : '/student'}
                 prefetch={false}
-                className="px-4 py-2 text-[15px] font-medium text-white bg-blue-900 rounded-full hover:bg-blue-700 transition"
+                className="px-3 sm:px-4 py-2 text-sm sm:text-[15px] font-medium text-white bg-blue-900 rounded-full hover:bg-blue-700 transition whitespace-nowrap"
               >
                 {convexUser?.role === 'ADMIN' ? 'Dashboard' : 'Student Link'}
               </Link>
@@ -233,7 +248,13 @@ export default function Navbar() {
             </div>
           ) : (
             <SignInButton mode="modal">
-              <button className="px-4 py-2 text-[15px] font-medium text-white bg-blue-900 rounded-full hover:bg-blue-700">
+              <button
+                className={`px-3 sm:px-4 py-2 text-sm sm:text-[15px] font-medium text-white bg-blue-900 rounded-full hover:bg-blue-700 whitespace-nowrap shrink-0 transition-all duration-300 ${
+                  searchActive
+                    ? 'max-sm:opacity-0 max-sm:w-0 max-sm:overflow-hidden max-sm:pointer-events-none'
+                    : ''
+                }`}
+              >
                 Student Login
               </button>
             </SignInButton>
@@ -241,8 +262,8 @@ export default function Navbar() {
 
           {/* Expandable Search */}
           <div
-            className={`relative transition-all duration-300 ${
-              searchActive ? 'w-72' : 'w-10'
+            className={`relative shrink-0 transition-all duration-300 ${
+              searchActive ? 'w-44 sm:w-72' : 'w-10'
             }`}
           >
             <form onSubmit={handleSearchSubmit}>
@@ -264,16 +285,16 @@ export default function Navbar() {
                 }`}
               />
             </form>
-            {searchActive && filteredResults.length > 0 && showResults && (
-              <div className="absolute top-full mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-xl z-50 max-h-64 overflow-y-auto">
-                {filteredResults.map((course: any) => (
+            {searchActive && courses.length > 0 && showResults && (
+              <div className="absolute top-full right-0 mt-2 w-[calc(100vw-3rem)] max-w-80 bg-white border border-gray-200 rounded-lg shadow-xl z-50 max-h-64 overflow-y-auto">
+                {courses.map((course) => (
                   <button
                     key={course._id}
                     onClick={() => handleResultClick(course._id)}
                     className="w-full text-left px-4 py-3 hover:bg-slate-50 border-b border-gray-100 last:border-b-0 transition"
                   >
                     <p className="text-sm font-medium text-slate-900 line-clamp-1">
-                      {course.name || course.title}
+                      {course.name}
                     </p>
                     <p className="text-xs text-slate-500 line-clamp-1">
                       {course.description?.substring(0, 60)}...
@@ -313,14 +334,14 @@ export default function Navbar() {
         )}
 
         <nav
-          className={`w-full lg:block max-lg:fixed max-lg:top-0 max-lg:left-0 max-lg:w-1/2 max-lg:min-w-75 max-lg:h-full max-lg:bg-white max-lg:p-6 max-lg:shadow-md max-lg:overflow-auto max-lg:transition-transform max-lg:duration-300 z-50 ${
+          className={`w-full lg:block max-lg:fixed max-lg:top-0 max-lg:left-0 max-lg:w-72 max-lg:max-w-[85vw] max-lg:h-full max-lg:bg-white max-lg:p-6 max-lg:shadow-md max-lg:overflow-auto max-lg:transition-transform max-lg:duration-300 z-50 ${
             isOpen ? 'max-lg:translate-x-0' : 'max-lg:-translate-x-full'
           }`}
         >
           {/* Close Button */}
           <button
             aria-label="Close Menu"
-            className="lg:hidden fixed top-2 right-4 z-60 w-9 h-9 flex items-center justify-center border border-gray-200 rounded-full bg-white"
+            className="lg:hidden fixed top-2 right-4 z-50 w-9 h-9 flex items-center justify-center border border-gray-200 rounded-full bg-white"
             onClick={() => setIsOpen(false)}
           >
             ✕
@@ -483,7 +504,7 @@ export default function Navbar() {
                     prefetch={false}
                     className={`block text-[15px] font-medium transition ${
                       isActive(item.href)
-                        ? 'text-blue-900 font-semibold border-b-2 border-blue-900'
+                        ? 'text-blue-900 font-semibold max-lg:border-b-0 lg:border-b-2 lg:border-blue-900'
                         : 'text-slate-500 hover:text-blue-600'
                     }`}
                   >

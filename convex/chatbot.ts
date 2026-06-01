@@ -8,7 +8,30 @@ const MAX_MESSAGE_LENGTH = 500;
 const MAX_MESSAGES_PER_SESSION = 30;
 const MAX_CHUNKS_CONTEXT = 8;
 
-const OPENROUTER_MODEL = "mistralai/mistral-nemo";
+const PER_MODEL_RETRIES = 1;
+const PER_MODEL_BACKOFF_MS = 1000;
+const FALLBACK_LOOKAHEAD = 2;
+
+function isFreeModel(id: string): boolean {
+  return id.endsWith(":free") || id === "openrouter/free";
+}
+
+function loadFreeModels(): string[] {
+  const raw = process.env.OPENROUTER_MODELS || "";
+  const list = raw
+    .split(",")
+    .map((m) => m.trim())
+    .filter(Boolean);
+
+  for (const m of list) {
+    if (!isFreeModel(m)) {
+      throw new Error(
+        `OPENROUTER_MODELS contains a non-free model "${m}". Only :free variants or "openrouter/free" are allowed.`,
+      );
+    }
+  }
+  return list;
+}
 
 export const getChatHistory = query({
   args: { sessionId: v.string() },
@@ -132,7 +155,7 @@ export const sendChatMessage = action({
       answer = "I\u2019m not sure based on the information available on the website. Please contact Sozim directly for confirmation.";
     } else {
       const context = relevantChunks
-        .map((c: any) => `[Source: ${c.title} (${c.url})]\n${c.content}`)
+        .map((c) => `[Source: ${c.title} (${c.url})]\n${c.content}`)
         .join("\n\n---\n\n");
 
       const prompt = `You are the official chatbot assistant for Sozim.
@@ -160,42 +183,75 @@ ${trimmed}`;
         throw new Error("OpenRouter API key is not configured.");
       }
 
-      for (let attempt = 0; attempt < 3; attempt++) {
-        if (attempt > 0) {
-          await new Promise((r) => setTimeout(r, 2000 * attempt));
+      const models = loadFreeModels();
+      if (models.length === 0) {
+        throw new Error("No free models configured. Set OPENROUTER_MODELS in your environment.");
+      }
+
+      const FALLBACK_MESSAGE = "I\u2019m not sure based on the information available on the website. Please contact Sozim directly for confirmation.";
+      answer = FALLBACK_MESSAGE;
+      let served = false;
+      let lastError = "";
+
+      for (let i = 0; i < models.length && !served; i++) {
+        const primary = models[i];
+        const nativeFallbacks = models.slice(i + 1, i + 1 + FALLBACK_LOOKAHEAD);
+        const modelsField = [primary, ...nativeFallbacks].slice(0, 3);
+
+        for (let attempt = 0; attempt <= PER_MODEL_RETRIES && !served; attempt++) {
+          if (attempt > 0) {
+            await new Promise((r) => setTimeout(r, PER_MODEL_BACKOFF_MS));
+          }
+
+          let response: Response;
+          try {
+            response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${openrouterKey}`,
+                "HTTP-Referer": process.env.SITE_URL || "https://sozim.co.za",
+                "X-Title": "Sozim Chatbot",
+              },
+              body: JSON.stringify({
+                model: primary,
+                models: modelsField,
+                messages: [
+                  { role: "user", content: prompt },
+                ],
+                temperature: 0.3,
+                max_tokens: 500,
+              }),
+            });
+          } catch (e) {
+            lastError = `network: ${(e as Error).message}`;
+            console.error(`[sendChatMessage] ${primary} attempt ${attempt + 1} network error:`, e);
+            continue;
+          }
+
+          if (response.ok) {
+            const data = await response.json();
+            const text = data?.choices?.[0]?.message?.content?.trim();
+            if (text) {
+              answer = text;
+              served = true;
+              console.log(`[sendChatMessage] served by ${primary}`);
+            }
+            break;
+          }
+
+          const errorText = await response.text().catch(() => "");
+          lastError = `HTTP ${response.status}`;
+          console.error(`[sendChatMessage] ${primary} attempt ${attempt + 1} failed:`, response.status, errorText);
+
+          if (response.status === 401 || response.status === 402) {
+            throw new Error("Chatbot is not properly configured. Please contact support.");
+          }
         }
+      }
 
-        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${openrouterKey}`,
-            "HTTP-Referer": process.env.SITE_URL || "https://sozim.co.za",
-            "X-Title": "Sozim Chatbot",
-          },
-          body: JSON.stringify({
-            model: OPENROUTER_MODEL,
-            messages: [
-              { role: "user", content: prompt },
-            ],
-            temperature: 0.3,
-            max_tokens: 500,
-          }),
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          const text = data?.choices?.[0]?.message?.content?.trim();
-          if (text) answer = text;
-          break;
-        }
-
-        const errorText = await response.text();
-        console.error(`[sendChatMessage] Attempt ${attempt + 1} failed:`, response.status, errorText);
-
-        if (response.status !== 429) {
-          throw new Error("Failed to generate response. Please try again.");
-        }
+      if (!served && lastError) {
+        throw new Error("All chatbot models are temporarily busy. Please try again in a minute.");
       }
     }
 
@@ -220,18 +276,21 @@ export const searchContentChunks = query({
     const allChunks = await ctx.db.query("websiteContentChunks").collect();
     if (allChunks.length === 0) return [];
 
+    const tokenRegexes = queryTokens.map(
+      (token) => new RegExp(`\\b${token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'i'),
+    );
+
     const scored = allChunks.map((chunk) => {
       let score = 0;
       const titleLower = chunk.title.toLowerCase();
       const contentLower = chunk.content.toLowerCase();
       const urlLower = chunk.url.toLowerCase();
 
-      for (const token of queryTokens) {
+      for (let i = 0; i < queryTokens.length; i++) {
+        const token = queryTokens[i];
         if (titleLower.includes(token)) score += 5;
         if (urlLower.includes(token)) score += 3;
-        const regex = new RegExp(`\\b${token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'i');
-        if (regex.test(contentLower)) score += 2;
-
+        if (tokenRegexes[i].test(contentLower)) score += 2;
         if (contentLower.includes(token)) score += 1;
       }
 

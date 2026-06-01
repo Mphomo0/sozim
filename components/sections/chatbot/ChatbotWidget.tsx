@@ -25,20 +25,17 @@ export default function ChatbotWidget() {
   const [isOpen, setIsOpen] = useState(false)
   const [input, setInput] = useState('')
   const [isSending, setIsSending] = useState(false)
-  const [sessionId, setSessionId] = useState('')
+  const [sessionId] = useState(generateSessionId)
   const [localMessages, setLocalMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      message: 'Hi, I\u2019m Sozim\u2019s assistant. Ask me about our programs, career pathways, or how to contact us.',
+      message:
+        'Hi, I\u2019m Sozim\u2019s assistant. Ask me about our programs, career pathways, or how to contact us.',
     },
   ])
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
-
-  useEffect(() => {
-    setSessionId(generateSessionId())
-  }, [])
 
   const createSession = useMutation(api.chatbot.createChatSession)
   const sendMessage = useAction(api.chatbot.sendChatMessage)
@@ -52,18 +49,13 @@ export default function ChatbotWidget() {
       setLocalMessages([
         {
           role: 'assistant',
-          message: 'Hi, I\u2019m Sozim\u2019s assistant. Ask me about our programs, career pathways, or how to contact us.',
+          message:
+            'Hi, I\u2019m Sozim\u2019s assistant. Ask me about our programs, career pathways, or how to contact us.',
         },
         ...storedMessages,
       ])
     }
   }, [storedMessages])
-
-  useEffect(() => {
-    if (isOpen && sessionId) {
-      createSession({ sessionId })
-    }
-  }, [isOpen, sessionId, createSession])
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -105,12 +97,16 @@ export default function ChatbotWidget() {
           createdAt: Date.now(),
         },
       ])
-    } catch {
+    } catch (err) {
+      const message =
+        err instanceof Error && err.message
+          ? err.message
+          : 'Sorry, something went wrong. Please try again later.'
       setLocalMessages((prev) => [
         ...prev,
         {
           role: 'assistant',
-          message: 'Sorry, something went wrong. Please try again later.',
+          message,
           createdAt: Date.now(),
         },
       ])
@@ -132,12 +128,15 @@ export default function ChatbotWidget() {
   return (
     <>
       {isOpen && (
-        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 md:hidden" onClick={() => setIsOpen(false)} />
+        <div
+          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 md:hidden"
+          onClick={() => setIsOpen(false)}
+        />
       )}
 
       <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-3">
         {isOpen && (
-          <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 w-[380px] max-w-[calc(100vw-2rem)] h-[560px] max-h-[calc(100vh-8rem)] flex flex-col overflow-hidden animate-fade-in">
+          <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 w-95 max-w-[calc(100vw-2rem)] h-140 max-h-[calc(100vh-8rem)] flex flex-col overflow-hidden animate-fade-in">
             <div className="flex items-center justify-between px-4 py-3 bg-blue-900 text-white shrink-0">
               <div className="flex items-center gap-2">
                 <Sparkles className="w-5 h-5" />
@@ -217,7 +216,11 @@ export default function ChatbotWidget() {
         )}
 
         <button
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={() => {
+            const next = !isOpen
+            setIsOpen(next)
+            if (next && sessionId) createSession({ sessionId })
+          }}
           aria-label={isOpen ? 'Close chat' : 'Open chat'}
           className="w-14 h-14 rounded-full bg-blue-900 text-white shadow-lg hover:bg-blue-800 transition-all duration-200 flex items-center justify-center hover:scale-105 active:scale-95"
         >
