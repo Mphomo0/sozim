@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
+import { redirect, notFound } from 'next/navigation'
 import CourseDetail from '@/components/sections/programs/CourseDetail'
 import PageHeader from '@/components/global/PageHeader'
 import { getBreadcrumbSchema, getCourseSchema } from '@/lib/seo/schemas'
-import { getCachedCourses, getCachedCourseById } from '@/lib/queries'
+import { getCachedCourses, getCachedCourseById, getCachedCourseBySlug } from '@/lib/queries'
 import type { Id } from '@/convex/_generated/dataModel'
 
 const BASE_URL = 'https://www.sozim.co.za'
@@ -12,7 +13,11 @@ export const revalidate = 3600 // re-render at most once per hour
 export async function generateStaticParams() {
   try {
     const courses = await getCachedCourses()
-    return courses.map((course) => ({ id: course._id }))
+    // Emit slug-based params for courses that have a slug.
+    // Convex-ID paths resolve dynamically via fallback — no need to pre-render them.
+    return courses
+      .filter((course) => course.slug)
+      .map((course) => ({ id: course.slug as string }))
   } catch {
     return []
   }
@@ -24,17 +29,12 @@ export async function generateMetadata({
   params: Promise<{ id: string }>
 }): Promise<Metadata> {
   const { id } = await params
-  const isConvexId = id && id.length === 32
-
-  if (!isConvexId) {
-    return {
-      title: 'Course Not Found | Sozim',
-      robots: { index: false, follow: false },
-    }
-  }
+  const isConvexId = id.length === 32
 
   try {
-    const course = await getCachedCourseById(id as Id<'courses'>)
+    const course = isConvexId
+      ? await getCachedCourseById(id as Id<'courses'>)
+      : await getCachedCourseBySlug(id)
 
     if (!course) {
       return {
@@ -43,7 +43,7 @@ export async function generateMetadata({
       }
     }
 
-    const courseUrl = `${BASE_URL}/courses/${id}`
+    const courseUrl = `${BASE_URL}/courses/${course.slug ?? id}`
     const title = `${course.name} | Sozim`
     const description =
       course.description ||
@@ -95,20 +95,29 @@ export default async function SingleCourse({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const isConvexId = id && id.length === 32
+  const isConvexId = id.length === 32
 
   let initialCourse = null
-  if (isConvexId) {
-    try {
+  try {
+    if (isConvexId) {
       // getCachedCourseById deduplicates with the generateMetadata call above —
       // Convex is only queried once per request regardless.
       initialCourse = await getCachedCourseById(id as Id<'courses'>)
-    } catch {
-      // fall through — CourseDetail handles the null case
+    } else {
+      initialCourse = await getCachedCourseBySlug(id)
+      if (!initialCourse) notFound()
     }
+  } catch {
+    // fall through — CourseDetail handles the null case
   }
 
-  const courseUrl = `${BASE_URL}/courses/${id}`
+  // If we arrived via a Convex ID but the course has a canonical slug,
+  // permanently redirect to the slug URL.
+  if (isConvexId && initialCourse?.slug) {
+    redirect(`/courses/${initialCourse.slug}`)
+  }
+
+  const courseUrl = `${BASE_URL}/courses/${initialCourse?.slug ?? id}`
   const courseName = initialCourse?.name || 'Course Details'
   const courseDescription =
     initialCourse?.description ||

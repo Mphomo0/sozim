@@ -5,6 +5,7 @@ import {
   UseFormRegister,
   FieldErrors,
   Control,
+  Controller,
   useFieldArray,
 } from 'react-hook-form'
 import { CourseInput } from './types'
@@ -88,6 +89,19 @@ export function CourseForm({ register, errors, control }: CourseFormProps) {
               placeholder="e.g. HC-WM-01"
             />
             {errors.code && <p className="text-xs text-red-500 font-medium">{errors.code.message}</p>}
+          </div>
+
+          {/* SLUG */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700">Slug (URL-safe, auto-generated)</label>
+            <Input
+              {...register('slug')}
+              type="text"
+              className="h-11 bg-white border-gray-200 focus:ring-indigo-500 focus:border-indigo-500 rounded-xl font-mono text-sm"
+              placeholder="library-assistant-nqf-3"
+            />
+            <p className="text-xs text-gray-500">Lowercase letters, numbers, and hyphens only. Used in the course URL.</p>
+            {errors.slug && <p className="text-xs text-red-500 font-medium">{errors.slug.message}</p>}
           </div>
 
           {/* QUALIFICATION */}
@@ -176,6 +190,31 @@ export function CourseForm({ register, errors, control }: CourseFormProps) {
             {...register('description')}
             className="w-full p-4 bg-white border border-gray-200 focus:ring-indigo-500 focus:border-indigo-500 rounded-xl h-32 resize-y transition-all text-sm"
             placeholder="Write a comprehensive overview of this course..."
+          />
+        </div>
+
+        {/* CAREER OUTCOMES */}
+        <div className="space-y-2 pt-2">
+          <label className="text-sm font-medium text-gray-700">Career Outcomes (comma-separated)</label>
+          <Controller
+            control={control}
+            name="careerOutcomes"
+            render={({ field }) => (
+              <Input
+                type="text"
+                className="h-11 bg-white border-gray-200 focus:ring-indigo-500 focus:border-indigo-500 rounded-xl text-sm"
+                placeholder="Library Assistant, Information Officer, Records Manager"
+                value={field.value?.join(', ') ?? ''}
+                onChange={(e) =>
+                  field.onChange(
+                    e.target.value
+                      .split(',')
+                      .map((s) => s.trim())
+                      .filter(Boolean)
+                  )
+                }
+              />
+            )}
           />
         </div>
 

@@ -16,6 +16,8 @@ export const courseSchema = z.object({
   entryRequirements: z.array(z.string()),
   qualification: z.string().optional(),
   level: z.string().optional(),
+  slug: z.string().optional(),
+  careerOutcomes: z.array(z.string()).optional(),
 
   modules: z
     .object({
@@ -48,6 +50,8 @@ export type Course = {
   categoryId: string | { _id: string; name: string }
   qualification?: string
   level?: string
+  slug?: string
+  careerOutcomes?: string[]
 
   modules?: {
     knowledgeModules?: { title: string; nqfLevel?: number; credits?: number }[]

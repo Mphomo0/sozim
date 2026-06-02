@@ -16,7 +16,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const courses = await getCachedCourses()
     coursePages = courses.map((course) => ({
-      url: `${baseUrl}/courses/${course._id}`,
+      url: `${baseUrl}/courses/${course.slug ?? course._id}`,
       lastModified,
       changeFrequency: 'monthly' as const,
       priority: 0.8,
