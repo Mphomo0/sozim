@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { redirect, notFound } from 'next/navigation'
+import { permanentRedirect, notFound } from 'next/navigation'
 import CourseDetail from '@/components/sections/programs/CourseDetail'
 import PageHeader from '@/components/global/PageHeader'
 import { getBreadcrumbSchema, getCourseSchema } from '@/lib/seo/schemas'
@@ -9,6 +9,7 @@ import type { Id } from '@/convex/_generated/dataModel'
 const BASE_URL = 'https://www.sozim.co.za'
 
 export const revalidate = 3600 // re-render at most once per hour
+export const dynamicParams = true
 
 export async function generateStaticParams() {
   try {
@@ -29,7 +30,7 @@ export async function generateMetadata({
   params: Promise<{ id: string }>
 }): Promise<Metadata> {
   const { id } = await params
-  const isConvexId = id.length === 32
+  const isConvexId = /^[a-z0-9]{32}$/.test(id)
 
   try {
     const course = isConvexId
@@ -95,7 +96,7 @@ export default async function SingleCourse({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const isConvexId = id.length === 32
+  const isConvexId = /^[a-z0-9]{32}$/.test(id)
 
   let initialCourse = null
   try {
@@ -113,8 +114,10 @@ export default async function SingleCourse({
 
   // If we arrived via a Convex ID but the course has a canonical slug,
   // permanently redirect to the slug URL.
+  if (isConvexId && !initialCourse) notFound()
+
   if (isConvexId && initialCourse?.slug) {
-    redirect(`/courses/${initialCourse.slug}`)
+    permanentRedirect(`/courses/${initialCourse.slug}`)
   }
 
   const courseUrl = `${BASE_URL}/courses/${initialCourse?.slug ?? id}`

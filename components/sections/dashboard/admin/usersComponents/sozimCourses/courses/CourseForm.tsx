@@ -1,11 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import {
   UseFormRegister,
   FieldErrors,
   Control,
-  Controller,
   useFieldArray,
 } from 'react-hook-form'
 import { CourseInput } from './types'
@@ -33,13 +31,6 @@ export function CourseForm({ register, errors, control }: CourseFormProps) {
   const isError = categoriesReq === null
   const categories = categoriesReq || []
   
-  useEffect(() => {
-    console.log('[CourseForm] categoriesReq:', categoriesReq)
-    console.log('[CourseForm] loading:', loading)
-    console.log('[CourseForm] isError:', isError)
-    console.log('[CourseForm] categories:', categories)
-  }, [categoriesReq, loading, isError, categories])
-
   // Field arrays
   const knowledgeFA = useFieldArray({
     control,
@@ -56,6 +47,10 @@ export function CourseForm({ register, errors, control }: CourseFormProps) {
   const entryReqFA = useFieldArray({
     control,
     name: 'entryRequirements' as any,
+  })
+  const careerOutcomeFA = useFieldArray({
+    control,
+    name: 'careerOutcomes' as any,
   })
 
   return (
@@ -195,27 +190,41 @@ export function CourseForm({ register, errors, control }: CourseFormProps) {
 
         {/* CAREER OUTCOMES */}
         <div className="space-y-2 pt-2">
-          <label className="text-sm font-medium text-gray-700">Career Outcomes (comma-separated)</label>
-          <Controller
-            control={control}
-            name="careerOutcomes"
-            render={({ field }) => (
-              <Input
-                type="text"
-                className="h-11 bg-white border-gray-200 focus:ring-indigo-500 focus:border-indigo-500 rounded-xl text-sm"
-                placeholder="Library Assistant, Information Officer, Records Manager"
-                value={field.value?.join(', ') ?? ''}
-                onChange={(e) =>
-                  field.onChange(
-                    e.target.value
-                      .split(',')
-                      .map((s) => s.trim())
-                      .filter(Boolean)
-                  )
-                }
-              />
+          <label className="text-sm font-medium text-gray-700">Career Outcomes</label>
+          <div className="space-y-3 max-w-2xl">
+            {careerOutcomeFA.fields.length === 0 ? (
+              <div className="text-sm text-gray-400 italic py-2">No career outcomes specified.</div>
+            ) : (
+              careerOutcomeFA.fields.map((field, index) => (
+                <div key={field.id} className="flex items-center gap-3 animate-in slide-in-from-left-2 duration-300">
+                  <div className="h-2 w-2 rounded-full bg-indigo-200 shrink-0" />
+                  <Input
+                    {...register(`careerOutcomes.${index}` as const)}
+                    className="flex-1 h-10 bg-white border-gray-200 focus:border-indigo-500 rounded-xl text-sm"
+                    placeholder="e.g. Library Assistant"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="text-gray-400 hover:text-rose-600 hover:bg-rose-50 h-10 w-10 shrink-0 rounded-xl"
+                    onClick={() => careerOutcomeFA.remove(index)}
+                    title="Remove career outcome"
+                  >
+                    <Trash2 size={18} />
+                  </Button>
+                </div>
+              ))
             )}
-          />
+            <Button
+              type="button"
+              variant="ghost"
+              className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 px-2 mt-2 font-medium text-sm"
+              onClick={() => careerOutcomeFA.append('')}
+            >
+              <Plus size={16} className="mr-2" /> Add Career Outcome
+            </Button>
+          </div>
         </div>
 
         {/* SETTINGS (IsOpen) */}

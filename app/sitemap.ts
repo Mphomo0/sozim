@@ -15,12 +15,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let coursePages: MetadataRoute.Sitemap = []
   try {
     const courses = await getCachedCourses()
-    coursePages = courses.map((course) => ({
-      url: `${baseUrl}/courses/${course.slug ?? course._id}`,
-      lastModified,
-      changeFrequency: 'monthly' as const,
-      priority: 0.8,
-    }))
+    coursePages = courses
+      .filter((course) => course.slug)
+      .map((course) => ({
+        url: `${baseUrl}/courses/${course.slug}`,
+        lastModified,
+        changeFrequency: 'monthly' as const,
+        priority: 0.8,
+      }))
   } catch {
     // sitemap still generates without course pages if Convex is unreachable
   }

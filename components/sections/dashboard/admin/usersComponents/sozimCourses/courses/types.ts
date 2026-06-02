@@ -16,7 +16,7 @@ export const courseSchema = z.object({
   entryRequirements: z.array(z.string()),
   qualification: z.string().optional(),
   level: z.string().optional(),
-  slug: z.string().optional(),
+  slug: z.string().regex(/^[a-z0-9-]+$/, 'Slug must be lowercase letters, numbers, and hyphens').optional(),
   careerOutcomes: z.array(z.string()).optional(),
 
   modules: z
