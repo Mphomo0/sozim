@@ -322,16 +322,7 @@ export function getCourseSchema(params: {
     ...(params.occupationalCategory && { occupationalCategory: params.occupationalCategory }),
     ...(params.programType && { programType: params.programType }),
     ...(params.careerOutcomes && params.careerOutcomes.length > 0 && {
-      occupationalCredentialAwarded: {
-        '@type': 'EducationalOccupationalCredential',
-        credentialCategory: params.programType || 'Certificate',
-        recognizedBy: [
-          { '@type': 'Organization', name: 'ETDP SETA' },
-          { '@type': 'Organization', name: 'QCTO' },
-          { '@type': 'Organization', name: 'SAQA' },
-        ],
-        occupationalCategory: params.careerOutcomes.join(', '),
-      },
+      keywords: params.careerOutcomes.join(', '),
     }),
 
     offers: {

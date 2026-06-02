@@ -47,6 +47,26 @@ describe('getCourseSchema', () => {
     const schema = getCourseSchema({ name: 'Test', description: 'Desc', occupationalCategory: 'Library and Information Science' })
     expect(schema.occupationalCategory).toBe('Library and Information Science')
   })
+
+  it('omits educationalLevel when level is not provided', () => {
+    const schema = getCourseSchema({ name: 'Test Course', description: 'A test' })
+    expect(schema).not.toHaveProperty('educationalLevel')
+  })
+
+  it('omits prerequisites when not provided', () => {
+    const schema = getCourseSchema({ name: 'Test Course', description: 'A test' })
+    expect(schema).not.toHaveProperty('coursePrerequisites')
+  })
+
+  it('omits teaches when not provided', () => {
+    const schema = getCourseSchema({ name: 'Test Course', description: 'A test' })
+    expect(schema).not.toHaveProperty('teaches')
+  })
+
+  it('omits occupationalCategory when not provided', () => {
+    const schema = getCourseSchema({ name: 'Test Course', description: 'A test' })
+    expect(schema).not.toHaveProperty('occupationalCategory')
+  })
 })
 
 describe('getArticleSchema', () => {
