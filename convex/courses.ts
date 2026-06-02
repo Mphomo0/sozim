@@ -1,5 +1,5 @@
 import { query, mutation } from './_generated/server'
-import { v } from 'convex/values'
+import { v, ConvexError } from 'convex/values'
 
 export const getCourses = query({
   args: {},
@@ -46,6 +46,16 @@ export const getCourseById = query({
   },
 })
 
+export const getCourseBySlug = query({
+  args: { slug: v.string() },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("courses")
+      .withIndex("by_slug", (q) => q.eq("slug", args.slug))
+      .unique();
+  },
+})
+
 export const createCourse = mutation({
   args: {
     name: v.string(),
@@ -59,9 +69,20 @@ export const createCourse = mutation({
     isPopular: v.optional(v.boolean()),
     image: v.optional(v.string()),
     modules: v.optional(v.any()), // Temporarily accept arbitrary shape to unblock TS
+    slug: v.optional(v.string()),
+    careerOutcomes: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
     const { categoryId, price, isPopular, image, features, ...rest } = args
+    if (rest.slug) {
+      const existing = await ctx.db
+        .query("courses")
+        .withIndex("by_slug", (q) => q.eq("slug", rest.slug!))
+        .unique()
+      if (existing) {
+        throw new ConvexError("Slug already in use")
+      }
+    }
     return await ctx.db.insert('courses', {
       ...rest,
       categoryId: categoryId,
@@ -88,9 +109,20 @@ export const updateCourse = mutation({
     level: v.optional(v.string()),
     creditTotals: v.optional(v.any()),
     entryRequirements: v.optional(v.array(v.string())),
+    slug: v.optional(v.string()),
+    careerOutcomes: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
     const { id, ...rest } = args
+    if (rest.slug) {
+      const existing = await ctx.db
+        .query("courses")
+        .withIndex("by_slug", (q) => q.eq("slug", rest.slug!))
+        .unique()
+      if (existing && existing._id !== id) {
+        throw new ConvexError("Slug already in use")
+      }
+    }
     await ctx.db.patch(id, rest)
     return await ctx.db.get(id)
   },

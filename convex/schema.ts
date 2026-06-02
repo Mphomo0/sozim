@@ -81,12 +81,15 @@ export default defineSchema({
     entryRequirements: v.optional(v.array(v.string())),
     qualification: v.optional(v.string()),
     level: v.optional(v.string()),
+    slug: v.optional(v.string()),
+    careerOutcomes: v.optional(v.array(v.string())),
 
     createdAt: v.optional(v.union(v.string(), v.number())),
     updatedAt: v.optional(v.union(v.string(), v.number())),
     __v: v.optional(v.number()),
   }).index("by_mongo_id", ["mongoId"])
-    .index("by_actual_category", ["actualCategoryId"]),
+    .index("by_actual_category", ["actualCategoryId"])
+    .index("by_slug", ["slug"]),
 
   applications: defineTable({
     mongoId: v.optional(v.string()),

@@ -19,6 +19,10 @@ export const getCachedCourseById = cache((id: Id<'courses'>) =>
   fetchQuery(api.courses.getCourseById, { id })
 )
 
+export const getCachedCourseBySlug = cache((slug: string) =>
+  fetchQuery(api.courses.getCourseBySlug, { slug })
+)
+
 export const getCachedNewsPosts = cache(() =>
   fetchQuery(api.newsPosts.getPublishedNewsPosts, {})
 )
