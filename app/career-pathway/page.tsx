@@ -54,29 +54,29 @@ export const metadata: Metadata = {
 }
 
 const careerHowToSchema = getHowToSchema({
-  name: 'How to Start Your Trading Career in South Africa',
+  name: 'How to Start a Career in Education and Training or Library Science in South Africa',
   description:
-    'A step-by-step guide to beginning your professional trading career through accredited education and structured professional development in South Africa.',
+    'A step-by-step guide to beginning a professional career in Education Training and Development (ETD) or Library and Information Science (LIS) through accredited education and structured professional development in South Africa.',
   steps: [
     {
-      name: 'Research Training Careers',
-      text: 'Explore the different types of training careers available in South Africa, including library Assistant, Learning and Development Facilitator, Assessment Practioner. Understand the skills, qualifications, and personality traits that contribute to success in each area.',
+      name: 'Research ETD and LIS Careers',
+      text: 'Explore career options in Education Training and Development (ETD) and Library and Information Science (LIS). ETD roles include learning facilitator, assessor, moderator, and instructional designer. LIS roles include library assistant, information specialist, records manager, and archivist. These roles are in demand across South African businesses, universities, government departments, and public libraries.',
     },
     {
       name: 'Choose an Accredited Programme',
-      text: 'Select a training education programme that is accredited in South Africa, such as those offered by Sozim Trading and Consultancy. Look for SAQA-registered qualifications or programmes that align with your career goals and provide recognised credentials.',
+      text: 'Select a SAQA-registered programme aligned to your career goals. Sozim offers LIS programmes at NQF Level 3 (Library Assistant) and ETD programmes at NQF Level 5 (Learning and Development Facilitator, Assessment Practitioner) and NQF Level 6 (Assessor and Moderator). Both online and contact learning options are available at sozim.co.za/courses.',
     },
     {
-      name: 'Complete Your Training Education',
-      text: 'Enrol and complete your chosen programme, whether beginner, intermediate, or advanced. Build a solid foundation in financial markets, trading strategies, risk management, and market analysis. Take advantage of practical exercises and real-world case studies.',
+      name: 'Complete Your Training',
+      text: 'Enrol and complete your chosen Sozim programme. LIS programmes run approximately 4–6 months. ETD facilitation and assessment programmes run 3–6 months. Attend contact sessions at the Bloemfontein campus or complete coursework fully online with facilitator support.',
     },
     {
-      name: 'Develop Practical Skills',
-      text: 'Practice training with demo accounts, develop your training plan, and refine your strategies. Many programmes include mentorship or supervised practice sessions. Focus on building discipline, emotional control, and systematic decision-making skills.',
+      name: 'Gain Practical Experience',
+      text: 'Apply your facilitation, assessment, or library skills in a real workplace setting. ETD programmes include work-integrated learning components and portfolio-of-evidence requirements for ETDP SETA submission. Practical experience accelerates career progression and strengthens your professional profile.',
     },
     {
-      name: 'Pursue Professional Development',
-      text: 'Continue learning through advanced courses, certifications, and staying updated on market developments. Consider joining professional training associations, networking with other trainers, and building your professional profile in the South African training community.',
+      name: 'Pursue Continuous Professional Development',
+      text: 'Advance to higher NQF levels, pursue SETA registration as an assessor or moderator, or move into instructional design and skills development management. Sozim\'s career pathways section outlines progression routes for each discipline from beginner to senior practitioner.',
     },
   ],
 })

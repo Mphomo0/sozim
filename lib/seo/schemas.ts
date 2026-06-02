@@ -99,14 +99,6 @@ export function getOrganizationSchema() {
       },
     ],
 
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: '4.8',
-      reviewCount: '127',
-      bestRating: '5',
-      worstRating: '1',
-    },
-
     sameAs: [
       'https://www.facebook.com/sozimtrading',
       'https://www.instagram.com/sozimtrading',
@@ -262,14 +254,6 @@ export function getLocalBusinessSchema() {
       },
     ],
 
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: '4.8',
-      reviewCount: '127',
-      bestRating: '5',
-      worstRating: '1',
-    },
-
     priceRange: 'ZAR',
     currenciesAccepted: 'ZAR',
     paymentAccepted: 'Cash, Credit Card, Bank Transfer, EFT',
@@ -297,10 +281,13 @@ export function getCourseSchema(params: {
   prerequisites?: string
   inLanguage?: string
   isOpen?: boolean
+  occupationalCategory?: string
+  careerOutcomes?: string[]
+  programType?: string
 }) {
   return {
     '@context': 'https://schema.org',
-    '@type': 'Course',
+    '@type': ['Course', 'EducationalOccupationalProgram'],
     '@id': `${params.url || BASE_URL + '/courses'}#course`,
     name: params.name,
     description: params.description,
@@ -330,6 +317,21 @@ export function getCourseSchema(params: {
 
     ...(params.prerequisites && {
       coursePrerequisites: params.prerequisites,
+    }),
+
+    ...(params.occupationalCategory && { occupationalCategory: params.occupationalCategory }),
+    ...(params.programType && { programType: params.programType }),
+    ...(params.careerOutcomes && params.careerOutcomes.length > 0 && {
+      occupationalCredentialAwarded: {
+        '@type': 'EducationalOccupationalCredential',
+        credentialCategory: params.programType || 'Certificate',
+        recognizedBy: [
+          { '@type': 'Organization', name: 'ETDP SETA' },
+          { '@type': 'Organization', name: 'QCTO' },
+          { '@type': 'Organization', name: 'SAQA' },
+        ],
+        occupationalCategory: params.careerOutcomes.join(', '),
+      },
     }),
 
     offers: {
@@ -495,10 +497,12 @@ export function getArticleSchema(params: {
   author?: string
   keywords?: string[]
   image?: string
+  type?: 'Article' | 'NewsArticle'
+  articleSection?: string
 }) {
   return {
     '@context': 'https://schema.org',
-    '@type': 'Article',
+    '@type': params.type || 'Article',
     '@id': `${params.url || BASE_URL}#article`,
 
     headline: params.headline,
@@ -528,6 +532,7 @@ export function getArticleSchema(params: {
     },
 
     ...(params.keywords && { keywords: params.keywords.join(', ') }),
+    ...(params.articleSection && { articleSection: params.articleSection }),
   }
 }
 

@@ -18,21 +18,23 @@ import { getFAQSchema, getBreadcrumbSchema } from '@/lib/seo/schemas'
 const BASE_URL = 'https://www.sozim.co.za'
 
 export const metadata: Metadata = {
-  title: 'Apply Now',
+  title: 'Apply for Accredited LIS and ETD Programmes | Sozim',
   description:
-    'Apply for accredited trading courses and professional training in South Africa. Start your trading career today!',
+    'Apply online for ETDP SETA accredited programmes in Library and Information Science (LIS) and Education Training and Development (ETD) at Sozim in Bloemfontein. No application fee. Intakes in January, April, July, and October.',
   keywords: [
     'apply Sozim',
-    'enroll trading courses South Africa',
-    'student application form',
-    'accredited courses application',
-    'trading education enrollment',
-    'professional training SA',
+    'enrol LIS course South Africa',
+    'ETD programme application',
+    'student application accredited college',
+    'library assistant application Bloemfontein',
+    'education training development course application',
+    'ETDP SETA accredited course apply',
+    'accredited college application Bloemfontein',
   ],
   openGraph: {
-    title: 'Apply Now | Sozim',
+    title: 'Apply for Accredited LIS and ETD Programmes | Sozim',
     description:
-      'Apply for accredited trading courses and professional training in South Africa. Start your trading career!',
+      'Apply online for ETDP SETA accredited LIS and ETD programmes at Sozim in Bloemfontein. No application fee. Four intakes per year.',
     url: `${BASE_URL}/apply`,
     siteName: 'Sozim',
     type: 'website',
@@ -41,7 +43,7 @@ export const metadata: Metadata = {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'Apply for Sozim Courses',
+        alt: 'Apply for Sozim Accredited Education Programmes',
         type: 'image/jpeg',
       },
     ],
@@ -98,12 +100,12 @@ export default function ApplyPage() {
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
             <div className="max-w-3xl mx-auto text-center">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-slate-900 mb-6">
-                Apply for Your Future
+                Start Your Academic Journey at Sozim
               </h1>
               <p className="text-xl text-slate-600 mb-8 leading-relaxed">
-                Take the first step toward mastering the markets. Our accredited
-                programmes are designed to transform your trading skills and
-                career prospects.
+                Apply online for ETDP SETA accredited programmes in Library and
+                Information Science (LIS) and Education Training and Development
+                (ETD). Study contact or online. Intakes run four times a year.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button
@@ -134,25 +136,27 @@ export default function ApplyPage() {
               {[
                 {
                   icon: GraduationCap,
-                  title: 'Accredited Programmes',
+                  title: 'ETDP SETA Accredited',
                   description:
-                    'Earn recognized certificates that employers trust.',
+                    'Earn certificates recognised by South African employers, SETAs, and institutions.',
                 },
                 {
                   icon: Globe,
                   title: 'Online & In-Person',
-                  description: 'Learn your way with flexible delivery options.',
+                  description:
+                    'Study at the Bloemfontein campus or fully online from anywhere in South Africa.',
                 },
                 {
                   icon: Clock,
-                  title: 'Quick Enrollment',
+                  title: 'Four Intakes Per Year',
                   description:
-                    'Simple application process with fast turnaround.',
+                    'January, April, July, and October — apply year-round, no deadline pressure.',
                 },
                 {
                   icon: Shield,
-                  title: 'Trusted Education',
-                  description: 'SAQA-aligned courses with expert instructors.',
+                  title: 'No Application Fee',
+                  description:
+                    'Applying to Sozim is completely free. Contact us to start your journey.',
                 },
               ].map((benefit, idx) => (
                 <div
@@ -184,19 +188,19 @@ export default function ApplyPage() {
                     number: '01',
                     title: 'Choose Your Programme',
                     description:
-                      'Browse our courses and select the one that matches your career goals.',
+                      'Browse our LIS and ETD courses at sozim.co.za/courses and select the one that matches your career goals and NQF level.',
                   },
                   {
                     number: '02',
-                    title: 'Submit Application',
+                    title: 'Submit Your Application',
                     description:
-                      'Fill out our simple online form with your details and programme choice.',
+                      'Complete the online application form with your personal details, chosen programme, and preferred study mode (contact or online).',
                   },
                   {
                     number: '03',
-                    title: 'Get Confirmed',
+                    title: 'Receive Your Confirmation',
                     description:
-                      'Receive confirmation and next steps within 2 business days.',
+                      'Applications are reviewed within 5–7 business days. You will receive confirmation and enrolment instructions by email.',
                   },
                 ].map((step, idx) => (
                   <div key={idx} className="flex gap-6">
@@ -221,11 +225,11 @@ export default function ApplyPage() {
         <section className="py-16 lg:py-24 bg-linear-to-br from-blue-900 to-blue-800">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-              Ready to Transform Your Career?
+              Ready to Enrol in an Accredited Programme?
             </h2>
             <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-              Join hundreds of students who have already taken the leap. Your
-              future starts with a single application.
+              Join 5,000+ graduates who have advanced their careers with
+              Sozim's accredited LIS and ETD qualifications.
             </p>
             <Button
               size="lg"
@@ -242,22 +246,17 @@ export default function ApplyPage() {
         <section className="py-12 bg-slate-50">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-wrap justify-center gap-6 text-sm text-slate-500">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-green-600" />
-                <span>SAQA Accredited</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-green-600" />
-                <span>QCTO Registered</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-green-600" />
-                <span>Secure Enrollment</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-green-600" />
-                <span>Expert Support</span>
-              </div>
+              {[
+                { label: 'ETDP SETA Accredited' },
+                { label: 'QCTO Registered' },
+                { label: 'SAQA Aligned' },
+                { label: 'Free Application' },
+              ].map(({ label }) => (
+                <div key={label} className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-green-600" />
+                  <span>{label}</span>
+                </div>
+              ))}
             </div>
           </div>
         </section>

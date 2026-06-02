@@ -27,7 +27,6 @@
 
 # test files
 test-*.ts
-__tests__/
 
 # debug
 npm-debug.log*
