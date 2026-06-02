@@ -52,7 +52,7 @@ export const getCourseBySlug = query({
     return await ctx.db
       .query("courses")
       .withIndex("by_slug", (q) => q.eq("slug", args.slug))
-      .unique();
+      .first();
   },
 })
 
@@ -74,13 +74,21 @@ export const createCourse = mutation({
   },
   handler: async (ctx, args) => {
     const { categoryId, price, isPopular, image, features, ...rest } = args
-    if (rest.slug) {
+    if (rest.slug !== undefined) {
+      const normalizedSlug = rest.slug.trim().toLowerCase()
+      if (!normalizedSlug) {
+        throw new ConvexError('Slug cannot be empty')
+      }
+      if (!/^[a-z0-9-]+$/.test(normalizedSlug)) {
+        throw new ConvexError('Slug must contain only lowercase letters, numbers, and hyphens')
+      }
+      rest.slug = normalizedSlug
       const existing = await ctx.db
-        .query("courses")
-        .withIndex("by_slug", (q) => q.eq("slug", rest.slug!))
-        .unique()
+        .query('courses')
+        .withIndex('by_slug', (q) => q.eq('slug', normalizedSlug))
+        .first()
       if (existing) {
-        throw new ConvexError("Slug already in use")
+        throw new ConvexError('Slug already in use')
       }
     }
     return await ctx.db.insert('courses', {
@@ -114,13 +122,21 @@ export const updateCourse = mutation({
   },
   handler: async (ctx, args) => {
     const { id, ...rest } = args
-    if (rest.slug) {
+    if (rest.slug !== undefined) {
+      const normalizedSlug = rest.slug.trim().toLowerCase()
+      if (!normalizedSlug) {
+        throw new ConvexError('Slug cannot be empty')
+      }
+      if (!/^[a-z0-9-]+$/.test(normalizedSlug)) {
+        throw new ConvexError('Slug must contain only lowercase letters, numbers, and hyphens')
+      }
+      rest.slug = normalizedSlug
       const existing = await ctx.db
-        .query("courses")
-        .withIndex("by_slug", (q) => q.eq("slug", rest.slug!))
-        .unique()
+        .query('courses')
+        .withIndex('by_slug', (q) => q.eq('slug', normalizedSlug))
+        .first()
       if (existing && existing._id !== id) {
-        throw new ConvexError("Slug already in use")
+        throw new ConvexError('Slug already in use')
       }
     }
     await ctx.db.patch(id, rest)
