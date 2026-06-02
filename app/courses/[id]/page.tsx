@@ -123,6 +123,14 @@ export default async function SingleCourse({
     name: courseName,
     description: courseDescription,
     url: courseUrl,
+    level: initialCourse?.level,
+    duration: initialCourse?.duration,
+    prerequisites: initialCourse?.entryRequirements?.join('; '),
+    teaches: [
+      ...(initialCourse?.modules?.knowledgeModules?.map((m: { title?: string }) => m.title).filter((t): t is string => Boolean(t)) ?? []),
+      ...(initialCourse?.modules?.practicalSkillModules?.map((m: { title?: string }) => m.title).filter((t): t is string => Boolean(t)) ?? []),
+    ],
+    isOpen: initialCourse?.isOpen,
   })
 
   return (

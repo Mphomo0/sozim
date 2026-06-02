@@ -95,6 +95,8 @@ export default async function NewsArticlePage({ params }: NewsArticlePageProps) 
           url: canonicalUrl,
           image: post.featuredImage || 'https://www.sozim.co.za/og-image.jpg',
           keywords: postTags.map((t) => t.name),
+          type: 'NewsArticle',
+          articleSection: postCategories[0]?.name ?? 'News',
         }))
       }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{
