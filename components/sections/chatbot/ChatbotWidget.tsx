@@ -14,11 +14,7 @@ interface Message {
 
 function generateSessionId(): string {
   if (typeof window === 'undefined') return ''
-  const stored = localStorage.getItem('chatbotSessionId')
-  if (stored) return stored
-  const id = crypto.randomUUID()
-  localStorage.setItem('chatbotSessionId', id)
-  return id
+  return crypto.randomUUID()
 }
 
 export default function ChatbotWidget() {

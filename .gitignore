@@ -59,3 +59,4 @@ backup.zip
 /.agent/
 /.agents/
 /skills-lock.json
+/docs/
