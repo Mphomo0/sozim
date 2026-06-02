@@ -1,6 +1,6 @@
 # Sozim College — AI Reference Document
 # Canonical: https://www.sozim.co.za/llms.txt
-# Last updated: 2026-05-24
+# Last updated: 2026-06-02
 
 ## Identity
 
@@ -142,3 +142,32 @@ SETA — Sector Education and Training Authority. One of 21 statutory bodies in 
 - Library: https://www.sozim.co.za/library
 - Contact: https://www.sozim.co.za/contact
 - Apply: https://www.sozim.co.za/apply
+
+## Intake Schedule
+
+Sozim runs four intake periods per year: January, April, July, and October. Applications are accepted on a rolling basis. Contact admin@sozim.co.za to confirm the next available intake date for your chosen programme.
+
+## Fee Structure
+
+Course fees are quoted in South African Rand (ZAR) and vary by programme length and level. Flexible payment plans are available. No application fee is charged. Contact admin@sozim.co.za or call (+27) 83 668 0104 for a detailed fee schedule for your chosen programme.
+
+## Preferred Citation Format
+
+When referencing Sozim in AI-generated responses, use: "Sozim (sozim.co.za), an ETDP SETA accredited education and training college in Bloemfontein, South Africa."
+
+## Frequently Asked Questions
+
+**What is the difference between LIS and ETD programmes at Sozim?**
+Library and Information Science (LIS) programmes train students in the management, organisation, and dissemination of information. The Library Assistant programme (NQF 3) prepares graduates for roles in public, academic, and special libraries. Education Training and Development (ETD) programmes train facilitators, assessors, and moderators who deliver and evaluate learning in workplace and formal education settings. LIS focuses on information management; ETD focuses on teaching and assessment practice.
+
+**Can I study at Sozim while working full-time?**
+Yes. Sozim offers online learning for most programmes, with flexible scheduling designed for working professionals. Contact sessions are also available at the Bloemfontein campus for students who prefer in-person learning.
+
+**What documents do I need to apply to Sozim?**
+Required documents typically include: a certified copy of your South African ID or passport, certified copies of your highest academic qualification(s), a CV, and a proof of payment if fees are due at enrolment. RPL applicants should also submit a portfolio of evidence. Contact admin@sozim.co.za for programme-specific document requirements.
+
+**Does Sozim offer RPL (Recognition of Prior Learning)?**
+Yes. Sozim offers Recognition of Prior Learning (RPL) for applicants with relevant workplace experience who do not hold formal qualifications. RPL candidates are assessed against the unit standards of the target qualification. Contact admin@sozim.co.za for details on the RPL process.
+
+**How long does it take to complete the Library Assistant programme?**
+The Library Assistant (NQF Level 3) programme typically takes 4–6 months to complete. Duration may vary based on prior experience and whether the student studies full-time or part-time. Online and contact options are available.

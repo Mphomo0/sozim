@@ -79,6 +79,11 @@ export async function generateMetadata({
       },
       alternates: {
         canonical: courseUrl,
+        languages: {
+          'en-ZA': courseUrl,
+          'en-ZW': courseUrl,
+          'en-BW': courseUrl,
+        },
       },
     }
   } catch {

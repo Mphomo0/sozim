@@ -51,6 +51,11 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: `${BASE_URL}/about`,
+    languages: {
+      'en-ZA': `${BASE_URL}/about`,
+      'en-ZW': `${BASE_URL}/about`,
+      'en-BW': `${BASE_URL}/about`,
+    },
   },
   authors: [{ name: 'Sozim Team' }],
   other: {

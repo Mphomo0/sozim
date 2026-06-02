@@ -48,3 +48,54 @@ Disallow: /portal
 Disallow: /favorites
 Disallow: /student
 Disallow: /api/
+
+User-agent: Bingbot
+Allow: /
+Disallow: /dashboard
+Disallow: /portal
+Disallow: /favorites
+Disallow: /student
+Disallow: /api/
+
+User-agent: OAI-SearchBot
+Allow: /
+Disallow: /dashboard
+Disallow: /portal
+Disallow: /favorites
+Disallow: /student
+Disallow: /api/
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+Disallow: /dashboard
+Disallow: /portal
+Disallow: /favorites
+Disallow: /student
+Disallow: /api/
+
+User-agent: Meta-ExternalAgent
+Allow: /
+Disallow: /dashboard
+Disallow: /portal
+Disallow: /favorites
+Disallow: /student
+Disallow: /api/
+
+User-agent: Applebot
+Allow: /
+Disallow: /dashboard
+Disallow: /portal
+Disallow: /favorites
+Disallow: /student
+Disallow: /api/
+
+User-agent: Googlebot-News
+Allow: /
+Disallow: /dashboard
+Disallow: /portal
+Disallow: /favorites
+Disallow: /student
+Disallow: /api/

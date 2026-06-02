@@ -11,6 +11,7 @@ import {
   getWebsiteSchema,
   getOrganizationSchema,
   getLocalBusinessSchema,
+  getHowToSchema,
 } from '@/lib/seo/schemas'
 
 const geistSans = Geist({
@@ -30,6 +31,28 @@ const LAYOUT_SCHEMAS_JSON = JSON.stringify([
   getOrganizationSchema(),
   getLocalBusinessSchema(),
 ])
+
+const HOW_TO_APPLY_JSON = JSON.stringify(
+  getHowToSchema({
+    name: 'How to Apply to Sozim',
+    description: 'Step-by-step guide to enrolling in an accredited Sozim education programme.',
+    totalTime: 'PT30M',
+    steps: [
+      {
+        name: 'Choose Your Programme',
+        text: 'Browse courses at sozim.co.za/courses and select the LIS or ETD programme that matches your goals.',
+      },
+      {
+        name: 'Submit Your Application',
+        text: 'Complete the online application at sozim.co.za/apply or contact admin@sozim.co.za. No application fee.',
+      },
+      {
+        name: 'Receive Confirmation',
+        text: 'Applications are processed within 5–7 business days. You will receive confirmation and enrolment instructions by email.',
+      },
+    ],
+  }),
+)
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
@@ -148,6 +171,10 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: LAYOUT_SCHEMAS_JSON }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: HOW_TO_APPLY_JSON }}
         />
       </head>
 

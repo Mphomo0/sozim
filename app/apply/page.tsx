@@ -13,7 +13,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import Breadcrumb from '@/components/global/Breadcrumb'
-import { getFAQSchema, getBreadcrumbSchema } from '@/lib/seo/schemas'
+import { getFAQSchema, getBreadcrumbSchema, getWebPageSchema, getHowToSchema } from '@/lib/seo/schemas'
 
 const BASE_URL = 'https://www.sozim.co.za'
 
@@ -50,8 +50,54 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: `${BASE_URL}/apply`,
+    languages: {
+      'en-ZA': `${BASE_URL}/apply`,
+      'en-ZW': `${BASE_URL}/apply`,
+      'en-BW': `${BASE_URL}/apply`,
+    },
   },
 }
+
+const WEBPAGE_SCHEMA_JSON = JSON.stringify(
+  getWebPageSchema({
+    name: 'Apply for Accredited LIS and ETD Programmes | Sozim',
+    description:
+      'Apply online for ETDP SETA accredited Library and Information Science and Education Training and Development programmes at Sozim in Bloemfontein.',
+    url: 'https://www.sozim.co.za/apply',
+    speakable: ['h1', '.apply-steps', 'h2'],
+    breadcrumb: [
+      { name: 'Home', url: 'https://www.sozim.co.za' },
+      { name: 'Apply', url: 'https://www.sozim.co.za/apply' },
+    ],
+  }),
+)
+
+const HOWTO_SCHEMA_JSON = JSON.stringify(
+  getHowToSchema({
+    name: 'How to Apply to Sozim',
+    description:
+      'Complete guide to applying for an accredited education programme at Sozim, including required documents and payment.',
+    totalTime: 'PT45M',
+    steps: [
+      {
+        name: 'Choose Your Programme',
+        text: 'Visit sozim.co.za/courses to browse ETDP SETA accredited programmes. Select the LIS or ETD course that matches your career goals and check the entry requirements.',
+      },
+      {
+        name: 'Prepare Your Documents',
+        text: 'Gather certified copies of your ID or passport, your highest academic qualification, a CV, and any additional documents required for your chosen programme. RPL applicants should prepare a portfolio of evidence.',
+      },
+      {
+        name: 'Submit Your Application',
+        text: 'Apply online at sozim.co.za/apply, email admin@sozim.co.za, or call (+27) 83 668 0104. No application fee is charged.',
+      },
+      {
+        name: 'Receive Confirmation and Pay Fees',
+        text: 'Applications are processed within 5–7 business days. On acceptance, you will receive enrolment instructions and a fee schedule. Flexible payment plans are available.',
+      },
+    ],
+  }),
+)
 
 const applyFAQs = [
   {
@@ -102,6 +148,14 @@ export default function ApplyPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: WEBPAGE_SCHEMA_JSON }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: HOWTO_SCHEMA_JSON }}
       />
       <Breadcrumb />
       <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-slate-100">
