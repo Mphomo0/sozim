@@ -74,6 +74,16 @@ const applyFAQs = [
     answer:
       'No, applying to Sozim is free. There are no application fees for any of our programmes.',
   },
+  {
+    question: 'When does Sozim accept new student applications?',
+    answer:
+      'Sozim runs four intakes per year: January, April, July, and October. Applications are accepted on a rolling basis. Contact admin@sozim.co.za or call (+27) 83 668 0104 to confirm the next available intake date for your chosen programme.',
+  },
+  {
+    question: 'What are the entry requirements for Sozim programmes?',
+    answer:
+      'Entry requirements vary by programme. For the Library Assistant (NQF 3) programme, a Grade 9 certificate or equivalent is typically required. For ETD programmes (NQF 5/6), a Grade 12 certificate or relevant work experience is required. RPL (Recognition of Prior Learning) is available for applicants with relevant workplace experience. Contact admin@sozim.co.za for programme-specific requirements.',
+  },
 ]
 
 export default function ApplyPage() {
