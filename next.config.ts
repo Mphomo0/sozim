@@ -1,8 +1,6 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  cacheComponents: true,
-
   // Compress responses — reduces Fast Data Transfer
   compress: true,
 
