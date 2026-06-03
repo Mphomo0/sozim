@@ -8,7 +8,7 @@ import type { Id } from '@/convex/_generated/dataModel'
 
 const BASE_URL = 'https://www.sozim.co.za'
 
-export const revalidate = 3600 // re-render at most once per hour
+export const revalidate = 7200 // re-render at most once per 2 hours
 export const dynamicParams = true
 
 export async function generateStaticParams() {

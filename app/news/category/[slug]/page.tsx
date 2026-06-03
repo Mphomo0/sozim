@@ -1,7 +1,19 @@
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { getCachedNewsCategoryBySlug, getCachedNewsTags } from '@/lib/newsQueries'
+import { getCachedNewsCategories, getCachedNewsCategoryBySlug, getCachedNewsTags } from '@/lib/newsQueries'
 import { NewsCategoryPageContent } from './NewsCategoryPageContent'
+
+export const revalidate = 3600
+export const dynamicParams = true
+
+export async function generateStaticParams() {
+  try {
+    const categories = await getCachedNewsCategories()
+    return categories.filter((c) => c.slug).map((c) => ({ slug: c.slug }))
+  } catch {
+    return []
+  }
+}
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>

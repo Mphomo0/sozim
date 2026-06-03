@@ -72,19 +72,19 @@ export default function CourseDetail({ initialCourse }: Props) {
     {
       key: 'knowledge',
       title: 'Knowledge Modules',
-      modules: course.modules.knowledgeModules,
+      modules: course.modules?.knowledgeModules ?? [],
       icon: <BookOpen className="h-6 w-6 text-blue-700" />,
     },
     {
       key: 'practical',
       title: 'Practical Skill Modules',
-      modules: course.modules.practicalSkillModules,
+      modules: course.modules?.practicalSkillModules ?? [],
       icon: <ToolCase className="h-6 w-6 text-yellow-700" />,
     },
     {
       key: 'work',
       title: 'Work Experience Modules',
-      modules: course.modules.workExperienceModules,
+      modules: course.modules?.workExperienceModules ?? [],
       icon: <Briefcase className="h-6 w-6 text-yellow-700" />,
     },
   ]
@@ -269,7 +269,7 @@ export default function CourseDetail({ initialCourse }: Props) {
             </CardHeader>
             <CardContent className="p-6 md:p-8">
               <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {course.entryRequirements.map((req: string, idx: number) => (
+                {(course.entryRequirements ?? []).map((req: string, idx: number) => (
                   <li
                     key={idx}
                     className="flex items-start gap-3 text-slate-700 bg-slate-50/50 p-4 rounded-xl border border-slate-100"

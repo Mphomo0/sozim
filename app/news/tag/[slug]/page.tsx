@@ -1,7 +1,19 @@
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { getCachedNewsTagBySlug, getCachedNewsCategories } from '@/lib/newsQueries'
+import { getCachedNewsTags, getCachedNewsTagBySlug, getCachedNewsCategories } from '@/lib/newsQueries'
 import { NewsTagPageContent } from './NewsTagPageContent'
+
+export const revalidate = 3600
+export const dynamicParams = true
+
+export async function generateStaticParams() {
+  try {
+    const tags = await getCachedNewsTags()
+    return tags.filter((t) => t.slug).map((t) => ({ slug: t.slug }))
+  } catch {
+    return []
+  }
+}
 
 interface TagPageProps {
   params: Promise<{ slug: string }>

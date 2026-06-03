@@ -13,7 +13,7 @@ import {
 } from '@/lib/seo/schemas'
 import { getCachedCourses, getCachedCategories } from '@/lib/queries'
 
-export const revalidate = 1800 // re-render at most once per 30 min
+export const revalidate = 3600 // re-render at most once per hour
 
 const BASE_URL = 'https://www.sozim.co.za'
 

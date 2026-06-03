@@ -22,27 +22,3 @@ export const getCachedCourseById = cache((id: Id<'courses'>) =>
 export const getCachedCourseBySlug = cache((slug: string) =>
   fetchQuery(api.courses.getCourseBySlug, { slug })
 )
-
-export const getCachedNewsPosts = cache(() =>
-  fetchQuery(api.newsPosts.getPublishedNewsPosts, {})
-)
-
-export const getCachedNewsPostBySlug = cache((slug: string) =>
-  fetchQuery(api.newsPosts.getNewsPostBySlug, { slug })
-)
-
-export const getCachedNewsCategories = cache(() =>
-  fetchQuery(api.newsCategories.getNewsCategories)
-)
-
-export const getCachedNewsTags = cache(() =>
-  fetchQuery(api.newsTags.getNewsTags)
-)
-
-export const getCachedNewsCategoryBySlug = cache((slug: string) =>
-  fetchQuery(api.newsCategories.getNewsCategoryBySlug, { slug })
-)
-
-export const getCachedNewsTagBySlug = cache((slug: string) =>
-  fetchQuery(api.newsTags.getNewsTagBySlug, { slug })
-)

@@ -7,7 +7,7 @@ import Breadcrumb from '@/components/global/Breadcrumb'
 import PageHeader from '@/components/global/PageHeader'
 import { getWebPageSchema, getBreadcrumbSchema } from '@/lib/seo/schemas'
 
-export const revalidate = 3600
+export const revalidate = 7200
 
 export const metadata: Metadata = {
   title: 'News | Sozim',
