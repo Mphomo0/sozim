@@ -301,7 +301,7 @@ export default function OurPrograms({
                             </Button>
                           </Link>
 
-                          <Link href={`/courses/${course._id}`}>
+                          <Link href={`/courses/${course.slug ?? course._id}`}>
                             <Button
                               variant="outline"
                               size="icon"

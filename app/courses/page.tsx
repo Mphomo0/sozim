@@ -106,10 +106,16 @@ const courseFAQs = [
 ]
 
 export default async function CoursesPage() {
-  const [initialCourses, initialCategories] = await Promise.all([
-    getCachedCourses(),
-    getCachedCategories(),
-  ])
+  let initialCourses: Awaited<ReturnType<typeof getCachedCourses>> = []
+  let initialCategories: Awaited<ReturnType<typeof getCachedCategories>> = []
+  try {
+    ;[initialCourses, initialCategories] = await Promise.all([
+      getCachedCourses(),
+      getCachedCategories(),
+    ])
+  } catch {
+    // Convex unreachable — render page with empty data rather than 500
+  }
 
   const courseSchema = getCourseSchema({
     name: 'Accredited Education and Training Programmes',
@@ -123,7 +129,7 @@ export default async function CoursesPage() {
     ? getItemListSchema(
         initialCourses.map((course) => ({
           name: course.name,
-          url: `${BASE_URL}/courses/${course._id}`,
+          url: `${BASE_URL}/courses/${course.slug ?? course._id}`,
           description: course.description,
         }))
       )
