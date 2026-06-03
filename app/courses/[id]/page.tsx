@@ -3,26 +3,15 @@ import { permanentRedirect, notFound } from 'next/navigation'
 import CourseDetail from '@/components/sections/programs/CourseDetail'
 import PageHeader from '@/components/global/PageHeader'
 import { getBreadcrumbSchema, getCourseSchema } from '@/lib/seo/schemas'
-import { getCachedCourses, getCachedCourseById, getCachedCourseBySlug } from '@/lib/queries'
+import { getCachedCourseById, getCachedCourseBySlug } from '@/lib/queries'
 import type { Id } from '@/convex/_generated/dataModel'
 
 const BASE_URL = 'https://www.sozim.co.za'
 
+// Pure ISR — never statically pre-render at build time so that Convex's
+// server-side fetchQuery (which reads Clerk auth cookies) doesn't conflict
+// with Next.js's static/dynamic boundary enforcement in production.
 export const revalidate = 7200 // re-render at most once per 2 hours
-export const dynamicParams = true
-
-export async function generateStaticParams() {
-  try {
-    const courses = await getCachedCourses()
-    // Emit slug-based params for courses that have a slug.
-    // Convex-ID paths resolve dynamically via fallback — no need to pre-render them.
-    return courses
-      .filter((course) => course.slug)
-      .map((course) => ({ id: course.slug as string }))
-  } catch {
-    return []
-  }
-}
 
 export async function generateMetadata({
   params,
@@ -106,20 +95,21 @@ export default async function SingleCourse({
   let initialCourse = null
   try {
     if (isConvexId) {
-      // getCachedCourseById deduplicates with the generateMetadata call above —
-      // Convex is only queried once per request regardless.
       initialCourse = await getCachedCourseById(id as Id<'courses'>)
     } else {
       initialCourse = await getCachedCourseBySlug(id)
-      if (!initialCourse) notFound()
     }
   } catch {
-    // fall through — CourseDetail handles the null case
+    // Convex unreachable — fall through, notFound() below handles null case
   }
 
-  // If we arrived via a Convex ID but the course has a canonical slug,
-  // permanently redirect to the slug URL.
-  if (isConvexId && !initialCourse) notFound()
+  // notFound() and permanentRedirect() must be called outside try/catch so
+  // Next.js can intercept their thrown signals correctly.
+  if (!initialCourse) notFound()
+
+  if (isConvexId && initialCourse.slug) {
+    permanentRedirect(`/courses/${initialCourse.slug}`)
+  }
 
   if (isConvexId && initialCourse?.slug) {
     permanentRedirect(`/courses/${initialCourse.slug}`)
