@@ -1,19 +1,11 @@
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { getCachedNewsCategories, getCachedNewsCategoryBySlug, getCachedNewsTags } from '@/lib/newsQueries'
+import { getCachedNewsCategoryBySlug, getCachedNewsTags } from '@/lib/newsQueries'
 import { NewsCategoryPageContent } from './NewsCategoryPageContent'
 
+// Pure ISR — no generateStaticParams so that Convex's fetchQuery doesn't
+// conflict with Next.js's static/dynamic boundary enforcement in production.
 export const revalidate = 3600
-export const dynamicParams = true
-
-export async function generateStaticParams() {
-  try {
-    const categories = await getCachedNewsCategories()
-    return categories.filter((c) => c.slug).map((c) => ({ slug: c.slug }))
-  } catch {
-    return []
-  }
-}
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>

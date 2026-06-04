@@ -4,7 +4,6 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { format } from 'date-fns'
 import {
-  getCachedNewsPosts,
   getCachedNewsPostBySlug,
   getCachedNewsCategories,
   getCachedNewsTags,
@@ -18,17 +17,9 @@ import {
   getBreadcrumbSchema,
 } from '@/lib/seo/schemas'
 
+// Pure ISR — no generateStaticParams so that Convex's fetchQuery doesn't
+// conflict with Next.js's static/dynamic boundary enforcement in production.
 export const revalidate = 3600
-export const dynamicParams = true
-
-export async function generateStaticParams() {
-  try {
-    const posts = await getCachedNewsPosts()
-    return posts.filter((p) => p.slug).map((p) => ({ slug: p.slug }))
-  } catch {
-    return []
-  }
-}
 
 interface NewsArticlePageProps {
   params: Promise<{ slug: string }>
