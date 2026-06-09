@@ -141,16 +141,12 @@ export const getRecords = query({
 export const countByCategory = query({
   args: {},
   handler: async (ctx) => {
-    const theses = await ctx.db.query('records').withIndex('by_category', q => q.eq('category', 'thesis')).take(MAX_BOUNDED_TAKE);
-    const articles = await ctx.db.query('records').withIndex('by_category', q => q.eq('category', 'article')).take(MAX_BOUNDED_TAKE);
-    const research = await ctx.db.query('records').withIndex('by_category', q => q.eq('category', 'research')).take(MAX_BOUNDED_TAKE);
-    
-    return {
-      thesis: theses.length,
-      article: articles.length,
-      research: research.length,
-      total: theses.length + articles.length + research.length,
-    };
+    const [thesis, article, research] = await Promise.all([
+      recordCountAggregate.count(ctx, { namespace: "thesis" }),
+      recordCountAggregate.count(ctx, { namespace: "article" }),
+      recordCountAggregate.count(ctx, { namespace: "research" }),
+    ]);
+    return { thesis, article, research, total: thesis + article + research };
   },
 });
 
@@ -793,26 +789,19 @@ export const triggerFacetCacheInternal = internalMutation({
 export const countSingleCategoryInternal = internalQuery({
   args: { category: v.string() },
   handler: async (ctx, args) => {
-    const records = await ctx.db.query('records')
-      .withIndex('by_category', q => q.eq('category', args.category as any))
-      .take(MAX_BOUNDED_TAKE);
-    return records.length;
+    return await recordCountAggregate.count(ctx, { namespace: args.category });
   },
 });
 
 export const countByCategoryInternal = internalQuery({
   args: {},
   handler: async (ctx) => {
-    const theses = await ctx.db.query('records').withIndex('by_category', q => q.eq('category', 'thesis')).take(MAX_BOUNDED_TAKE);
-    const articles = await ctx.db.query('records').withIndex('by_category', q => q.eq('category', 'article')).take(MAX_BOUNDED_TAKE);
-    const research = await ctx.db.query('records').withIndex('by_category', q => q.eq('category', 'research')).take(MAX_BOUNDED_TAKE);
-
-    return {
-      thesis: theses.length,
-      article: articles.length,
-      research: research.length,
-      total: theses.length + articles.length + research.length,
-    };
+    const [thesis, article, research] = await Promise.all([
+      recordCountAggregate.count(ctx, { namespace: "thesis" }),
+      recordCountAggregate.count(ctx, { namespace: "article" }),
+      recordCountAggregate.count(ctx, { namespace: "research" }),
+    ]);
+    return { thesis, article, research, total: thesis + article + research };
   },
 });
 
