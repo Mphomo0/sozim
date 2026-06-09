@@ -28,18 +28,87 @@ Disallow: /_next/
 
 Sitemap: https://www.sozim.co.za/sitemap.xml
 
-# AI crawlers — allow full access for content indexing
+# AI crawlers — allow public content, block private/auth routes
 User-agent: GPTBot
 Allow: /
+Disallow: /dashboard
+Disallow: /portal
+Disallow: /favorites
+Disallow: /student
+Disallow: /welcome-message
+Disallow: /api/
+
+User-agent: OAI-SearchBot
+Allow: /
+Disallow: /dashboard
+Disallow: /portal
+Disallow: /favorites
+Disallow: /student
+Disallow: /welcome-message
+Disallow: /api/
 
 User-agent: ClaudeBot
 Allow: /
-
-User-agent: PerplexityBot
-Allow: /
+Disallow: /dashboard
+Disallow: /portal
+Disallow: /favorites
+Disallow: /student
+Disallow: /welcome-message
+Disallow: /api/
 
 User-agent: anthropic-ai
 Allow: /
+Disallow: /dashboard
+Disallow: /portal
+Disallow: /favorites
+Disallow: /student
+Disallow: /welcome-message
+Disallow: /api/
+
+User-agent: PerplexityBot
+Allow: /
+Disallow: /dashboard
+Disallow: /portal
+Disallow: /favorites
+Disallow: /student
+Disallow: /welcome-message
+Disallow: /api/
+
+User-agent: Google-Extended
+Allow: /
+Disallow: /dashboard
+Disallow: /portal
+Disallow: /favorites
+Disallow: /student
+Disallow: /welcome-message
+Disallow: /api/
+
+User-agent: CCBot
+Allow: /
+Disallow: /dashboard
+Disallow: /portal
+Disallow: /favorites
+Disallow: /student
+Disallow: /welcome-message
+Disallow: /api/
+
+User-agent: Meta-ExternalAgent
+Allow: /
+Disallow: /dashboard
+Disallow: /portal
+Disallow: /favorites
+Disallow: /student
+Disallow: /welcome-message
+Disallow: /api/
+
+User-agent: Applebot
+Allow: /
+Disallow: /dashboard
+Disallow: /portal
+Disallow: /favorites
+Disallow: /student
+Disallow: /welcome-message
+Disallow: /api/
 
 User-agent: Googlebot
 Allow: /
@@ -50,41 +119,6 @@ Disallow: /student
 Disallow: /api/
 
 User-agent: Bingbot
-Allow: /
-Disallow: /dashboard
-Disallow: /portal
-Disallow: /favorites
-Disallow: /student
-Disallow: /api/
-
-User-agent: OAI-SearchBot
-Allow: /
-Disallow: /dashboard
-Disallow: /portal
-Disallow: /favorites
-Disallow: /student
-Disallow: /api/
-
-User-agent: Google-Extended
-Allow: /
-
-User-agent: CCBot
-Allow: /
-Disallow: /dashboard
-Disallow: /portal
-Disallow: /favorites
-Disallow: /student
-Disallow: /api/
-
-User-agent: Meta-ExternalAgent
-Allow: /
-Disallow: /dashboard
-Disallow: /portal
-Disallow: /favorites
-Disallow: /student
-Disallow: /api/
-
-User-agent: Applebot
 Allow: /
 Disallow: /dashboard
 Disallow: /portal

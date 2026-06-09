@@ -111,10 +111,6 @@ export default async function SingleCourse({
     permanentRedirect(`/courses/${initialCourse.slug}`)
   }
 
-  if (isConvexId && initialCourse?.slug) {
-    permanentRedirect(`/courses/${initialCourse.slug}`)
-  }
-
   const courseUrl = `${BASE_URL}/courses/${initialCourse?.slug ?? id}`
   const courseName = initialCourse?.name || 'Course Details'
   const courseDescription =

@@ -26,7 +26,7 @@ export default function Footer() {
               />
             </Link>
             <p className="text-slate-400 text-base leading-relaxed font-medium">
-              Sozim Trading and Consultancy stands for quality, excellent products, highly efficient processes and outstanding results.
+              Sozim is an ETDP SETA accredited education and training college in Bloemfontein, South Africa. We deliver nationally recognised programmes in LIS and ETD since 2009.
             </p>
           </div>
 
@@ -73,19 +73,19 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="text-white text-lg font-bold mb-8 tracking-tight">Programs</h3>
+            <h3 className="text-white text-lg font-bold mb-8 tracking-tight">Programmes</h3>
             <ul className="space-y-4 text-slate-400 font-medium">
               <li>
-                <Link href="/courses" className="hover:text-blue-400 transition-colors">Undergraduate</Link>
+                <Link href="/courses" className="hover:text-blue-400 transition-colors">Library Assistant (NQF 3)</Link>
               </li>
               <li>
-                <Link href="/courses" className="hover:text-blue-400 transition-colors">Graduate</Link>
+                <Link href="/courses" className="hover:text-blue-400 transition-colors">Learning &amp; Development Facilitator</Link>
               </li>
               <li>
-                <Link href="/courses" className="hover:text-blue-400 transition-colors">Online Learning</Link>
+                <Link href="/courses" className="hover:text-blue-400 transition-colors">Assessment Practitioner</Link>
               </li>
               <li>
-                <Link href="/courses" className="hover:text-blue-400 transition-colors">Certificates</Link>
+                <Link href="/courses" className="hover:text-blue-400 transition-colors">Online Programmes</Link>
               </li>
             </ul>
           </div>

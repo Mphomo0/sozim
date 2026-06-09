@@ -20,7 +20,7 @@ const BASE_URL = 'https://www.sozim.co.za'
 export const metadata: Metadata = {
   title: 'Sozim | Accredited Education & Training College Bloemfontein',
   description:
-    'Accredited education and training college in Bloemfontein, South Africa. Enrol in ETDP SETA accredited programmes in Library and Information Science (LIS) and Education Training and Development (ETD).',
+    'ETDP SETA accredited college in Bloemfontein. Enrol in LIS and ETD programmes — Library Assistant, Facilitator, Assessor. Four intakes per year. Apply free.',
   authors: [{ name: 'Sozim Trading and Consultancy' }],
   keywords: [
     'accredited education and training college Bloemfontein',

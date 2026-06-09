@@ -547,6 +547,7 @@ export function getBreadcrumbSchema(items: { name: string; url: string }[]) {
    EVENT
 ========================= */
 export function getEventSchema() {
+  const year = new Date().getFullYear()
   return {
     '@context': 'https://schema.org',
     '@type': 'Event',
@@ -555,8 +556,8 @@ export function getEventSchema() {
     description:
       'Accredited education and training programme intakes at Sozim College in Bloemfontein. Enrol in LIS and ETD programmes throughout the year.',
 
-    startDate: '2026-01-01',
-    endDate: '2026-12-31',
+    startDate: `${year}-01-01`,
+    endDate: `${year}-12-31`,
 
     eventStatus: 'https://schema.org/EventScheduled',
     eventAttendanceMode: 'https://schema.org/MixedEventAttendanceMode',

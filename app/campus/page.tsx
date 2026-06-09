@@ -9,9 +9,9 @@ import { getFAQSchema, getBreadcrumbSchema, getPlaceSchema, getWebPageSchema } f
 const BASE_URL = 'https://www.sozim.co.za'
 
 export const metadata: Metadata = {
-	title: 'Campus Locations | Sozim Trading & Consultancy',
-	description:
-		'Visit Sozim campuses in South Africa. Our Bloemfontein campus offers face-to-face education, professional training facilities, and dedicated student support.',
+  title: 'Campus | Sozim – Bloemfontein Training Facilities',
+  description:
+    'Visit Sozim in Bloemfontein. ETDP SETA accredited face-to-face learning, computer labs, and student support. Online study available nationwide.',
   keywords: [
     'Sozim campus Bloemfontein',
     'contact learning South Africa',
@@ -21,9 +21,9 @@ export const metadata: Metadata = {
     'Bloemfontein education institution',
   ],
 	openGraph: {
-		title: 'Campus Locations | Sozim',
-		description:
-			'Visit our Bloemfontein campus for face-to-face learning, professional training facilities, and student support.',
+    title: 'Campus | Sozim – Bloemfontein Training Facilities',
+    description:
+      'Visit our Bloemfontein campus for face-to-face ETDP SETA accredited learning, professional training facilities, and student support.',
 		url: `${BASE_URL}/campus`,
     siteName: 'Sozim',
     type: 'website',
@@ -83,8 +83,8 @@ export default function CampusPage() {
   ])
   const placeSchema = getPlaceSchema()
   const webPageSchema = getWebPageSchema({
-    name: 'Campus Locations | Sozim Trading & Consultancy',
-    description: 'Visit Sozim campuses in South Africa. Our Bloemfontein campus offers face-to-face education, professional training facilities, and dedicated student support.',
+    name: 'Campus | Sozim – Bloemfontein Training Facilities',
+    description: 'Visit Sozim in Bloemfontein. ETDP SETA accredited face-to-face learning, computer labs, and student support. Online study available nationwide.',
     url: `${BASE_URL}/campus`,
     speakable: ['h1', 'h2', 'p'],
     breadcrumb: [

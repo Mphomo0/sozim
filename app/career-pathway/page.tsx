@@ -9,14 +9,15 @@ import {
   getFAQSchema,
   getBreadcrumbSchema,
   getHowToSchema,
+  getWebPageSchema,
 } from '@/lib/seo/schemas'
 
 const BASE_URL = 'https://www.sozim.co.za'
 
 export const metadata: Metadata = {
-  title: 'Career Pathways | Accredited Education and Training College in Bloemfontein',
+  title: 'Career Pathways in LIS & ETD | Sozim Bloemfontein',
   description:
-    'Explore accredited career pathways in LIS and ETD. Professional guidance for your South African career journey.',
+    'Explore LIS and ETD career pathways at Sozim Bloemfontein. From Library Assistant to Assessor and Moderator — accredited routes for South African professionals.',
   keywords: [
     'career pathways South Africa',
     'LIS career guidance',
@@ -127,6 +128,17 @@ export default function CareerPathway() {
     { name: 'Home', url: BASE_URL },
     { name: 'Career Pathways', url: `${BASE_URL}/career-pathway` },
   ])
+  const webPageSchema = getWebPageSchema({
+    name: 'Career Pathways in LIS & ETD | Sozim Bloemfontein',
+    description:
+      'Explore LIS and ETD career pathways at Sozim Bloemfontein. From Library Assistant to Assessor and Moderator — accredited routes for South African professionals.',
+    url: `${BASE_URL}/career-pathway`,
+    speakable: ['h1', 'h2', 'p'],
+    breadcrumb: [
+      { name: 'Home', url: BASE_URL },
+      { name: 'Career Pathways', url: `${BASE_URL}/career-pathway` },
+    ],
+  })
 
   return (
     <>
@@ -141,6 +153,10 @@ export default function CareerPathway() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageSchema) }}
       />
       <Breadcrumb />
       <PageHeader

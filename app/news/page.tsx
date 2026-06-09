@@ -5,24 +5,35 @@ import { NewsCard } from '@/components/sections/news/NewsCard'
 import { NewsSidebar } from '@/components/sections/news/NewsSidebar'
 import Breadcrumb from '@/components/global/Breadcrumb'
 import PageHeader from '@/components/global/PageHeader'
-import { getWebPageSchema, getBreadcrumbSchema } from '@/lib/seo/schemas'
+import { getWebPageSchema, getBreadcrumbSchema, getFAQSchema } from '@/lib/seo/schemas'
 
 export const revalidate = 7200
 
 export const metadata: Metadata = {
-  title: 'News | Sozim',
-  description: 'Latest news, updates, and articles from Sozim Trading and Consultancy. Stay informed about industry insights, company updates, and educational resources.',
+  title: 'News & Insights | Sozim – Education & Training Bloemfontein',
+  description: 'Latest news and education insights from Sozim College, Bloemfontein. Updates on ETDP SETA accredited training, LIS, ETD, and skills development in South Africa.',
   openGraph: {
-    title: 'News | Sozim',
-    description: 'Latest news and updates from Sozim Trading and Consultancy.',
+    title: 'News & Insights | Sozim – Education & Training Bloemfontein',
+    description: 'Latest news and education insights from Sozim College — ETDP SETA accredited training, LIS and ETD updates from Bloemfontein.',
     url: 'https://www.sozim.co.za/news',
     siteName: 'Sozim',
     type: 'website',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Sozim News – Education and Training Insights',
+        type: 'image/jpeg',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'News | Sozim',
-    description: 'Latest news and updates from Sozim Trading and Consultancy.',
+    title: 'News & Insights | Sozim',
+    description: 'Latest news and education insights from Sozim College, Bloemfontein.',
+    images: ['/og-image.jpg'],
+    site: '@sozimtrading',
   },
   alternates: {
     canonical: 'https://www.sozim.co.za/news',
@@ -79,6 +90,24 @@ export default async function NewsPage({
     { name: 'News', url: 'https://www.sozim.co.za/news' },
   ]
 
+  const newsFAQs = [
+    {
+      question: 'What topics does Sozim cover in its news and articles?',
+      answer:
+        'Sozim publishes articles on education and training in South Africa, including ETDP SETA accreditation updates, Library and Information Science (LIS) developments, Education Training and Development (ETD) best practices, skills development policy, and career guidance for professionals in the Free State and beyond.',
+    },
+    {
+      question: 'How often does Sozim publish new articles?',
+      answer:
+        'Sozim publishes new articles and updates regularly. Topics cover accreditation news, programme updates, learnership opportunities, and career development insights relevant to the South African education and training sector.',
+    },
+    {
+      question: 'Can I subscribe to Sozim news and updates?',
+      answer:
+        'Yes. Contact Sozim at admin@sozim.co.za or call (+27) 83 668 0104 to stay informed about new articles, programme updates, and intake announcements.',
+    },
+  ]
+
   const articleListSchema = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
@@ -97,8 +126,8 @@ export default async function NewsPage({
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{
         __html: JSON.stringify(getWebPageSchema({
-          name: 'News | Sozim',
-          description: 'Latest news and updates from Sozim Trading and Consultancy.',
+          name: 'News & Insights | Sozim – Education & Training Bloemfontein',
+          description: 'Latest news and education insights from Sozim College — ETDP SETA accredited training, LIS and ETD updates from Bloemfontein.',
           url: 'https://www.sozim.co.za/news',
           type: 'CollectionPage',
           breadcrumb: breadcrumbItems,
@@ -109,6 +138,9 @@ export default async function NewsPage({
       }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{
         __html: JSON.stringify(articleListSchema)
+      }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{
+        __html: JSON.stringify(getFAQSchema(newsFAQs))
       }} />
 
       <Breadcrumb />
