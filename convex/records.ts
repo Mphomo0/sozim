@@ -775,6 +775,46 @@ export const updateLibraryMetaInternal = internalMutation({
   },
 });
 
+export const getRecordsPageInternal = internalQuery({
+  args: {
+    cursor: v.union(v.string(), v.null()),
+    numItems: v.number(),
+  },
+  handler: async (ctx, args) => {
+    const result = await ctx.db.query("records")
+      .paginate({ cursor: args.cursor, numItems: args.numItems });
+    return {
+      page: result.page,
+      cursor: result.continueCursor,
+      isDone: result.isDone,
+    };
+  },
+});
+
+export const storeFacetsInternal = internalMutation({
+  args: { facets: v.any() },
+  handler: async (ctx, args: { facets: Record<string, any> }) => {
+    const views = ["all", "thesis", "article", "research"] as const;
+    for (const cat of views) {
+      const key = `facets_${cat}`;
+      const existing = await ctx.db.query("libraryMeta")
+        .withIndex("by_key", q => q.eq("key", key))
+        .first();
+      const data = {
+        key,
+        lastUpdated: Date.now(),
+        counts: { theses: 0, articles: 0, research: 0, total: 0 },
+        facets: args.facets[cat],
+      };
+      if (existing) {
+        await ctx.db.patch(existing._id, data);
+      } else {
+        await ctx.db.insert("libraryMeta", data);
+      }
+    }
+  },
+});
+
 // Separated so facet calculation has its own 16MB read budget instead of
 // sharing it with updateLibraryMetaInternal.
 export const triggerFacetCacheInternal = internalMutation({
