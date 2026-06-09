@@ -191,6 +191,7 @@ export const bulkUpsertRecords = mutation({
         .withIndex("by_category", q => q.eq("category", args.clearCategory!))
         .collect();
       for (const r of existing) {
+        await recordCountAggregate.delete(ctx, r);
         await ctx.db.delete(r._id);
       }
     }
@@ -198,19 +199,23 @@ export const bulkUpsertRecords = mutation({
     let inserted = 0;
     for (const rec of args.records) {
       if (args.clearCategory) {
-        // Category was just wiped above — no duplicates possible, always insert.
-        await ctx.db.insert("records", { ...rec, importDate });
+        const id = await ctx.db.insert("records", { ...rec, importDate });
+        const doc = await ctx.db.get(id);
+        await recordCountAggregate.insert(ctx, doc!);
         inserted++;
       } else {
-        // No clear: check for existing record by our custom ID to avoid duplicates.
         const existing = await ctx.db.query("records")
           .withIndex("by_record_id", q => q.eq("id", rec.id))
           .first();
 
         if (existing) {
           await ctx.db.patch(existing._id, { ...rec, importDate });
+          const newDoc = await ctx.db.get(existing._id);
+          await recordCountAggregate.replace(ctx, existing, newDoc!);
         } else {
-          await ctx.db.insert("records", { ...rec, importDate });
+          const id = await ctx.db.insert("records", { ...rec, importDate });
+          const doc = await ctx.db.get(id);
+          await recordCountAggregate.insert(ctx, doc!);
           inserted++;
         }
       }
