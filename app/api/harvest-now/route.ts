@@ -134,6 +134,7 @@ export async function POST(): Promise<NextResponse> {
     })
 
     await updateLibraryMeta()
+    await getConvexClient()!.action(api.records.refreshFacets, {})
 
     const finalResults = {
       theses: mergedTheses.length,

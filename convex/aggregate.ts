@@ -7,7 +7,7 @@ export const recordCountAggregate = new TableAggregate<{
   Key: number;
   DataModel: DataModel;
   TableName: "records";
-}>((components as any).recordCounts, {
+}>(components.recordCounts, {
   namespace: (doc) => doc.category,
   sortKey: (doc) => doc._creationTime,
 });

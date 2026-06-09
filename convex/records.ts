@@ -868,6 +868,15 @@ export const countByCategoryInternal = internalQuery({
   },
 });
 
+// Public wrapper so Next.js API routes (harvest-now, cron/daily-harvest) can
+// trigger facet recalculation after updating library meta directly.
+export const refreshFacets = action({
+  args: {},
+  handler: async (ctx) => {
+    await ctx.runAction(internal.records.triggerFacetCacheInternal, {});
+  },
+});
+
 export const exportRis = query({
   args: {
     recordIds: v.array(v.string()),
