@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as aggregate from "../aggregate.js";
 import type * as applications from "../applications.js";
 import type * as categories from "../categories.js";
 import type * as chatbot from "../chatbot.js";
@@ -32,6 +33,7 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  aggregate: typeof aggregate;
   applications: typeof applications;
   categories: typeof categories;
   chatbot: typeof chatbot;
@@ -76,4 +78,6 @@ export declare const internal: FilterApi<
   FunctionReference<any, "internal">
 >;
 
-export declare const components: {};
+export declare const components: {
+  recordCounts: import("@convex-dev/aggregate/_generated/component.js").ComponentApi<"recordCounts">;
+};

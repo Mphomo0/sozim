@@ -868,6 +868,26 @@ export const countByCategoryInternal = internalQuery({
   },
 });
 
+export const backfillAggregate = internalMutation({
+  args: {
+    cursor: v.optional(v.union(v.string(), v.null())),
+    batchSize: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const batchSize = args.batchSize ?? 200;
+    const cursor = args.cursor ?? null;
+    const result = await ctx.db.query("records").paginate({ cursor, numItems: batchSize });
+    for (const doc of result.page) {
+      await recordCountAggregate.insertIfDoesNotExist(ctx, doc);
+    }
+    return {
+      inserted: result.page.length,
+      isDone: result.isDone,
+      cursor: result.continueCursor,
+    };
+  },
+});
+
 export const exportRis = query({
   args: {
     recordIds: v.array(v.string()),
