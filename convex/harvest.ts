@@ -104,17 +104,24 @@ export const runDailyHarvest = internalAction({
         });
       }
 
-      const counts = await ctx.runQuery(internal.records.countByCategoryInternal, {});
+      // Each runQuery call has its own 16MB read budget, so we count one category at a time.
+      const [totalTheses, totalArticles, totalResearch] = await Promise.all([
+        ctx.runQuery(internal.records.countSingleCategoryInternal, { category: 'thesis' }),
+        ctx.runQuery(internal.records.countSingleCategoryInternal, { category: 'article' }),
+        ctx.runQuery(internal.records.countSingleCategoryInternal, { category: 'research' }),
+      ]);
       await ctx.runMutation(internal.records.updateLibraryMetaInternal, {
         key: "main",
         counts: {
-          theses: counts.thesis,
-          articles: counts.article,
-          research: counts.research,
-          total: counts.total,
+          theses: totalTheses,
+          articles: totalArticles,
+          research: totalResearch,
+          total: totalTheses + totalArticles + totalResearch,
         },
         lastHarvest: Date.now(),
       });
+      // Facet precalculation runs in its own action execution with its own 16MB budget.
+      await ctx.runAction(internal.records.triggerFacetCacheInternal, {});
 
       const finalResults = {
         theses: allTheses.length,

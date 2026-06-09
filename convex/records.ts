@@ -698,48 +698,6 @@ export const bulkUpsertRecordsInternal = internalMutation({
   },
 });
 
-// Helper to pre-calculate and store all static facets in libraryMeta
-export const precalculateAndCacheFacets = async (ctx: any) => {
-  const allRecords = await ctx.db.query('records').take(MAX_BOUNDED_TAKE);
-  const categories = ['all', 'thesis', 'article', 'research'];
-
-  for (const cat of categories) {
-    const baseQuery = cat === 'all' 
-      ? allRecords 
-      : allRecords.filter((r: any) => r.category === cat);
-
-    const allAuthors = baseQuery.flatMap((r: any) => r.authors || []);
-    const uniqueAuthors = Array.from(new Set(allAuthors));
-
-    const facets = {
-      years: Array.from(new Set(baseQuery.map((r: any) => r.year).filter((y: any) => y !== undefined)))
-        .sort((a: any, b: any) => (b || 0) - (a || 0))
-        .map((y: any) => ({ name: y, count: baseQuery.filter((r: any) => r.year === y).length })),
-      authors: uniqueAuthors.slice(0, 50).map((a: any) => ({ name: a, count: allAuthors.filter((auth: any) => auth === a).length })),
-      repositories: Array.from(new Set(baseQuery.map((r: any) => r.source))).sort().map((s: any) => ({ name: s, count: baseQuery.filter((r: any) => r.source === s).length })),
-      types: Array.from(new Set(baseQuery.map((r: any) => r.type))).sort().map((t: any) => ({ name: t, count: baseQuery.filter((r: any) => r.type === t).length })),
-      categories: Array.from(new Set(baseQuery.map((r: any) => r.category))).sort().map((c: any) => ({ name: c, count: baseQuery.filter((r: any) => r.category === c).length })),
-    };
-
-    const key = `facets_${cat}`;
-    const existing = await ctx.db.query("libraryMeta")
-      .withIndex("by_key", (q: any) => q.eq("key", key))
-      .first();
-
-    const data = {
-      key,
-      lastUpdated: Date.now(),
-      counts: { theses: 0, articles: 0, research: 0, total: 0 },
-      facets,
-    };
-
-    if (existing) {
-      await ctx.db.patch(existing._id, data);
-    } else {
-      await ctx.db.insert("libraryMeta", data);
-    }
-  }
-};
 
 export const updateLibraryMetaInternal = internalMutation({
   args: {
@@ -815,12 +773,77 @@ export const storeFacetsInternal = internalMutation({
   },
 });
 
+type FacetAccumulator = {
+  years: Map<number, number>;
+  authors: Map<string, number>;
+  sources: Map<string, number>;
+  types: Map<string, number>;
+  categories: Map<string, number>;
+};
+
+function emptyAccumulator(): FacetAccumulator {
+  return {
+    years: new Map(),
+    authors: new Map(),
+    sources: new Map(),
+    types: new Map(),
+    categories: new Map(),
+  };
+}
+
+function accumulateRecord(acc: FacetAccumulator, rec: any) {
+  if (rec.year !== undefined) acc.years.set(rec.year, (acc.years.get(rec.year) ?? 0) + 1);
+  for (const a of rec.authors ?? []) acc.authors.set(a, (acc.authors.get(a) ?? 0) + 1);
+  acc.sources.set(rec.source, (acc.sources.get(rec.source) ?? 0) + 1);
+  acc.types.set(rec.type, (acc.types.get(rec.type) ?? 0) + 1);
+  acc.categories.set(rec.category, (acc.categories.get(rec.category) ?? 0) + 1);
+}
+
+function buildFacetView(acc: FacetAccumulator) {
+  return {
+    years: [...acc.years.entries()].sort((a, b) => b[0] - a[0]).map(([name, count]) => ({ name, count })),
+    authors: [...acc.authors.entries()].sort((a, b) => b[1] - a[1]).slice(0, 50).map(([name, count]) => ({ name, count })),
+    repositories: [...acc.sources.entries()].sort((a, b) => a[0].localeCompare(b[0])).map(([name, count]) => ({ name, count })),
+    types: [...acc.types.entries()].sort((a, b) => a[0].localeCompare(b[0])).map(([name, count]) => ({ name, count })),
+    categories: [...acc.categories.entries()].sort((a, b) => a[0].localeCompare(b[0])).map(([name, count]) => ({ name, count })),
+  };
+}
+
 // Separated so facet calculation has its own 16MB read budget instead of
 // sharing it with updateLibraryMetaInternal.
-export const triggerFacetCacheInternal = internalMutation({
+export const triggerFacetCacheInternal = internalAction({
   args: {},
   handler: async (ctx) => {
-    await precalculateAndCacheFacets(ctx);
+    const accs: Record<string, FacetAccumulator> = {
+      all: emptyAccumulator(),
+      thesis: emptyAccumulator(),
+      article: emptyAccumulator(),
+      research: emptyAccumulator(),
+    };
+
+    let cursor: string | null = null;
+    do {
+      const result: { page: any[]; cursor: string; isDone: boolean } = await ctx.runQuery(internal.records.getRecordsPageInternal, {
+        cursor,
+        numItems: 200,
+      });
+      for (const rec of result.page) {
+        accumulateRecord(accs.all, rec);
+        if (rec.category === "thesis") accumulateRecord(accs.thesis, rec);
+        else if (rec.category === "article") accumulateRecord(accs.article, rec);
+        else if (rec.category === "research") accumulateRecord(accs.research, rec);
+      }
+      cursor = result.isDone ? null : result.cursor;
+    } while (cursor !== null);
+
+    await ctx.runMutation(internal.records.storeFacetsInternal, {
+      facets: {
+        all: buildFacetView(accs.all),
+        thesis: buildFacetView(accs.thesis),
+        article: buildFacetView(accs.article),
+        research: buildFacetView(accs.research),
+      },
+    });
   },
 });
 
