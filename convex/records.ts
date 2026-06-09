@@ -1,4 +1,5 @@
-import { query, mutation, internalMutation, internalQuery, action } from "./_generated/server";
+import { query, mutation, internalMutation, internalQuery, action, internalAction } from "./_generated/server";
+import { recordCountAggregate } from "./aggregate";
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
 
@@ -249,10 +250,6 @@ export const updateLibraryMeta = mutation({
       await ctx.db.patch(existing._id, data);
     } else {
       await ctx.db.insert("libraryMeta", data);
-    }
-
-    if (args.key === 'main') {
-      await precalculateAndCacheFacets(ctx);
     }
   },
 });
@@ -666,6 +663,7 @@ export const bulkUpsertRecordsInternal = internalMutation({
         .withIndex("by_category", q => q.eq("category", args.clearCategory!))
         .collect();
       for (const r of existing) {
+        await recordCountAggregate.delete(ctx, r);
         await ctx.db.delete(r._id);
       }
     }
@@ -673,7 +671,9 @@ export const bulkUpsertRecordsInternal = internalMutation({
     let inserted = 0;
     for (const rec of args.records) {
       if (args.clearCategory) {
-        await ctx.db.insert("records", { ...rec, importDate });
+        const id = await ctx.db.insert("records", { ...rec, importDate });
+        const doc = await ctx.db.get(id);
+        await recordCountAggregate.insert(ctx, doc!);
         inserted++;
       } else {
         const existing = await ctx.db.query("records")
@@ -682,8 +682,12 @@ export const bulkUpsertRecordsInternal = internalMutation({
 
         if (existing) {
           await ctx.db.patch(existing._id, { ...rec, importDate });
+          const newDoc = await ctx.db.get(existing._id);
+          await recordCountAggregate.replace(ctx, existing, newDoc!);
         } else {
-          await ctx.db.insert("records", { ...rec, importDate });
+          const id = await ctx.db.insert("records", { ...rec, importDate });
+          const doc = await ctx.db.get(id);
+          await recordCountAggregate.insert(ctx, doc!);
           inserted++;
         }
       }
@@ -767,10 +771,27 @@ export const updateLibraryMetaInternal = internalMutation({
     } else {
       await ctx.db.insert("libraryMeta", data);
     }
+  },
+});
 
-    if (args.key === 'main') {
-      await precalculateAndCacheFacets(ctx);
-    }
+// Separated so facet calculation has its own 16MB read budget instead of
+// sharing it with updateLibraryMetaInternal.
+export const triggerFacetCacheInternal = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    await precalculateAndCacheFacets(ctx);
+  },
+});
+
+// Counts a single category in isolation so each call has its own 16MB read budget
+// when invoked via ctx.runQuery() from an action.
+export const countSingleCategoryInternal = internalQuery({
+  args: { category: v.string() },
+  handler: async (ctx, args) => {
+    const records = await ctx.db.query('records')
+      .withIndex('by_category', q => q.eq('category', args.category as any))
+      .take(MAX_BOUNDED_TAKE);
+    return records.length;
   },
 });
 
@@ -780,7 +801,7 @@ export const countByCategoryInternal = internalQuery({
     const theses = await ctx.db.query('records').withIndex('by_category', q => q.eq('category', 'thesis')).take(MAX_BOUNDED_TAKE);
     const articles = await ctx.db.query('records').withIndex('by_category', q => q.eq('category', 'article')).take(MAX_BOUNDED_TAKE);
     const research = await ctx.db.query('records').withIndex('by_category', q => q.eq('category', 'research')).take(MAX_BOUNDED_TAKE);
-    
+
     return {
       thesis: theses.length,
       article: articles.length,
