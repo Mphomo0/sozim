@@ -5,26 +5,26 @@ export const revalidate = 86400
 import ContactLearningSection from '@/components/sections/contact-learning/ContactLearningSection'
 import PageHeader from '@/components/global/PageHeader'
 import Breadcrumb from '@/components/global/Breadcrumb'
-import { getFAQSchema, getBreadcrumbSchema } from '@/lib/seo/schemas'
+import { getFAQSchema, getBreadcrumbSchema, getWebPageSchema } from '@/lib/seo/schemas'
 
 const BASE_URL = 'https://www.sozim.co.za'
 
 export const metadata: Metadata = {
-  title: 'Enquire',
+  title: 'Enquire About Learning | Sozim',
   description:
-    'Enquire about learning opportunities at Sozim. Get information about course enrolment, admissions, financial assistance, and student support.',
+    'Enquire about accredited LIS and ETD programmes at Sozim in Bloemfontein. Get information about course enrolment, admissions, financial assistance, and student support.',
   keywords: [
     'enquire Sozim',
     'course enrolment South Africa',
     'student admission enquiry',
-    'learning opportunities SA',
-    'trading course enquiries',
+    'LIS ETD course enquiry',
+    'education programme enquiry Bloemfontein',
     'student recruitment South Africa',
   ],
   openGraph: {
-    title: 'Enquire | Sozim',
+    title: 'Enquire About Learning | Sozim',
     description:
-      'Get information about enrolling in Sozim trading and professional education courses. Our admissions team is ready to help.',
+      'Get information about enrolling in ETDP SETA accredited LIS and ETD programmes at Sozim in Bloemfontein. Our admissions team is ready to help.',
     url: `${BASE_URL}/contact-learning`,
     siteName: 'Sozim',
     type: 'website',
@@ -37,6 +37,13 @@ export const metadata: Metadata = {
         type: 'image/jpeg',
       },
     ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Enquire About Learning | Sozim',
+    description: 'Get information about enrolling in accredited LIS and ETD programmes at Sozim in Bloemfontein.',
+    images: ['/og-image.jpg'],
+    site: '@sozimtrading',
   },
   alternates: {
     canonical: `${BASE_URL}/contact-learning`,
@@ -82,6 +89,16 @@ export default function ContactLearning() {
     { name: 'Home', url: BASE_URL },
     { name: 'Enquire About Learning', url: `${BASE_URL}/contact-learning` },
   ])
+  const webPageSchema = getWebPageSchema({
+    name: 'Enquire About Learning | Sozim',
+    description: 'Get information about enrolling in ETDP SETA accredited LIS and ETD programmes at Sozim in Bloemfontein.',
+    url: `${BASE_URL}/contact-learning`,
+    speakable: ['h1', 'h2', 'p'],
+    breadcrumb: [
+      { name: 'Home', url: BASE_URL },
+      { name: 'Enquire About Learning', url: `${BASE_URL}/contact-learning` },
+    ],
+  })
 
   return (
     <>
@@ -92,6 +109,10 @@ export default function ContactLearning() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageSchema) }}
       />
       <Breadcrumb />
       <PageHeader

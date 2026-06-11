@@ -37,6 +37,13 @@ export const metadata: Metadata = {
       },
     ],
   },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Campus | Sozim – Bloemfontein Training Facilities',
+    description: 'Visit our Bloemfontein campus for face-to-face ETDP SETA accredited learning, professional training facilities, and student support.',
+    images: ['/og-image.jpg'],
+    site: '@sozimtrading',
+  },
   alternates: {
     canonical: `${BASE_URL}/campus`,
   },

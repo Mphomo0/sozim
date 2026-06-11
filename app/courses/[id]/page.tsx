@@ -66,6 +66,13 @@ export async function generateMetadata({
           },
         ],
       },
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description,
+        images: ['/og-image.jpg'],
+        site: '@sozimtrading',
+      },
       alternates: {
         canonical: courseUrl,
         languages: {

@@ -116,6 +116,7 @@ Disallow: /dashboard
 Disallow: /portal
 Disallow: /favorites
 Disallow: /student
+Disallow: /welcome-message
 Disallow: /api/
 
 User-agent: Bingbot
@@ -124,6 +125,7 @@ Disallow: /dashboard
 Disallow: /portal
 Disallow: /favorites
 Disallow: /student
+Disallow: /welcome-message
 Disallow: /api/
 
 User-agent: Googlebot-News
@@ -132,4 +134,5 @@ Disallow: /dashboard
 Disallow: /portal
 Disallow: /favorites
 Disallow: /student
+Disallow: /welcome-message
 Disallow: /api/

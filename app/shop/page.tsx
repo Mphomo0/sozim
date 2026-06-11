@@ -10,21 +10,21 @@ import { getFAQSchema, getBreadcrumbSchema } from '@/lib/seo/schemas'
 const BASE_URL = 'https://www.sozim.co.za'
 
 export const metadata: Metadata = {
-  title: 'Sozim Store',
+  title: 'Sozim Store | Educational Materials & Student Resources',
   description:
-    'Shop the Sozim Store for premium trading resources, educational materials, and professional tools designed to support your trading education journey.',
+    'Shop the Sozim Store for study guides, branded merchandise, and student resources designed to support your education and training journey at Sozim College in Bloemfontein.',
   keywords: [
     'Sozim store',
-    'trading resources shop',
-    'trading education materials South Africa',
-    'professional trading tools',
-    'educational products South Africa',
-    'student resources',
+    'educational materials South Africa',
+    'student resources Bloemfontein',
+    'study guides South Africa',
+    'LIS ETD study materials',
+    'Sozim branded merchandise',
   ],
   openGraph: {
-    title: 'Sozim Store | Trading Resources',
+    title: 'Sozim Store | Educational Materials & Student Resources',
     description:
-      'Browse premium trading resources, educational materials, and professional tools for your trading education.',
+      'Browse study guides, branded merchandise, and student resources from Sozim College — supporting learners in LIS and ETD programmes.',
     url: `${BASE_URL}/shop`,
     siteName: 'Sozim',
     type: 'website',
@@ -33,10 +33,17 @@ export const metadata: Metadata = {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'Sozim Store - Trading Resources',
+        alt: 'Sozim Store - Educational Materials and Student Resources',
         type: 'image/jpeg',
       },
     ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Sozim Store | Educational Materials & Student Resources',
+    description: 'Study guides, branded merchandise, and student resources from Sozim College in Bloemfontein.',
+    images: ['/og-image.jpg'],
+    site: '@sozimtrading',
   },
   alternates: {
     canonical: `${BASE_URL}/shop`,

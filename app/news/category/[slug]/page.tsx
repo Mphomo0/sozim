@@ -25,7 +25,21 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   return {
     title,
     description,
-    openGraph: { title, description, url: `https://www.sozim.co.za/news/category/${category.slug}`, siteName: 'Sozim' },
+    openGraph: {
+      title,
+      description,
+      url: `https://www.sozim.co.za/news/category/${category.slug}`,
+      siteName: 'Sozim',
+      type: 'website',
+      images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: `${category.name} News – Sozim` }],
+    },
+    twitter: {
+      card: 'summary_large_image' as const,
+      title,
+      description,
+      images: ['/og-image.jpg'],
+      site: '@sozimtrading',
+    },
     alternates: { canonical: `https://www.sozim.co.za/news/category/${category.slug}` },
   }
 }

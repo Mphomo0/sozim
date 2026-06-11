@@ -25,7 +25,21 @@ export async function generateMetadata({ params }: TagPageProps): Promise<Metada
   return {
     title,
     description,
-    openGraph: { title, description, url: `https://www.sozim.co.za/news/tag/${tag.slug}`, siteName: 'Sozim' },
+    openGraph: {
+      title,
+      description,
+      url: `https://www.sozim.co.za/news/tag/${tag.slug}`,
+      siteName: 'Sozim',
+      type: 'website',
+      images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: `${tag.name} Articles – Sozim` }],
+    },
+    twitter: {
+      card: 'summary_large_image' as const,
+      title,
+      description,
+      images: ['/og-image.jpg'],
+      site: '@sozimtrading',
+    },
     alternates: { canonical: `https://www.sozim.co.za/news/tag/${tag.slug}` },
     robots: { index: true, follow: true },
   }

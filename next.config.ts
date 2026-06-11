@@ -82,6 +82,46 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      {
+        // homepage revalidate=3600, courses listing revalidate=3600
+        source: '/:path(|courses)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, s-maxage=3600, stale-while-revalidate=86400',
+          },
+        ],
+      },
+      {
+        // individual course pages revalidate=7200
+        source: '/courses/:id',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, s-maxage=7200, stale-while-revalidate=604800',
+          },
+        ],
+      },
+      {
+        // news listing revalidate=7200, news[slug] revalidate=3600, category/tag pages revalidate=3600
+        source: '/news/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, s-maxage=3600, stale-while-revalidate=604800',
+          },
+        ],
+      },
+      {
+        // news index revalidate=7200 — longer TTL than individual articles
+        source: '/news',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, s-maxage=7200, stale-while-revalidate=604800',
+          },
+        ],
+      },
     ]
   },
 }

@@ -11,25 +11,27 @@ import { SignUpButton } from '@clerk/nextjs'
 const SLIDES = [
   {
     image: 'https://ik.imagekit.io/vzofqg2fg/images/heroImage.jpg',
-    title: 'Transform Your Future',
+    title: 'Accredited Education & Training College in Bloemfontein',
     description:
-      'Join thousands of students achieving their dreams through world-class education.',
-    ctaText: 'Explore Courses',
+      'ETDP SETA accredited LIS and ETD programmes — Library Assistant, Facilitator, Assessor. Four intakes per year. Free online application.',
+    ctaText: 'Explore Programmes',
     ctaLink: '/courses',
   },
   {
     image: 'https://ik.imagekit.io/vzofqg2fg/images/hero3.webp',
-    title: 'A Message from Our Director',
-    description: 'A warm welcome from our Director',
-    ctaText: 'Read More',
+    title: 'Welcome to Sozim — Your Education Partner in Free State',
+    description:
+      'A message from our Director on quality, SAQA-registered qualifications and skills development for working professionals across South Africa.',
+    ctaText: 'Read the Message',
     ctaLink: '/welcome-message',
   },
   {
     image: 'https://ik.imagekit.io/vzofqg2fg/images/hero2.webp',
-    title: 'Global Opportunities',
-    description: 'Connect with a network of learners and potential employers.',
-    ctaText: 'Join Sozim',
-    ctaLink: '/contact-learning',
+    title: 'Build Your Career with NQF-Aligned Qualifications',
+    description:
+      'Join graduates working in libraries, schools, and training organisations across South Africa with a nationally recognised Sozim qualification.',
+    ctaText: 'Apply Now — Free',
+    ctaLink: '/apply',
   },
 ]
 
@@ -82,7 +84,7 @@ export default function Hero() {
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight font-display mb-6 drop-shadow-lg text-white">
               {SLIDES[current].title}
             </h1>
-            <p className="text-xl md:text-2xl mb-10 max-w-2xl mx-auto text-blue-5/90 font-light drop-shadow-md">
+            <p className="hero-description text-xl md:text-2xl mb-10 max-w-2xl mx-auto text-blue-5/90 font-light drop-shadow-md">
               {SLIDES[current].description}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">

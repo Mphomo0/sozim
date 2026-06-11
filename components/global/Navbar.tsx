@@ -94,6 +94,7 @@ export default function Navbar() {
   const mainMenuItems = useMemo(() => [
     { label: 'Home', href: '/' },
     { label: 'About Us', href: '/about' },
+    { label: 'News', href: '/news' },
     {
       label: 'Academic Schools',
       dropdown: [

@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import CTA from '@/components/global/CTA'
 import Featured from '@/components/sections/home/Featured'
 import Hero from '@/components/sections/home/Hero'
+import LatestNews from '@/components/sections/home/LatestNews'
 import SozimPrograms from '@/components/sections/home/SozimPrograms'
 import Stats from '@/components/sections/home/Stats'
 import {
@@ -12,6 +13,7 @@ import {
   getDefinedTermSchema,
 } from '@/lib/seo/schemas'
 import { getCachedCourses, getCachedCategories } from '@/lib/queries'
+import { getCachedNewsPosts, getCachedNewsCategories } from '@/lib/newsQueries'
 
 export const revalidate = 3600 // regenerate homepage at most once per hour
 
@@ -145,10 +147,13 @@ const KEY_TERMS_JSONS = getDefinedTermSchema([
 ]).map((t) => JSON.stringify(t))
 
 export default async function Home() {
-  const [initialCourses, initialCategories] = await Promise.all([
-    getCachedCourses(),
-    getCachedCategories(),
-  ])
+  const [initialCourses, initialCategories, newsPosts, newsCategories] =
+    await Promise.all([
+      getCachedCourses(),
+      getCachedCategories(),
+      getCachedNewsPosts(),
+      getCachedNewsCategories(),
+    ])
 
   return (
     <div className="mb-0">
@@ -179,6 +184,7 @@ export default async function Home() {
       <Stats />
       <Featured />
       <SozimPrograms initialCourses={initialCourses} initialCategories={initialCategories} />
+      <LatestNews posts={newsPosts} categories={newsCategories} />
       <CTA />
     </div>
   )

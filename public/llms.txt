@@ -138,10 +138,13 @@ SETA — Sector Education and Training Authority. One of 21 statutory bodies in 
 - Courses: https://www.sozim.co.za/courses
 - Career Pathways: https://www.sozim.co.za/career-pathway
 - About: https://www.sozim.co.za/about
+- News & Updates: https://www.sozim.co.za/news
 - Campus: https://www.sozim.co.za/campus
 - Library: https://www.sozim.co.za/library
+- Store: https://www.sozim.co.za/shop
 - Contact: https://www.sozim.co.za/contact
 - Apply: https://www.sozim.co.za/apply
+- Enquire: https://www.sozim.co.za/contact-learning
 
 ## Intake Schedule
 
