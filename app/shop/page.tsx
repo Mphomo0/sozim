@@ -10,9 +10,9 @@ import { getFAQSchema, getBreadcrumbSchema } from '@/lib/seo/schemas'
 const BASE_URL = 'https://www.sozim.co.za'
 
 export const metadata: Metadata = {
-  title: 'Sozim Store | Educational Materials & Student Resources',
+  title: 'Store – Educational Materials & Student Resources',
   description:
-    'Shop the Sozim Store for study guides, branded merchandise, and student resources designed to support your education and training journey at Sozim College in Bloemfontein.',
+    'Shop study guides, branded merchandise, and student resources from Sozim College, Bloemfontein — supporting LIS and ETD learners across South Africa.',
   keywords: [
     'Sozim store',
     'educational materials South Africa',

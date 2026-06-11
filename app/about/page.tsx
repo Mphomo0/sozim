@@ -20,7 +20,7 @@ import {
 const BASE_URL = 'https://www.sozim.co.za'
 
 export const metadata: Metadata = {
-  title: 'About Us | Sozim - Accredited Education & Training College',
+  title: 'About Us – Accredited Education & Training College',
   description:
     'Learn about Sozim, an accredited education and training college in Bloemfontein, South Africa. Discover our mission, values and excellence.',
   keywords: [
@@ -49,12 +49,20 @@ export const metadata: Metadata = {
       },
     ],
   },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'About Us – Accredited Education & Training | Sozim',
+    description: 'Sozim is an accredited education and training college in Bloemfontein. Discover our mission and values.',
+    images: ['/og-image.jpg'],
+    site: '@sozimtrading',
+  },
   alternates: {
     canonical: `${BASE_URL}/about`,
     languages: {
       'en-ZA': `${BASE_URL}/about`,
       'en-ZW': `${BASE_URL}/about`,
       'en-BW': `${BASE_URL}/about`,
+      'x-default': `${BASE_URL}/about`,
     },
   },
   authors: [{ name: 'Sozim Team' }],

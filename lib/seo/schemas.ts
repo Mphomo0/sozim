@@ -173,7 +173,6 @@ export function getOrganizationSchema() {
       },
     ],
 
-    accreditation: 'ETDP SETA, QCTO, SAQA',
     award: ['Accredited Education Provider South Africa'],
     numberOfEmployees: {
       '@type': 'QuantitativeValue',
@@ -254,7 +253,7 @@ export function getLocalBusinessSchema() {
       },
     ],
 
-    priceRange: 'ZAR',
+    priceRange: '$$',
     currenciesAccepted: 'ZAR',
     paymentAccepted: 'Cash, Credit Card, Bank Transfer, EFT',
 
@@ -295,16 +294,21 @@ export function getCourseSchema(params: {
     inLanguage: params.inLanguage || 'en-ZA',
 
     provider: {
+      '@type': 'EducationalOrganization',
       '@id': `${BASE_URL}/#organization`,
+      name: 'Sozim College',
+      url: BASE_URL,
+      sameAs: BASE_URL,
     },
 
     educationalCredentialAwarded: {
       '@type': 'EducationalOccupationalCredential',
+      name: 'Accredited Certificate',
       credentialCategory: 'Certificate',
       recognizedBy: [
-        { '@type': 'Organization', name: 'ETDP SETA' },
-        { '@type': 'Organization', name: 'QCTO' },
-        { '@type': 'Organization', name: 'SAQA' },
+        { '@type': 'Organization', name: 'ETDP SETA', url: 'https://www.etdpseta.org.za' },
+        { '@type': 'Organization', name: 'QCTO', url: 'https://www.qcto.org.za' },
+        { '@type': 'Organization', name: 'SAQA', url: 'https://www.saqa.org.za' },
       ],
     },
 
@@ -327,12 +331,18 @@ export function getCourseSchema(params: {
 
     offers: {
       '@type': 'Offer',
+      price: '0',
       priceCurrency: 'ZAR',
       availability: params.isOpen === false
         ? 'https://schema.org/Discontinued'
         : 'https://schema.org/InStock',
       category: 'Education',
-      seller: { '@id': `${BASE_URL}/#organization` },
+      url: params.url || `${BASE_URL}/courses`,
+      seller: {
+        '@type': 'EducationalOrganization',
+        '@id': `${BASE_URL}/#organization`,
+        name: 'Sozim College',
+      },
     },
 
     audience: {
@@ -344,16 +354,19 @@ export function getCourseSchema(params: {
     hasCourseInstance: [
       {
         '@type': 'CourseInstance',
-        courseMode: 'online',
+        courseMode: 'Online',
         inLanguage: 'en-ZA',
-        courseWorkload: params.duration || 'PT1H',
-        location: 'Online',
+        courseWorkload: params.duration || 'PT40H',
+        location: {
+          '@type': 'VirtualLocation',
+          url: `${BASE_URL}/courses`,
+        },
       },
       {
         '@type': 'CourseInstance',
-        courseMode: 'face-to-face',
+        courseMode: 'Onsite',
         inLanguage: 'en-ZA',
-        courseWorkload: params.duration || 'PT1H',
+        courseWorkload: params.duration || 'PT40H',
         location: {
           '@type': 'Place',
           name: 'Sozim College',
@@ -556,6 +569,8 @@ export function getEventSchema() {
     description:
       'Accredited education and training programme intakes at Sozim College in Bloemfontein. Enrol in LIS and ETD programmes throughout the year.',
 
+    image: ['https://ik.imagekit.io/vzofqg2fg/images/heroImage.jpg'],
+
     startDate: `${year}-01-01`,
     endDate: `${year}-12-31`,
 
@@ -582,14 +597,19 @@ export function getEventSchema() {
     ],
 
     organizer: {
+      '@type': 'EducationalOrganization',
       '@id': `${BASE_URL}/#organization`,
+      name: 'Sozim College',
+      url: BASE_URL,
     },
 
     offers: {
       '@type': 'Offer',
       url: `${BASE_URL}/apply`,
       availability: 'https://schema.org/InStock',
+      price: '0',
       priceCurrency: 'ZAR',
+      validFrom: `${year}-01-01`,
     },
   }
 }

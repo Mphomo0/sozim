@@ -40,6 +40,25 @@ export default function Navbar() {
   )
   const courses = coursesReq || []
 
+  // Map Convex IDs → slugs so navbar links resolve directly (no 301 redirect)
+  const allCourses = useQuery(api.courses.getCourses, {})
+  const idToSlug = useMemo(() => {
+    const map = new Map<string, string>()
+    ;(allCourses ?? []).forEach((c: { _id: string; slug?: string }) => {
+      if (c.slug) map.set(c._id, c.slug)
+    })
+    return map
+  }, [allCourses])
+  const resolveCourseHref = useCallback(
+    (href: string) => {
+      const m = href.match(/^\/courses\/([a-z0-9]{32})$/)
+      if (!m) return href
+      const slug = idToSlug.get(m[1])
+      return slug ? `/courses/${slug}` : href
+    },
+    [idToSlug],
+  )
+
   const convexUser = useQuery(
     api.users.getUserByClerkId,
     user?.id ? { clerkId: user.id } : 'skip',
@@ -84,8 +103,8 @@ export default function Navbar() {
     }
   }, [router, searchQuery])
 
-  const handleResultClick = useCallback((courseId: string) => {
-    router.push(`/courses/${courseId}`)
+  const handleResultClick = useCallback((courseIdOrSlug: string) => {
+    router.push(`/courses/${courseIdOrSlug}`)
     setSearchActive(false)
     setSearchQuery('')
     setShowResults(false)
@@ -291,7 +310,7 @@ export default function Navbar() {
                 {courses.map((course) => (
                   <button
                     key={course._id}
-                    onClick={() => handleResultClick(course._id)}
+                    onClick={() => handleResultClick(course.slug ?? course._id)}
                     className="w-full text-left px-4 py-3 hover:bg-slate-50 border-b border-gray-100 last:border-b-0 transition"
                   >
                     <p className="text-sm font-medium text-slate-900 line-clamp-1">
@@ -412,7 +431,7 @@ export default function Navbar() {
                               {sub.links.map((link, i) => (
                                 <li key={i}>
                                   <Link
-                                    href={link.href}
+                                    href={resolveCourseHref(link.href)}
                                     prefetch={false}
                                     className="block text-[13px] text-slate-500 hover:text-blue-700 transition"
                                   >
@@ -429,7 +448,7 @@ export default function Navbar() {
 
                   {/* Desktop/Mobile Link */}
                   <Link
-                    href={item.dropdown?.[0]?.links?.[0]?.href || '#'}
+                    href={resolveCourseHref(item.dropdown?.[0]?.links?.[0]?.href || '#')}
                     prefetch={false}
                     className="hidden lg:block text-[15px] font-medium text-slate-500 hover:text-blue-600"
                   >
@@ -480,7 +499,7 @@ export default function Navbar() {
                               {sub.links.map((link, i) => (
                                 <li key={i}>
                                   <Link
-                                    href={link.href}
+                                    href={resolveCourseHref(link.href)}
                                     prefetch={false}
                                     className="block text-[13px] text-slate-500 hover:text-blue-700 transition"
                                   >

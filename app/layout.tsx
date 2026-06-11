@@ -63,6 +63,7 @@ export const metadata: Metadata = {
       'en-ZA': BASE_URL,
       'en-ZW': BASE_URL,
       'en-BW': BASE_URL,
+      'x-default': BASE_URL,
     },
   },
 

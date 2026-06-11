@@ -15,7 +15,7 @@ import {
 const BASE_URL = 'https://www.sozim.co.za'
 
 export const metadata: Metadata = {
-  title: 'Career Pathways in LIS & ETD | Sozim Bloemfontein',
+  title: 'Career Pathways in LIS & ETD – Bloemfontein',
   description:
     'Explore LIS and ETD career pathways at Sozim Bloemfontein. From Library Assistant to Assessor and Moderator — accredited routes for South African professionals.',
   keywords: [
@@ -42,6 +42,13 @@ export const metadata: Metadata = {
         type: 'image/jpeg',
       },
     ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Career Pathways in LIS & ETD | Sozim',
+    description: 'Explore accredited LIS and ETD career pathways in South Africa.',
+    images: ['/og-image.jpg'],
+    site: '@sozimtrading',
   },
   alternates: {
     canonical: `${BASE_URL}/career-pathway`,

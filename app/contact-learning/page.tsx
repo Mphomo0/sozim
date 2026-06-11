@@ -10,9 +10,9 @@ import { getFAQSchema, getBreadcrumbSchema, getWebPageSchema } from '@/lib/seo/s
 const BASE_URL = 'https://www.sozim.co.za'
 
 export const metadata: Metadata = {
-  title: 'Enquire About Learning | Sozim',
+  title: 'Enquire About Learning',
   description:
-    'Enquire about accredited LIS and ETD programmes at Sozim in Bloemfontein. Get information about course enrolment, admissions, financial assistance, and student support.',
+    'Enquire about accredited LIS and ETD programmes at Sozim, Bloemfontein. Get information on enrolment, admissions, fees, and student support.',
   keywords: [
     'enquire Sozim',
     'course enrolment South Africa',

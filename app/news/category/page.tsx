@@ -8,13 +8,30 @@ import { getWebPageSchema, getBreadcrumbSchema } from '@/lib/seo/schemas'
 export const revalidate = 3600
 
 export const metadata: Metadata = {
-  title: 'Categories | News | Sozim',
-  description: 'Browse news articles by category. Explore industry insights, company updates, and educational resources organised by topic.',
+  title: 'News Categories – Browse by Topic',
+  description: 'Browse Sozim news articles by category. Explore industry insights, accreditation updates, and education resources organised by topic.',
   openGraph: {
-    title: 'Categories | News | Sozim',
-    description: 'Browse news articles by category.',
+    title: 'News Categories | Sozim',
+    description: 'Browse Sozim news articles by category — accreditation, LIS, ETD and skills development.',
     url: 'https://www.sozim.co.za/news/category',
     siteName: 'Sozim',
+    type: 'website',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Sozim News Categories',
+        type: 'image/jpeg',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'News Categories | Sozim',
+    description: 'Browse Sozim news articles by category.',
+    images: ['/og-image.jpg'],
+    site: '@sozimtrading',
   },
   alternates: {
     canonical: 'https://www.sozim.co.za/news/category',

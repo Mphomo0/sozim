@@ -18,7 +18,7 @@ export const revalidate = 3600 // re-render at most once per hour
 const BASE_URL = 'https://www.sozim.co.za'
 
 export const metadata: Metadata = {
-  title: 'Courses | Sozim – Accredited College Bloemfontein',
+  title: 'Courses – Accredited College Bloemfontein',
   description:
     'Explore ETDP SETA accredited courses at Sozim in Bloemfontein. Enrol in LIS and ETD programmes — Library Assistant, Facilitator, Assessor and more.',
   keywords: [

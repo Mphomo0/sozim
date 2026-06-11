@@ -9,7 +9,7 @@ import { getBreadcrumbSchema, getWebPageSchema } from '@/lib/seo/schemas'
 const BASE_URL = 'https://www.sozim.co.za'
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy',
+  title: 'Privacy Policy – How We Protect Your Data',
   description:
     'Sozim privacy policy. Learn how we collect, use, and protect your personal information in accordance with South African data protection laws.',
   authors: [{ name: 'Sozim Team' }],
@@ -33,6 +33,13 @@ export const metadata: Metadata = {
         type: 'image/jpeg',
       },
     ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Privacy Policy | Sozim',
+    description: 'How Sozim collects, uses, and protects your personal information.',
+    images: ['/og-image.jpg'],
+    site: '@sozimtrading',
   },
   alternates: {
     canonical: `${BASE_URL}/privacy-policy`,

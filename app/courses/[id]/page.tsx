@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { permanentRedirect, notFound } from 'next/navigation'
 import CourseDetail from '@/components/sections/programs/CourseDetail'
-import PageHeader from '@/components/global/PageHeader'
 import { getBreadcrumbSchema, getCourseSchema } from '@/lib/seo/schemas'
 import { getCachedCourseById, getCachedCourseBySlug } from '@/lib/queries'
 import type { Id } from '@/convex/_generated/dataModel'
@@ -79,6 +78,7 @@ export async function generateMetadata({
           'en-ZA': courseUrl,
           'en-ZW': courseUrl,
           'en-BW': courseUrl,
+          'x-default': courseUrl,
         },
       },
     }
@@ -152,10 +152,6 @@ export default async function SingleCourse({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(courseSchema) }}
-      />
-      <PageHeader
-        title={courseName}
-        details="Choose from our wide range of industry-recognized programs designed to advance your career."
       />
       <CourseDetail initialCourse={initialCourse} />
     </>

@@ -5,7 +5,7 @@ import { getBreadcrumbSchema, getWebPageSchema, getFAQSchema } from '@/lib/seo/s
 const BASE_URL = 'https://www.sozim.co.za'
 
 export const metadata: Metadata = {
-  title: 'Academic Library | Sozim – South African Research Resources',
+  title: 'Academic Library – SA Research Resources',
   description:
     'Access the Sozim Academic Library — scholarly articles, theses, and research from South African universities. Free academic search for students and researchers.',
   keywords: [
@@ -31,6 +31,13 @@ export const metadata: Metadata = {
         type: 'image/jpeg',
       },
     ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Academic Library – SA Research Resources | Sozim',
+    description: 'Access academic articles, theses, and research data from South African universities. Free for students.',
+    images: ['/og-image.jpg'],
+    site: '@sozimtrading',
   },
   alternates: {
     canonical: `${BASE_URL}/library`,

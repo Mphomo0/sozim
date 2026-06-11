@@ -167,7 +167,11 @@ export default async function NewsArticlePage({ params }: NewsArticlePageProps) 
 
         <div
           className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-a:text-indigo-600 prose-a:no-underline hover:prose-a:underline prose-img:rounded-xl prose-blockquote:border-indigo-500 prose-blockquote:bg-indigo-50/50 prose-blockquote:py-1 prose-code:text-indigo-700 prose-code:bg-indigo-50 prose-code:px-1.5 prose-code:rounded prose-pre:bg-gray-900 prose-pre:text-gray-100"
-          dangerouslySetInnerHTML={{ __html: post.content }}
+          dangerouslySetInnerHTML={{
+            __html: post.content
+              .replace(/<h1(\s[^>]*)?>/gi, '<h2$1>')
+              .replace(/<\/h1>/gi, '</h2>'),
+          }}
         />
 
         {postTags.length > 0 && (

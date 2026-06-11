@@ -1,5 +1,6 @@
 import { query, mutation } from './_generated/server'
 import { v, ConvexError } from 'convex/values'
+import { internal } from './_generated/api'
 
 export const getCourses = query({
   args: {},
@@ -35,6 +36,7 @@ export const searchCourses = query({
       _id: c._id,
       name: c.name,
       description: c.description,
+      slug: c.slug,
     }))
   },
 })
@@ -91,11 +93,17 @@ export const createCourse = mutation({
         throw new ConvexError('Slug already in use')
       }
     }
-    return await ctx.db.insert('courses', {
+    const id = await ctx.db.insert('courses', {
       ...rest,
       categoryId: categoryId,
       actualCategoryId: categoryId,
     })
+    if (rest.slug && rest.isOpen) {
+      await ctx.scheduler.runAfter(0, internal.indexnow.pingUrls, {
+        urls: [`/courses/${rest.slug}`, '/courses', '/'],
+      })
+    }
+    return id
   },
 })
 
@@ -140,7 +148,13 @@ export const updateCourse = mutation({
       }
     }
     await ctx.db.patch(id, rest)
-    return await ctx.db.get(id)
+    const updated = await ctx.db.get(id)
+    if (updated?.slug) {
+      await ctx.scheduler.runAfter(0, internal.indexnow.pingUrls, {
+        urls: [`/courses/${updated.slug}`, '/courses'],
+      })
+    }
+    return updated
   },
 })
 

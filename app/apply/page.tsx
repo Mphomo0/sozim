@@ -18,9 +18,9 @@ import { getFAQSchema, getBreadcrumbSchema, getWebPageSchema, getHowToSchema } f
 const BASE_URL = 'https://www.sozim.co.za'
 
 export const metadata: Metadata = {
-  title: 'Apply for Accredited LIS and ETD Programmes | Sozim',
+  title: 'Apply for Accredited LIS and ETD Programmes',
   description:
-    'Apply online for ETDP SETA accredited programmes in Library and Information Science (LIS) and Education Training and Development (ETD) at Sozim in Bloemfontein. No application fee. Intakes in January, April, July, and October.',
+    'Apply online for ETDP SETA accredited LIS and ETD programmes at Sozim, Bloemfontein. No application fee. Four intakes a year: January, April, July, October.',
   keywords: [
     'apply Sozim',
     'enrol LIS course South Africa',
@@ -48,12 +48,20 @@ export const metadata: Metadata = {
       },
     ],
   },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Apply for Accredited LIS and ETD Programmes | Sozim',
+    description: 'Apply online for accredited LIS and ETD programmes at Sozim, Bloemfontein. No application fee.',
+    images: ['/og-image.jpg'],
+    site: '@sozimtrading',
+  },
   alternates: {
     canonical: `${BASE_URL}/apply`,
     languages: {
       'en-ZA': `${BASE_URL}/apply`,
       'en-ZW': `${BASE_URL}/apply`,
       'en-BW': `${BASE_URL}/apply`,
+      'x-default': `${BASE_URL}/apply`,
     },
   },
 }

@@ -9,7 +9,7 @@ import { getFAQSchema, getBreadcrumbSchema, getPlaceSchema, getWebPageSchema } f
 const BASE_URL = 'https://www.sozim.co.za'
 
 export const metadata: Metadata = {
-  title: 'Campus | Sozim – Bloemfontein Training Facilities',
+  title: 'Campus – Bloemfontein Training Facilities',
   description:
     'Visit Sozim in Bloemfontein. ETDP SETA accredited face-to-face learning, computer labs, and student support. Online study available nationwide.',
   keywords: [

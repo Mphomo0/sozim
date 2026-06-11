@@ -1,6 +1,7 @@
 import { v } from "convex/values"
 import { query, mutation } from "./_generated/server"
 import type { Doc, Id } from "./_generated/dataModel"
+import { internal } from "./_generated/api"
 
 function generateSlug(title: string): string {
   return title
@@ -49,7 +50,7 @@ export const createNewsPost = mutation({
     const baseSlug = args.slug && args.slug.trim() ? args.slug : generateSlug(args.title)
     const slug = await ensureUniqueSlug(ctx, baseSlug)
 
-    return await ctx.db.insert("newsPosts", {
+    const id = await ctx.db.insert("newsPosts", {
       title: args.title.trim(),
       slug,
       excerpt: args.excerpt?.trim() || undefined,
@@ -65,6 +66,12 @@ export const createNewsPost = mutation({
       createdAt: now,
       updatedAt: now,
     })
+    if (args.status === "published") {
+      await ctx.scheduler.runAfter(0, internal.indexnow.pingUrls, {
+        urls: [`/news/${slug}`, "/news", "/"],
+      })
+    }
+    return id
   },
 })
 
@@ -119,6 +126,14 @@ export const updateNewsPost = mutation({
     }
 
     await ctx.db.patch(id, patch)
+
+    const finalStatus = patch.status ?? existing.status
+    const finalSlug = patch.slug ?? existing.slug
+    if (finalStatus === "published" && finalSlug) {
+      await ctx.scheduler.runAfter(0, internal.indexnow.pingUrls, {
+        urls: [`/news/${finalSlug}`, "/news"],
+      })
+    }
     return id
   },
 })

@@ -10,7 +10,7 @@ import { getBreadcrumbSchema } from '@/lib/seo/schemas'
 const BASE_URL = 'https://www.sozim.co.za'
 
 export const metadata: Metadata = {
-  title: 'Request Callback',
+  title: 'Request a Callback from Student Recruitment',
   description:
     'Request a callback from a Sozim student recruitment advisor. We will call you to discuss your education and training options.',
   keywords: [
@@ -36,6 +36,13 @@ export const metadata: Metadata = {
         type: 'image/jpeg',
       },
     ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Request a Callback from Student Recruitment | Sozim',
+    description: 'Request a callback from a Sozim student recruitment advisor to discuss your educational goals.',
+    images: ['/og-image.jpg'],
+    site: '@sozimtrading',
   },
   alternates: {
     canonical: `${BASE_URL}/call-me-back`,

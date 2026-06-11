@@ -10,7 +10,7 @@ import { getWebPageSchema, getBreadcrumbSchema, getFAQSchema } from '@/lib/seo/s
 export const revalidate = 7200
 
 export const metadata: Metadata = {
-  title: 'News & Insights | Sozim – Education & Training Bloemfontein',
+  title: 'News & Insights – Education in Bloemfontein',
   description: 'Latest news and education insights from Sozim College, Bloemfontein. Updates on ETDP SETA accredited training, LIS, ETD, and skills development in South Africa.',
   openGraph: {
     title: 'News & Insights | Sozim – Education & Training Bloemfontein',

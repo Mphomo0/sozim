@@ -9,9 +9,9 @@ import { getBreadcrumbSchema, getWebPageSchema } from '@/lib/seo/schemas'
 const BASE_URL = 'https://www.sozim.co.za'
 
 export const metadata: Metadata = {
-  title: 'Terms of Service',
+  title: 'Terms of Service – Education Services Agreement',
 	description:
-		'Read Sozim Trading and Consultancy terms of service. Understand the terms and conditions for using our accredited education services and website in South Africa.',
+		'Read Sozim terms and conditions for using our accredited education services and website. Covers user rights, obligations, and South African compliance.',
   authors: [{ name: 'Sozim Team' }],
   other: {
     'author': 'Sozim Team',
@@ -33,6 +33,13 @@ export const metadata: Metadata = {
         type: 'image/jpeg',
       },
     ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Terms of Service | Sozim',
+    description: 'Sozim terms and conditions for using our accredited education services and website.',
+    images: ['/og-image.jpg'],
+    site: '@sozimtrading',
   },
   alternates: {
     canonical: `${BASE_URL}/terms-of-service`,
