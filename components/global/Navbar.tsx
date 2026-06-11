@@ -9,10 +9,13 @@ import { useQuery } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 import { Search, X } from 'lucide-react'
 
-const topMenuItems = [
+// '/portal' 307-redirects unauthenticated visitors to Clerk's hosted sign-in,
+// which crawlers flag as "links to redirect". Signed-out users (and crawlers)
+// get '/login' (a 200, noindex page); signed-in users go straight to '/portal'.
+const getTopMenuItems = (isSignedIn: boolean) => [
   { label: 'Apply Now', href: '/apply' },
   { label: 'Call Me Back', href: '/call-me-back' },
-  { label: 'Student Portal', href: '/portal' },
+  { label: 'Student Portal', href: isSignedIn ? '/portal' : '/login' },
   { label: 'Contact Us', href: '/contact' },
 ]
 
@@ -33,6 +36,8 @@ export default function Navbar() {
   const router = useRouter()
   const { user } = useUser()
   const { signOut } = useClerk()
+
+  const topMenuItems = useMemo(() => getTopMenuItems(Boolean(user)), [user])
 
   const coursesReq = useQuery(
     api.courses.searchCourses,

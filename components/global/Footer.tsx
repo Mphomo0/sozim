@@ -87,6 +87,15 @@ export default function Footer() {
               </li>
               <li>
                 <Link
+                  href="/welcome-message"
+                  className="hover:text-blue-400 transition-colors flex items-center gap-2 group"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-600 scale-0 group-hover:scale-100 transition-transform" />
+                  Welcome Message
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/career-pathway"
                   className="hover:text-blue-400 transition-colors flex items-center gap-2 group"
                 >
@@ -219,7 +228,7 @@ export default function Footer() {
             rights reserved.
             <br className="md:hidden" /> Developed by{' '}
             <a
-              href="https://nostalgic-studio.co.za"
+              href="https://www.nostalgic-studio.co.za"
               className="hover:text-blue-500 transition-colors"
             >
               Nostalgic Studio

@@ -37,11 +37,6 @@ export function getOrganizationSchema() {
       name: 'Bloemfontein, Free State, South Africa',
     },
 
-    numberOfStudents: {
-      '@type': 'QuantitativeValue',
-      value: 5000,
-    },
-
     contactPoint: [
       {
         '@type': 'ContactPoint',
@@ -767,10 +762,6 @@ export function getEducationalOccupationalCredentialSchema(params: {
         name: org,
       })),
     }),
-
-    awardedBy: {
-      '@id': `${BASE_URL}/#organization`,
-    },
   }
 }
 

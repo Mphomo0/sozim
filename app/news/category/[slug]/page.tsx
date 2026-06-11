@@ -2,6 +2,7 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getCachedNewsCategoryBySlug, getCachedNewsTags } from '@/lib/newsQueries'
 import { NewsCategoryPageContent } from './NewsCategoryPageContent'
+import { metaTitle, metaDescription } from '@/lib/seo/meta'
 
 // Pure ISR — no generateStaticParams so that Convex's fetchQuery doesn't
 // conflict with Next.js's static/dynamic boundary enforcement in production.
@@ -16,11 +17,15 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   const category = await getCachedNewsCategoryBySlug(slug)
 
   if (!category) {
-    return { title: 'Not Found | Sozim' }
+    return { title: 'Not Found' }
   }
 
-  const title = category.seoTitle || `${category.name} News | Sozim`
-  const description = category.seoDescription || category.description || `Browse news articles in the ${category.name} category.`
+  // Root layout template appends " | Sozim" — don't add it here.
+  const title = metaTitle(category.seoTitle || `${category.name} News & Updates`)
+  const description = metaDescription(
+    category.seoDescription || category.description,
+    `Browse ${category.name} news from Sozim College, Bloemfontein — updates on accredited education, training, and student life in South Africa.`,
+  )
 
   return {
     title,

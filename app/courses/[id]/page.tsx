@@ -3,6 +3,7 @@ import { permanentRedirect, notFound } from 'next/navigation'
 import CourseDetail from '@/components/sections/programs/CourseDetail'
 import { getBreadcrumbSchema, getCourseSchema } from '@/lib/seo/schemas'
 import { getCachedCourseById, getCachedCourseBySlug } from '@/lib/queries'
+import { metaTitle, metaDescription } from '@/lib/seo/meta'
 import type { Id } from '@/convex/_generated/dataModel'
 
 const BASE_URL = 'https://www.sozim.co.za'
@@ -27,16 +28,22 @@ export async function generateMetadata({
 
     if (!course) {
       return {
-        title: 'Course Not Found | Sozim',
+        title: 'Course Not Found',
         robots: { index: false, follow: false },
       }
     }
 
     const courseUrl = `${BASE_URL}/courses/${course.slug ?? id}`
-    const title = `${course.name} | Sozim`
-    const description =
-      course.description ||
-      `Learn about ${course.name} at Sozim, an accredited education and training college in Bloemfontein.`
+    // Root layout template appends " | Sozim" — don't add it here. Short
+    // course names get a keyword-bearing suffix to stay in the 30–60 window.
+    const title = metaTitle(
+      course.name.length < 30 ? `${course.name} Course – Bloemfontein` : course.name,
+    )
+    const description = metaDescription(
+      course.description,
+      `Learn about ${course.name} at Sozim, an accredited education and training college in Bloemfontein.`,
+      'ETDP SETA accredited training at Sozim College, Bloemfontein. Apply online — no application fee.',
+    )
 
     return {
       title,
@@ -84,9 +91,9 @@ export async function generateMetadata({
     }
   } catch {
     return {
-      title: 'Course Details | Sozim - Accredited Education & Training College',
+      title: 'Course Details',
       description:
-        'View detailed information about our accredited programmes in LIS and ETD.',
+        'View detailed information about our accredited programmes in Library and Information Science and Education Training and Development at Sozim College.',
     }
   }
 }

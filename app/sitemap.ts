@@ -15,14 +15,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let coursePages: MetadataRoute.Sitemap = []
   try {
     const courses = await getCachedCourses()
-    coursePages = courses
-      .filter((course) => course.slug)
-      .map((course) => ({
-        url: `${baseUrl}/courses/${course.slug}`,
-        lastModified,
-        changeFrequency: 'monthly' as const,
-        priority: 0.8,
-      }))
+    // Courses without a slug are still indexable at their ID URL — include
+    // them so every linked course page is in the sitemap.
+    coursePages = courses.map((course) => ({
+      url: `${baseUrl}/courses/${course.slug ?? course._id}`,
+      lastModified,
+      changeFrequency: 'monthly' as const,
+      priority: 0.8,
+    }))
   } catch {
     // sitemap still generates without course pages if Convex is unreachable
   }
@@ -92,6 +92,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...newsPages,
     ...newsCategoryPages,
     ...newsTagPages,
+    {
+      url: `${baseUrl}/welcome-message`,
+      lastModified,
+      changeFrequency: 'yearly',
+      priority: 0.5,
+    },
     {
       url: `${baseUrl}/career-pathway`,
       lastModified,

@@ -9,7 +9,7 @@ import { getWebPageSchema } from '@/lib/seo/schemas'
 const BASE_URL = 'https://www.sozim.co.za'
 
 export const metadata: Metadata = {
-  title: 'A Message from Our Director | Sozim',
+  title: 'A Message from Our Director',
   description: 'Welcome message from Sozim Director. Discover our commitment to quality education and training in South Africa.',
   keywords: ['Sozim director welcome', 'Sozim message', 'welcome to Sozim', 'director message students'],
   openGraph: {

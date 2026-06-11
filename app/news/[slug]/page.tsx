@@ -16,6 +16,7 @@ import {
   getWebPageSchema,
   getBreadcrumbSchema,
 } from '@/lib/seo/schemas'
+import { metaTitle, metaDescription, stripMarkup } from '@/lib/seo/meta'
 
 // Pure ISR — no generateStaticParams so that Convex's fetchQuery doesn't
 // conflict with Next.js's static/dynamic boundary enforcement in production.
@@ -30,11 +31,15 @@ export async function generateMetadata({ params }: NewsArticlePageProps): Promis
   const post = await getCachedNewsPostBySlug(slug)
 
   if (!post || post.status === 'draft') {
-    return { title: 'Not Found | Sozim' }
+    return { title: 'Not Found' }
   }
 
-  const title = post.seoTitle || `${post.title} | Sozim`
-  const description = post.seoDescription || post.excerpt || ''
+  // Root layout template appends " | Sozim" — don't add it here.
+  const title = metaTitle(post.seoTitle || post.title)
+  const description = metaDescription(
+    post.seoDescription || post.excerpt || stripMarkup(post.content),
+    `${post.title} — news and updates from Sozim College, Bloemfontein.`,
+  )
 
   return {
     title,
