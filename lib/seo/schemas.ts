@@ -323,7 +323,10 @@ export function getCourseSchema(params: {
     audience: {
       '@type': 'EducationalAudience',
       educationalRole: 'student',
-      geographicArea: 'South Africa',
+      geographicArea: {
+        '@type': 'Country',
+        name: 'South Africa',
+      },
     },
 
     hasCourseInstance: [
