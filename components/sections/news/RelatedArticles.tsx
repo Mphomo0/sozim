@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import { optimizedImageUrl } from '@/lib/image'
 
 interface RelatedArticle {
   _id: string
@@ -26,7 +27,7 @@ export function RelatedArticles({ articles }: { articles: RelatedArticle[] }) {
             {article.featuredImage && (
               <div className="overflow-hidden">
                 <Image
-                  src={article.featuredImage}
+                  src={optimizedImageUrl(article.featuredImage, 400) ?? ''}
                   alt={article.title}
                   width={400}
                   height={225}

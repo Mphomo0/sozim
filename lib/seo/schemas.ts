@@ -275,13 +275,11 @@ export function getCourseSchema(params: {
   prerequisites?: string
   inLanguage?: string
   isOpen?: boolean
-  occupationalCategory?: string
   careerOutcomes?: string[]
-  programType?: string
 }) {
   return {
     '@context': 'https://schema.org',
-    '@type': ['Course', 'EducationalOccupationalProgram'],
+    '@type': 'Course',
     '@id': `${params.url || BASE_URL + '/courses'}#course`,
     name: params.name,
     description: params.description,
@@ -318,27 +316,9 @@ export function getCourseSchema(params: {
       coursePrerequisites: params.prerequisites,
     }),
 
-    ...(params.occupationalCategory && { occupationalCategory: params.occupationalCategory }),
-    ...(params.programType && { programType: params.programType }),
     ...(params.careerOutcomes && params.careerOutcomes.length > 0 && {
       keywords: params.careerOutcomes.join(', '),
     }),
-
-    offers: {
-      '@type': 'Offer',
-      price: '0',
-      priceCurrency: 'ZAR',
-      availability: params.isOpen === false
-        ? 'https://schema.org/Discontinued'
-        : 'https://schema.org/InStock',
-      category: 'Education',
-      url: params.url || `${BASE_URL}/courses`,
-      seller: {
-        '@type': 'EducationalOrganization',
-        '@id': `${BASE_URL}/#organization`,
-        name: 'Sozim College',
-      },
-    },
 
     audience: {
       '@type': 'EducationalAudience',

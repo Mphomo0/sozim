@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { format } from 'date-fns'
+import { optimizedImageUrl } from '@/lib/image'
 
 interface NewsCardProps {
   title: string
@@ -17,7 +18,7 @@ export function NewsCard({ title, slug, excerpt, featuredImage, publishedAt, cat
       {featuredImage && (
         <Link href={`/news/${slug}`} className="block overflow-hidden">
           <Image
-            src={featuredImage}
+            src={optimizedImageUrl(featuredImage, 800) ?? ''}
             alt={title}
             width={800}
             height={450}

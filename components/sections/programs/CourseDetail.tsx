@@ -308,7 +308,58 @@ export default function CourseDetail({ initialCourse }: Props) {
             </Card>
           </div>
         </div>
+        {/* Other Programmes */}
+        <OtherProgrammes currentCourseId={course._id} />
       </div>
     </div>
+  )
+}
+
+function OtherProgrammes({ currentCourseId }: { currentCourseId: string }) {
+  const allCourses = useQuery(api.courses.getCourses)
+  const otherCourses = (allCourses ?? [])
+    .filter((c) => c._id !== currentCourseId)
+    .slice(0, 4)
+
+  if (otherCourses.length === 0) return null
+
+  return (
+    <section className="mt-16 pt-12 border-t border-slate-200">
+      <h2 className="text-2xl font-bold text-slate-900 mb-8">Other Programmes</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {otherCourses.map((course) => (
+          <Link
+            key={course._id}
+            href={`/courses/${course.slug ?? course._id}`}
+            className="group bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
+          >
+            <div className="p-5">
+              <h3 className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-2 mb-2">
+                {course.name}
+              </h3>
+              {course.description && (
+                <p className="text-sm text-slate-500 line-clamp-3">
+                  {course.description}
+                </p>
+              )}
+              <div className="flex items-center gap-3 mt-4 text-xs text-slate-400">
+                {course.duration && (
+                  <span className="flex items-center gap-1">
+                    <Clock className="h-3.5 w-3.5" />
+                    {course.duration}
+                  </span>
+                )}
+                {course.level && (
+                  <span className="flex items-center gap-1">
+                    <GraduationCap className="h-3.5 w-3.5" />
+                    {course.level}
+                  </span>
+                )}
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </section>
   )
 }

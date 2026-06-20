@@ -22,10 +22,9 @@ describe('getLocalBusinessSchema', () => {
 })
 
 describe('getCourseSchema', () => {
-  it('includes EducationalOccupationalProgram in @type array', () => {
+  it('has Course as @type', () => {
     const schema = getCourseSchema({ name: 'Test', description: 'Test desc' })
-    expect(schema['@type']).toContain('EducationalOccupationalProgram')
-    expect(schema['@type']).toContain('Course')
+    expect(schema['@type']).toBe('Course')
   })
 
   it('includes level when provided', () => {
@@ -43,9 +42,9 @@ describe('getCourseSchema', () => {
     expect(schema.teaches).toEqual(['Cataloguing', 'Reference Services'])
   })
 
-  it('includes occupationalCategory when provided', () => {
-    const schema = getCourseSchema({ name: 'Test', description: 'Desc', occupationalCategory: 'Library and Information Science' })
-    expect(schema.occupationalCategory).toBe('Library and Information Science')
+  it('omits occupationalCategory (removed from Course schema)', () => {
+    const schema = getCourseSchema({ name: 'Test', description: 'Desc' })
+    expect(schema).not.toHaveProperty('occupationalCategory')
   })
 
   it('omits educationalLevel when level is not provided', () => {

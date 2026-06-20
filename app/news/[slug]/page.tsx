@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { format } from 'date-fns'
+import { optimizedImageUrl } from '@/lib/image'
 import {
   getCachedNewsPostBySlug,
   getCachedNewsCategories,
@@ -154,7 +155,7 @@ export default async function NewsArticlePage({ params }: NewsArticlePageProps) 
         {post.featuredImage && (
           <div className="mb-10 rounded-2xl overflow-hidden">
             <Image
-              src={post.featuredImage}
+              src={optimizedImageUrl(post.featuredImage, 1200) ?? ''}
               alt={post.title}
               width={1200}
               height={675}
