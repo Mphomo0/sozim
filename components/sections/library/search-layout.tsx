@@ -18,16 +18,11 @@ type CategoryType = 'all' | 'research' | 'articles' | 'theses' | 'elis'
 export interface SearchLayoutProps {
   initialQuery?: string
   initialCategory?: CategoryType
+  noDataAction?: React.ReactNode
 }
 
 export interface SearchLayoutRef {
   handleSearch: (query: string, category: CategoryType) => void
-}
-
-export interface SearchLayoutProps {
-  initialQuery?: string
-  initialCategory?: CategoryType
-  noDataAction?: React.ReactNode
 }
 
 export const SearchLayout = forwardRef<SearchLayoutRef, SearchLayoutProps>(function SearchLayout({

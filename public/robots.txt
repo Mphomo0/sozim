@@ -24,6 +24,7 @@ Disallow: /student
 Disallow: /welcome-message
 Disallow: /api/
 Disallow: /actions
+Disallow: /login
 Disallow: /_next/
 
 Sitemap: https://www.sozim.co.za/sitemap.xml

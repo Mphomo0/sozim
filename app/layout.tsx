@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 import { ClerkProvider } from '@clerk/nextjs'
 import ConvexClientProvider from '@/components/ConvexClientProvider'
 import ClientLayoutWrapper from '@/components/global/ClientLayoutWrapper'
@@ -73,7 +74,7 @@ export const metadata: Metadata = {
   },
 
   description:
-    'Accredited education and training college in Bloemfontein, South Africa offering SAQA-aligned programmes in Library and Information Science, ETD, and professional skills development.',
+    'Accredited college in Bloemfontein, SA. SAQA-aligned programmes in Library and Information Science, ETD, and professional skills development.',
 
   keywords: [
     'accredited education Bloemfontein',

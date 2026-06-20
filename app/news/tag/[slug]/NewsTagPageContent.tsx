@@ -7,7 +7,6 @@ import { NewsCard } from '@/components/sections/news/NewsCard'
 import { NewsSidebar } from '@/components/sections/news/NewsSidebar'
 import { useQuery } from 'convex/react'
 import { api } from '@/convex/_generated/api'
-import { useEffect, useState } from 'react'
 import type { Doc } from '@/convex/_generated/dataModel'
 
 export function NewsTagPageContent({
@@ -19,13 +18,7 @@ export function NewsTagPageContent({
 }) {
   const allPosts = useQuery(api.newsPosts.getNewsPostsByTagSlug, { slug: tag.slug })
   const allTags = useQuery(api.newsTags.getNewsTags)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    if (allPosts !== undefined && allTags !== undefined) {
-      setLoading(false)
-    }
-  }, [allPosts, allTags])
+  const loading = allPosts === undefined || allTags === undefined
 
   const tagPostCountMap = new Map<string, number>()
   ;(allPosts || []).forEach((p) => {

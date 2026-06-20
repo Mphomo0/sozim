@@ -7,7 +7,6 @@ import { NewsCard } from '@/components/sections/news/NewsCard'
 import { NewsSidebar } from '@/components/sections/news/NewsSidebar'
 import { useQuery } from 'convex/react'
 import { api } from '@/convex/_generated/api'
-import { useEffect, useState } from 'react'
 import type { Doc } from '@/convex/_generated/dataModel'
 
 export function NewsCategoryPageContent({
@@ -19,13 +18,7 @@ export function NewsCategoryPageContent({
 }) {
   const allPosts = useQuery(api.newsPosts.getNewsPostsByCategorySlug, { slug: category.slug })
   const allCategories = useQuery(api.newsCategories.getNewsCategories)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    if (allPosts !== undefined && allCategories !== undefined) {
-      setLoading(false)
-    }
-  }, [allPosts, allCategories])
+  const loading = allPosts === undefined || allCategories === undefined
 
   const categoriesWithCount = (allCategories || []).map((c) => ({
     ...c,

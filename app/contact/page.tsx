@@ -6,7 +6,6 @@ import ContactsInfoCard from '@/components/sections/contact/ContactsInfoCard'
 import InfoMap from '@/components/sections/contact/InfoMap'
 import Breadcrumb from '@/components/global/Breadcrumb'
 import { getFAQSchema, getBreadcrumbSchema, getLocalBusinessSchema, getWebPageSchema } from '@/lib/seo/schemas'
-import React from 'react'
 
 const BASE_URL = 'https://www.sozim.co.za'
 
