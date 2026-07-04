@@ -66,15 +66,6 @@ const nextConfig: NextConfig = {
         headers: securityHeaders,
       },
       {
-        source: '/api/og',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800',
-          },
-        ],
-      },
-      {
         source:
           '/:path(about|campus|career-pathway|privacy-policy|terms-of-service|contact-learning|welcome-message)',
         headers: [
