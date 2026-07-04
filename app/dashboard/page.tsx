@@ -1,4 +1,5 @@
 import { auth } from '@/auth'
+import { auth as clerkAuth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { getConvexClient } from '@/lib/convex-client'
 import { api } from '@/convex/_generated/api'
@@ -36,7 +37,12 @@ export default async function DashboardPage({ searchParams }: PageProps) {
   const params = await searchParams
   const selectedYear = Number(params?.year) || currentYear
 
-  const stats = await getConvexClient()!.query(api.applications.getDashboardStats, { year: selectedYear })
+  // getDashboardStats is admin-gated in Convex, so forward the caller's Clerk
+  // token to the (otherwise anonymous) server-side Convex client.
+  const convex = getConvexClient()!
+  const token = await (await clerkAuth()).getToken({ template: 'convex' })
+  if (token) convex.setAuth(token)
+  const stats = await convex.query(api.applications.getDashboardStats, { year: selectedYear })
 
   const totalUsers = stats?.totalUsers || 0
   const totalApplications = stats?.totalApplications || 0

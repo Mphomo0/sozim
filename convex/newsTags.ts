@@ -1,6 +1,7 @@
 import { v } from "convex/values"
 import { query, mutation } from "./_generated/server"
 import type { Id } from "./_generated/dataModel"
+import { requireAdmin } from "./lib/auth"
 
 function generateSlug(name: string): string {
   return name
@@ -36,6 +37,7 @@ export const createNewsTag = mutation({
     description: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    await requireAdmin(ctx)
     const now = Date.now()
     const baseSlug = args.slug?.trim() || generateSlug(args.name)
     const slug = await ensureUniqueSlug(ctx, baseSlug)
@@ -58,6 +60,7 @@ export const updateNewsTag = mutation({
     description: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    await requireAdmin(ctx)
     const { id, ...fields } = args
     const existing = await ctx.db.get(id)
     if (!existing) throw new Error("Tag not found")
@@ -80,6 +83,7 @@ export const updateNewsTag = mutation({
 export const deleteNewsTag = mutation({
   args: { id: v.id("newsTags") },
   handler: async (ctx, args) => {
+    await requireAdmin(ctx)
     await ctx.db.delete(args.id)
   },
 })

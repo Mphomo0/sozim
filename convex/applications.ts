@@ -1,13 +1,15 @@
 import { query, mutation } from './_generated/server'
-import { v } from 'convex/values'
+import { v, ConvexError } from 'convex/values'
+import { requireAdmin, requireAuth } from './lib/auth'
 
 export const getApplications = query({
-  args: { 
-    page: v.optional(v.number()), 
+  args: {
+    page: v.optional(v.number()),
     limit: v.optional(v.number()),
     status: v.optional(v.string())
   },
   handler: async (ctx, args) => {
+    await requireAdmin(ctx)
     let applicationsQuery = ctx.db.query('applications')
     if (args.status) {
       applicationsQuery = applicationsQuery.filter(q => q.eq(q.field('status'), args.status))
@@ -68,6 +70,11 @@ export const getApplicationsByUserId = query({
     clerkId: v.string(),
   },
   handler: async (ctx, args) => {
+    const caller = await requireAuth(ctx)
+    // A user may only read their own applications; admins may read anyone's.
+    if (!caller.isAdmin && args.clerkId !== caller.identity.subject) {
+      throw new ConvexError('Not authorized')
+    }
     // 1. Get user by clerkId
     const user = await ctx.db.query('users')
       .withIndex('by_clerk_id', q => q.eq('clerkId', args.clerkId))
@@ -85,8 +92,14 @@ export const getApplicationsByUserId = query({
 export const getApplicationById = query({
   args: { id: v.id('applications') },
   handler: async (ctx, args) => {
+    const caller = await requireAuth(ctx)
     const app = await ctx.db.get(args.id)
     if (!app) return null
+
+    // Returns full applicant PII — restrict to the owner or an admin.
+    if (!caller.isAdmin && app.clerkId !== caller.identity.subject) {
+      throw new ConvexError('Not authorized')
+    }
 
     let user = null
 
@@ -146,6 +159,7 @@ export const checkExistingApplication = query({
     courseId: v.string(), // can be convex id or mongo id
   },
   handler: async (ctx, args) => {
+    await requireAuth(ctx)
     // Try to find normalized IDs
     const userConvexId = ctx.db.normalizeId('users', args.applicantId)
     const courseConvexId = ctx.db.normalizeId('courses', args.courseId)
@@ -205,12 +219,22 @@ export const createApplication = mutation({
     data: v.optional(v.any()),
   },
   handler: async (ctx, args) => {
+    const caller = await requireAuth(ctx)
     const { data, ...rest } = args
 
     const userConvexId = ctx.db.normalizeId('users', args.applicantId)
     if (!userConvexId) {
       console.error('[createApplication] Invalid applicant ID:', args.applicantId)
       throw new Error('Invalid applicant ID')
+    }
+
+    // A user may only create an application for themselves; admins may act for
+    // anyone. Verify the target user record belongs to the caller.
+    if (!caller.isAdmin) {
+      const applicant = await ctx.db.get(userConvexId)
+      if (!applicant || applicant.clerkId !== caller.identity.subject) {
+        throw new ConvexError('Not authorized')
+      }
     }
 
     let course: any = null
@@ -281,6 +305,7 @@ export const updateApplication = mutation({
     data: v.optional(v.any()),
   },
   handler: async (ctx, args) => {
+    await requireAdmin(ctx)
     const { id, data, ...rest } = args
     await ctx.db.patch(id, {
       ...rest,
@@ -293,6 +318,7 @@ export const updateApplication = mutation({
 export const deleteApplication = mutation({
   args: { id: v.id('applications') },
   handler: async (ctx, args) => {
+    await requireAdmin(ctx)
     await ctx.db.delete(args.id)
     return true
   },
@@ -301,6 +327,7 @@ export const deleteApplication = mutation({
 export const getDashboardStats = query({
   args: { year: v.optional(v.number()) },
   handler: async (ctx, args) => {
+    await requireAdmin(ctx)
     const year = args.year || new Date().getFullYear()
     const startDate = new Date(year, 0, 1).getTime()
     const endDate = new Date(year + 1, 0, 1).getTime()

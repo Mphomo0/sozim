@@ -1,5 +1,6 @@
 import { query, mutation } from './_generated/server'
 import { v } from 'convex/values'
+import { requireAdmin } from './lib/auth'
 
 export const getCategories = query({
   args: {},
@@ -22,6 +23,7 @@ export const createCategory = mutation({
     description: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    await requireAdmin(ctx)
     return await ctx.db.insert('courseCategories', args)
   },
 })
@@ -34,6 +36,7 @@ export const updateCategory = mutation({
     description: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    await requireAdmin(ctx)
     const { id, ...rest } = args
     await ctx.db.patch(id, rest)
     return await ctx.db.get(id)
@@ -43,6 +46,7 @@ export const updateCategory = mutation({
 export const deleteCategory = mutation({
   args: { id: v.id('courseCategories') },
   handler: async (ctx, args) => {
+    await requireAdmin(ctx)
     await ctx.db.delete(args.id)
     return true
   },

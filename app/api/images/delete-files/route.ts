@@ -1,9 +1,15 @@
 import { NextResponse, NextRequest } from 'next/server'
 import * as https from 'https'
+import { isAdminRequest } from '@/lib/api-auth'
 
 // The POST handler for the API route (i.e., when a POST request is sent to this endpoint)
 export async function POST(req: NextRequest) {
   try {
+    // Destructive: deletes files from ImageKit with the private key. Admin only.
+    if (!(await isAdminRequest())) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     // Parse the JSON body from the incoming request
     const { fileIds } = await req.json()
 

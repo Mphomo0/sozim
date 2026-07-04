@@ -2,6 +2,7 @@ import { v } from "convex/values"
 import { query, mutation } from "./_generated/server"
 import type { Doc, Id } from "./_generated/dataModel"
 import { internal } from "./_generated/api"
+import { requireAdmin } from "./lib/auth"
 
 function generateSlug(title: string): string {
   return title
@@ -46,6 +47,7 @@ export const createNewsPost = mutation({
     authorId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    await requireAdmin(ctx)
     const now = Date.now()
     const baseSlug = args.slug && args.slug.trim() ? args.slug : generateSlug(args.title)
     const slug = await ensureUniqueSlug(ctx, baseSlug)
@@ -91,6 +93,7 @@ export const updateNewsPost = mutation({
     tagIds: v.optional(v.array(v.id("newsTags"))),
   },
   handler: async (ctx, args) => {
+    await requireAdmin(ctx)
     const { id, ...fields } = args
     const existing = await ctx.db.get(id)
     if (!existing) throw new Error("News post not found")
@@ -141,6 +144,7 @@ export const updateNewsPost = mutation({
 export const deleteNewsPost = mutation({
   args: { id: v.id("newsPosts") },
   handler: async (ctx, args) => {
+    await requireAdmin(ctx)
     await ctx.db.delete(args.id)
   },
 })
@@ -212,6 +216,7 @@ export const getPublishedNewsPosts = query({
 export const getAllNewsPostsForAdmin = query({
   args: {},
   handler: async (ctx) => {
+    await requireAdmin(ctx)
     return await ctx.db
       .query("newsPosts")
       .order("desc")

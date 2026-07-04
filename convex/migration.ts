@@ -1,7 +1,10 @@
-import { mutation } from "./_generated/server";
+import { internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 
-export const executeMigration = mutation({
+// All migration/cleanup routines are internal-only: they perform bulk,
+// destructive, privilege-affecting writes and must never be callable from a
+// public client. Invoke via `npx convex run` or from other Convex functions.
+export const executeMigration = internalMutation({
   args: {},
   handler: async (ctx) => {
     let replacedCount = 0;
@@ -60,7 +63,7 @@ export const executeMigration = mutation({
   },
 });
 
-export const setClerkId = mutation({
+export const setClerkId = internalMutation({
   args: { mongoId: v.string(), clerkId: v.string() },
   handler: async (ctx, args) => {
     const user = await ctx.db
@@ -76,7 +79,7 @@ export const setClerkId = mutation({
   }
 });
 
-export const cleanupDuplicateUsers = mutation({
+export const cleanupDuplicateUsers = internalMutation({
   args: { email: v.string(), clerkId: v.string() },
   handler: async (ctx, args) => {
     const convexUsers = await ctx.db
