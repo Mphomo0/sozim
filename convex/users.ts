@@ -1,5 +1,6 @@
 import { query, mutation, internalMutation } from './_generated/server'
-import { v } from 'convex/values'
+import { v, ConvexError } from 'convex/values'
+import { requireAdmin, requireAuth } from './lib/auth'
 
 export const getUsers = query({
   args: {
@@ -8,6 +9,7 @@ export const getUsers = query({
     search: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    await requireAdmin(ctx)
     const search = args.search?.toLowerCase()
     let users: any[] = []
 
@@ -48,15 +50,22 @@ export const getUsers = query({
 export const getUserById = query({
   args: { id: v.id('users') },
   handler: async (ctx, args) => {
-    return await ctx.db.get(args.id)
+    const caller = await requireAuth(ctx)
+    const user = await ctx.db.get(args.id)
+    // Callers may read their own record; only admins may read anyone's.
+    if (!caller.isAdmin && user?.clerkId !== caller.identity.subject) {
+      throw new ConvexError('Not authorized')
+    }
+    return user
   },
 })
 
 export const getUserByAnyId = query({
   args: { id: v.string() },
   handler: async (ctx, args) => {
+    await requireAdmin(ctx)
     if (!args.id) return null
-    
+
     // 1. Try treating it as a standard Convex Id directly
     try {
       const normalizedId = ctx.db.normalizeId('users', args.id)
@@ -97,6 +106,11 @@ export const getUserByAnyId = query({
 export const getUserByClerkId = query({
   args: { clerkId: v.string() },
   handler: async (ctx, args) => {
+    const caller = await requireAuth(ctx)
+    // A user may only look themselves up by clerkId; admins may look up anyone.
+    if (!caller.isAdmin && args.clerkId !== caller.identity.subject) {
+      throw new ConvexError('Not authorized')
+    }
     return await ctx.db.query('users')
       .withIndex('by_clerk_id', q => q.eq('clerkId', args.clerkId))
       .first()
@@ -106,12 +120,28 @@ export const getUserByClerkId = query({
 export const getUserByEmail = query({
   args: { email: v.string() },
   handler: async (ctx, args) => {
+    const caller = await requireAuth(ctx)
     const email = args.email.trim().toLowerCase()
     if (!email) return null
-    
-    return await ctx.db.query('users')
+
+    const user = await ctx.db.query('users')
       .withIndex('by_email', q => q.eq('email', email))
       .first()
+    if (!user) return null
+
+    // Admins may look up anyone. Non-admins may only resolve their OWN record —
+    // either already linked to their identity, or matched to their verified
+    // identity email (supports first sign-in linking). Returning null (rather
+    // than throwing) for other emails prevents enumerating users by email.
+    const callerEmail = caller.identity.email?.toLowerCase()
+    if (
+      caller.isAdmin ||
+      user.clerkId === caller.identity.subject ||
+      (!!callerEmail && callerEmail === email)
+    ) {
+      return user
+    }
+    return null
   },
 })
 
@@ -131,9 +161,19 @@ export const createUser = mutation({
     password: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    const caller = await requireAuth(ctx)
+    // Non-admins may only create their own record (first sign-in sync) and can
+    // never grant themselves an elevated role or spoof another identity.
+    if (caller.isAdmin) {
+      return await ctx.db.insert('users', {
+        ...args,
+        role: args.role || 'USER',
+      })
+    }
     return await ctx.db.insert('users', {
       ...args,
-      role: args.role || 'USER',
+      clerkId: caller.identity.subject,
+      role: 'USER',
     })
   },
 })
@@ -155,8 +195,36 @@ export const updateUser = mutation({
     password: v.optional(v.union(v.string(), v.null())),
   },
   handler: async (ctx, args) => {
+    const caller = await requireAuth(ctx)
     const { id, password: _password, ...rest } = args
-    // Filter out null values to avoid storing literal nulls if the schema doesn't like them, 
+
+    const target = await ctx.db.get(id)
+    if (!target) throw new ConvexError('User not found')
+
+    if (!caller.isAdmin) {
+      const ownsRecord = target.clerkId === caller.identity.subject
+      // First sign-in linking: a caller may claim an as-yet-unlinked record
+      // only if it matches their verified identity email. This is the same
+      // gate as getUserByEmail, so no record a caller can't already resolve
+      // can be claimed — closing account-takeover of un-activated accounts.
+      const callerEmail = caller.identity.email?.toLowerCase()
+      const claimingUnlinked =
+        !target.clerkId &&
+        rest.clerkId === caller.identity.subject &&
+        !!callerEmail &&
+        target.email?.toLowerCase() === callerEmail
+
+      if (!ownsRecord && !claimingUnlinked) {
+        throw new ConvexError('Not authorized')
+      }
+      // Non-admins can never change role, nor reassign clerkId to another identity.
+      delete (rest as Record<string, unknown>).role
+      if (rest.clerkId !== undefined && rest.clerkId !== caller.identity.subject) {
+        delete (rest as Record<string, unknown>).clerkId
+      }
+    }
+
+    // Filter out null values to avoid storing literal nulls if the schema doesn't like them,
     // although patch should handle it if the schema allows optional.
     const updateData: any = {}
     Object.entries(rest).forEach(([key, value]) => {
@@ -164,16 +232,19 @@ export const updateUser = mutation({
         updateData[key] = value
       } else {
         // If it's null, we might want to unset it or set it to undefined
-        updateData[key] = undefined 
+        updateData[key] = undefined
       }
     })
-    
+
     await ctx.db.patch(id, updateData)
     return await ctx.db.get(id)
   },
 })
 
-export const updateUserRole = mutation({
+// Internal-only: role changes must never be triggered by a public client.
+// The Clerk publicMetadata.role is the source of truth; this mirrors it into
+// Convex via the clerk sync (see internalUpdateUserRole).
+export const updateUserRole = internalMutation({
   args: {
     clerkId: v.string(),
     role: v.string(),
@@ -182,7 +253,7 @@ export const updateUserRole = mutation({
     const user = await ctx.db.query('users')
       .withIndex('by_clerk_id', q => q.eq('clerkId', args.clerkId))
       .first()
-    
+
     if (user) {
       await ctx.db.patch(user._id, { role: args.role })
       return { success: true, userId: user._id }
@@ -212,6 +283,7 @@ export const internalUpdateUserRole = internalMutation({
 export const deleteUser = mutation({
   args: { id: v.id('users') },
   handler: async (ctx, args) => {
+    await requireAdmin(ctx)
     const applications = await ctx.db
       .query('applications')
       .withIndex('by_user', q => q.eq('actualApplicantId', args.id))

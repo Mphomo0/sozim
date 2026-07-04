@@ -1,6 +1,7 @@
 import { v } from "convex/values"
 import { query, mutation } from "./_generated/server"
 import type { Id } from "./_generated/dataModel"
+import { requireAdmin } from "./lib/auth"
 
 function generateSlug(name: string): string {
   return name
@@ -38,6 +39,7 @@ export const createNewsCategory = mutation({
     seoDescription: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    await requireAdmin(ctx)
     const now = Date.now()
     const baseSlug = args.slug?.trim() || generateSlug(args.name)
     const slug = await ensureUniqueSlug(ctx, baseSlug)
@@ -64,6 +66,7 @@ export const updateNewsCategory = mutation({
     seoDescription: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    await requireAdmin(ctx)
     const { id, ...fields } = args
     const existing = await ctx.db.get(id)
     if (!existing) throw new Error("Category not found")
@@ -88,6 +91,7 @@ export const updateNewsCategory = mutation({
 export const deleteNewsCategory = mutation({
   args: { id: v.id("newsCategories") },
   handler: async (ctx, args) => {
+    await requireAdmin(ctx)
     await ctx.db.delete(args.id)
   },
 })

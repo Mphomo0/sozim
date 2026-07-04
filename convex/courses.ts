@@ -1,6 +1,7 @@
 import { query, mutation, internalMutation } from './_generated/server'
 import { v, ConvexError } from 'convex/values'
 import { internal } from './_generated/api'
+import { requireAdmin } from './lib/auth'
 
 export const getCourses = query({
   args: {},
@@ -75,6 +76,7 @@ export const createCourse = mutation({
     careerOutcomes: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
+    await requireAdmin(ctx)
     const { categoryId, price, isPopular, image, features, ...rest } = args
     if (rest.slug !== undefined) {
       const normalizedSlug = rest.slug.trim().toLowerCase()
@@ -129,6 +131,7 @@ export const updateCourse = mutation({
     careerOutcomes: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
+    await requireAdmin(ctx)
     const { id, ...rest } = args
     if (rest.slug !== undefined) {
       const normalizedSlug = rest.slug.trim().toLowerCase()
@@ -202,6 +205,7 @@ export const backfillSlugs = internalMutation({
 export const deleteCourse = mutation({
   args: { id: v.id('courses') },
   handler: async (ctx, args) => {
+    await requireAdmin(ctx)
     await ctx.db.delete(args.id)
     return true
   },

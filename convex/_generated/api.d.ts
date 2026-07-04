@@ -18,6 +18,7 @@ import type * as crons from "../crons.js";
 import type * as harvest from "../harvest.js";
 import type * as harvestJobs from "../harvestJobs.js";
 import type * as indexnow from "../indexnow.js";
+import type * as lib_auth from "../lib/auth.js";
 import type * as migration from "../migration.js";
 import type * as newsCategories from "../newsCategories.js";
 import type * as newsPosts from "../newsPosts.js";
@@ -44,6 +45,7 @@ declare const fullApi: ApiFromModules<{
   harvest: typeof harvest;
   harvestJobs: typeof harvestJobs;
   indexnow: typeof indexnow;
+  "lib/auth": typeof lib_auth;
   migration: typeof migration;
   newsCategories: typeof newsCategories;
   newsPosts: typeof newsPosts;
