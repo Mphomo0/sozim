@@ -106,6 +106,12 @@ export default async function SingleCourse({
   const { id } = await params
   const isConvexId = /^[a-z0-9]{32}$/.test(id)
 
+  // Legacy 24-hex course IDs from a previous backend 404 in GSC — 301 them
+  // to the courses listing so Google stops re-crawling dead URLs.
+  if (/^[0-9a-f]{24}$/.test(id)) {
+    permanentRedirect('/courses')
+  }
+
   let initialCourse = null
   try {
     if (isConvexId) {

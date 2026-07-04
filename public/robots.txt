@@ -21,7 +21,6 @@ Disallow: /dashboard/
 Disallow: /portal
 Disallow: /favorites
 Disallow: /student
-Disallow: /welcome-message
 Disallow: /api/
 Disallow: /actions
 Disallow: /login
@@ -36,7 +35,6 @@ Disallow: /dashboard
 Disallow: /portal
 Disallow: /favorites
 Disallow: /student
-Disallow: /welcome-message
 Disallow: /api/
 
 User-agent: OAI-SearchBot
@@ -45,7 +43,6 @@ Disallow: /dashboard
 Disallow: /portal
 Disallow: /favorites
 Disallow: /student
-Disallow: /welcome-message
 Disallow: /api/
 
 User-agent: ClaudeBot
@@ -54,7 +51,6 @@ Disallow: /dashboard
 Disallow: /portal
 Disallow: /favorites
 Disallow: /student
-Disallow: /welcome-message
 Disallow: /api/
 
 User-agent: anthropic-ai
@@ -63,7 +59,6 @@ Disallow: /dashboard
 Disallow: /portal
 Disallow: /favorites
 Disallow: /student
-Disallow: /welcome-message
 Disallow: /api/
 
 User-agent: PerplexityBot
@@ -72,7 +67,6 @@ Disallow: /dashboard
 Disallow: /portal
 Disallow: /favorites
 Disallow: /student
-Disallow: /welcome-message
 Disallow: /api/
 
 User-agent: Google-Extended
@@ -81,7 +75,6 @@ Disallow: /dashboard
 Disallow: /portal
 Disallow: /favorites
 Disallow: /student
-Disallow: /welcome-message
 Disallow: /api/
 
 User-agent: CCBot
@@ -90,7 +83,6 @@ Disallow: /dashboard
 Disallow: /portal
 Disallow: /favorites
 Disallow: /student
-Disallow: /welcome-message
 Disallow: /api/
 
 User-agent: Meta-ExternalAgent
@@ -99,7 +91,6 @@ Disallow: /dashboard
 Disallow: /portal
 Disallow: /favorites
 Disallow: /student
-Disallow: /welcome-message
 Disallow: /api/
 
 User-agent: Applebot
@@ -108,7 +99,6 @@ Disallow: /dashboard
 Disallow: /portal
 Disallow: /favorites
 Disallow: /student
-Disallow: /welcome-message
 Disallow: /api/
 
 User-agent: Googlebot
@@ -117,7 +107,6 @@ Disallow: /dashboard
 Disallow: /portal
 Disallow: /favorites
 Disallow: /student
-Disallow: /welcome-message
 Disallow: /api/
 
 User-agent: Bingbot
@@ -126,7 +115,6 @@ Disallow: /dashboard
 Disallow: /portal
 Disallow: /favorites
 Disallow: /student
-Disallow: /welcome-message
 Disallow: /api/
 
 User-agent: Googlebot-News
@@ -135,5 +123,4 @@ Disallow: /dashboard
 Disallow: /portal
 Disallow: /favorites
 Disallow: /student
-Disallow: /welcome-message
 Disallow: /api/

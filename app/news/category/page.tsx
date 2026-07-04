@@ -10,6 +10,9 @@ export const revalidate = 3600
 export const metadata: Metadata = {
   title: 'News Categories – Browse by Topic',
   description: 'Browse Sozim news articles by category. Explore industry insights, accreditation updates, and education resources organised by topic.',
+  // Thin archive index — keep out of the index until categories have enough
+  // content, but let crawlers follow links.
+  robots: { index: false, follow: true },
   openGraph: {
     title: 'News Categories | Sozim',
     description: 'Browse Sozim news articles by category — accreditation, LIS, ETD and skills development.',

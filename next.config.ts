@@ -47,6 +47,17 @@ const nextConfig: NextConfig = {
       { key: 'X-Content-Type-Options', value: 'nosniff' },
       { key: 'X-Frame-Options', value: 'DENY' },
       { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+      {
+        key: 'Permissions-Policy',
+        value: 'camera=(), microphone=(), geolocation=(), payment=(), usb=()',
+      },
+      {
+        // Deliberately narrow policy: only clickjacking + mixed-content
+        // protection. A full script/style CSP needs nonces and allowlists for
+        // Clerk, Convex and ImageKit — don't tighten without testing those.
+        key: 'Content-Security-Policy',
+        value: "frame-ancestors 'none'; upgrade-insecure-requests",
+      },
     ]
 
     return [

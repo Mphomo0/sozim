@@ -30,6 +30,9 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   return {
     title,
     description,
+    // Thin archive pages (few posts per category) — keep out of the index
+    // until categories have enough content, but let crawlers follow links.
+    robots: { index: false, follow: true },
     openGraph: {
       title,
       description,

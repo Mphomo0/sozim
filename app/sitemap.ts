@@ -1,10 +1,6 @@
 import { MetadataRoute } from 'next'
 import { getCachedCourses } from '@/lib/queries'
-import {
-  getCachedNewsPosts,
-  getCachedNewsCategories,
-  getCachedNewsTags,
-} from '@/lib/newsQueries'
+import { getCachedNewsPosts, getCachedNewsTags } from '@/lib/newsQueries'
 
 export const revalidate = 86400 // regenerate sitemap once per day
 
@@ -38,19 +34,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }))
   } catch {}
 
-  let newsCategoryPages: MetadataRoute.Sitemap = []
-  try {
-    const categories = await getCachedNewsCategories()
-    newsCategoryPages = [
-      { url: `${baseUrl}/news/category`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.6 },
-      ...categories.map((cat) => ({
-        url: `${baseUrl}/news/category/${cat.slug}`,
-        lastModified: new Date(cat.updatedAt),
-        changeFrequency: 'monthly' as const,
-        priority: 0.6,
-      })),
-    ]
-  } catch {}
+  // News category pages are noindexed thin archives — kept out of the
+  // sitemap until each category has enough posts.
 
   let newsTagPages: MetadataRoute.Sitemap = []
   try {
@@ -90,7 +75,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     },
     ...newsPages,
-    ...newsCategoryPages,
     ...newsTagPages,
     {
       url: `${baseUrl}/welcome-message`,

@@ -1,4 +1,4 @@
-import { query, mutation } from './_generated/server'
+import { query, mutation, internalMutation } from './_generated/server'
 import { v, ConvexError } from 'convex/values'
 import { internal } from './_generated/api'
 
@@ -155,6 +155,47 @@ export const updateCourse = mutation({
       })
     }
     return updated
+  },
+})
+
+// One-off backfill: generate descriptive slugs from course names for courses
+// that don't have one yet. Run with:
+//   npx convex run courses:backfillSlugs --prod
+// The site 301s /courses/<id> to /courses/<slug> once a slug exists.
+export const backfillSlugs = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    const courses = await ctx.db.query('courses').collect()
+    const results: { id: string; slug: string }[] = []
+    for (const course of courses) {
+      if (course.slug) continue
+      const base = course.name
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-+|-+$/g, '')
+      if (!base) continue
+      let slug = base
+      let counter = 2
+      // ensure uniqueness against already-assigned slugs
+      for (;;) {
+        const existing = await ctx.db
+          .query('courses')
+          .withIndex('by_slug', (q) => q.eq('slug', slug))
+          .first()
+        if (!existing || existing._id === course._id) break
+        slug = `${base}-${counter++}`
+      }
+      await ctx.db.patch(course._id, { slug })
+      results.push({ id: course._id, slug })
+      if (course.isOpen) {
+        await ctx.scheduler.runAfter(0, internal.indexnow.pingUrls, {
+          urls: [`/courses/${slug}`, '/courses'],
+        })
+      }
+    }
+    return results
   },
 })
 
