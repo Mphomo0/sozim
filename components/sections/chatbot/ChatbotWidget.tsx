@@ -26,7 +26,7 @@ export default function ChatbotWidget() {
     {
       role: 'assistant',
       message:
-        'Hi, I\u2019m Sozim\u2019s assistant. Ask me about our programs, career pathways, or how to contact us.',
+        'Hi, I\u2019m Sozim\u2019s assistant. Ask me about our programmes, career pathways, or how to contact us.',
     },
   ])
 
@@ -46,7 +46,7 @@ export default function ChatbotWidget() {
         {
           role: 'assistant',
           message:
-            'Hi, I\u2019m Sozim\u2019s assistant. Ask me about our programs, career pathways, or how to contact us.',
+            'Hi, I\u2019m Sozim\u2019s assistant. Ask me about our programmes, career pathways, or how to contact us.',
         },
         ...storedMessages,
       ])

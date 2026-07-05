@@ -6,7 +6,7 @@ export default function OurStory() {
       <div className="absolute top-0 right-0 h-[600px] w-[600px] -translate-y-1/2 translate-x-1/3 rounded-full bg-blue-50/50 blur-[100px] pointer-events-none" />
       <div className="container relative z-10 mx-auto px-4">
         <div className="mx-auto max-w-4xl relative">
-          <div className="absolute -top-12 -left-12 text-[150px] text-blue-500/10 font-serif leading-none selct-none pointer-events-none">
+          <div className="absolute -top-12 -left-12 text-[150px] text-blue-500/10 font-serif leading-none select-none pointer-events-none">
             "
           </div>
           <div className="mb-12 text-center">
@@ -25,8 +25,8 @@ export default function OurStory() {
             </p>
             <p>
               Our founders, driven by their passion for education and community
-              development, recognized the critical need for practical,
-              industry-relevant training programs. They understood that
+development, recognised the critical need for practical,
+industry-relevant training programmes. They understood that
               traditional education often failed to equip students with the
               skills needed in today&lsquo;s rapidly evolving job market.
             </p>
@@ -40,7 +40,7 @@ export default function OurStory() {
             </div>
             <p>
               Today, Sozim continues to innovate and expand, introducing new
-              programs, embracing technology, and adapting to the changing needs
+              programmes, embracing technology, and adapting to the changing needs
               of students and employers. Our success is measured not just in
               numbers, but in the lives we&lsquo;ve transformed and the careers
               we&lsquo;ve launched.

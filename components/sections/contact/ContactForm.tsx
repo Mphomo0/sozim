@@ -42,7 +42,7 @@ type ContactFormData = z.infer<typeof contactFormSchema>
 const subjectLabels: Record<string, string> = {
   general: 'General Inquiry',
   admissions: 'Admissions',
-  programs: 'Program Information',
+  programmes: 'Programme Information',
   support: 'Student Support',
   other: 'Other',
 }
@@ -175,8 +175,8 @@ export default function ContactForm() {
                     <SelectContent className="rounded-xl">
                       <SelectItem value="general">General Inquiry</SelectItem>
                       <SelectItem value="admissions">Admissions</SelectItem>
-                      <SelectItem value="programs">
-                        Program Information
+                      <SelectItem value="programmes">
+                        Programme Information
                       </SelectItem>
                       <SelectItem value="support">Student Support</SelectItem>
                       <SelectItem value="other">Other</SelectItem>

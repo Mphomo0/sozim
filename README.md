@@ -154,7 +154,7 @@ sozim-trading/
 Secure authentication system powered by Clerk with support for multiple authentication methods and webhook integration for user management.
 
 ### Course Management
-Comprehensive course catalog with detailed information, categories, pricing, and enrollment functionality.
+Comprehensive course catalog with detailed information, categories, pricing, and enrolment functionality.
 
 ### Student Dashboard
 Personalized dashboard for students to track their learning progress, access enrolled courses, and manage their profile.

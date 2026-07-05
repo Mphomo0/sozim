@@ -117,7 +117,7 @@ export default function ContactLearning() {
       <Breadcrumb />
       <PageHeader
         title="Contact Learning"
-        details="Choose from our wide range of industry-recognized programs designed to advance your career."
+        details="Choose from our wide range of industry-recognised programmes designed to advance your career."
       />
       <ContactLearningSection />
     </>

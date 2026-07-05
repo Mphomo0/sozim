@@ -19,7 +19,7 @@ export default async function NewCoursePage() {
   return (
     <DashboardPageLayout
       title="Create New Course"
-      description="Add a new educational program to the system."
+      description="Add a new educational programme to the system."
       breadcrumbs={[
         { label: 'Admin', href: '/dashboard/admin/courses' },
         { label: 'Courses', href: '/dashboard/admin/courses' },

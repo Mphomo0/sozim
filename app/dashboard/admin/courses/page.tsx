@@ -18,7 +18,7 @@ export default async function CoursesPage() {
   return (
     <DashboardPageLayout
       title="Manage Courses"
-      description="Configure and organize educational programs."
+      description="Configure and organize educational programmes."
       breadcrumbs={[
         { label: 'Admin', href: '/dashboard/admin/courses' },
         { label: 'Courses' }

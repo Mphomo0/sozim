@@ -15,7 +15,7 @@ export default function MissionVision() {
               <h2 className="mb-6 text-3xl font-extrabold tracking-tight text-slate-900">Our Mission</h2>
               <p className="text-lg leading-relaxed text-muted-foreground">
                 Our mission at Sozim Trading and Consultancy is to deliver
-                tailored training program that empowers organizations to foster
+                tailored training programme that empowers organizations to foster
                 safe workplaces and meet compliance standards. We are dedicated
                 to providing engaging and effective training solutions,
                 utilizing interactive methods and industry best practices. By

@@ -19,8 +19,8 @@ export default function Accreditation() {
           <p className="mb-12 text-lg md:text-xl font-light leading-relaxed text-muted-foreground">
             Sozim Trading & Consultancy is registered with the Department of
             Higher Education and Training and accredited by relevant
-            professional bodies. Our programs meet national qualifications
-            framework standards, ensuring your qualification is recognized by
+professional bodies. Our programmes meet national qualifications
+framework standards, ensuring your qualification is recognised by
             employers throughout South Africa.
           </p>
           <div className="flex flex-wrap justify-center gap-6">

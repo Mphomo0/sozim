@@ -56,7 +56,7 @@ export default function OurPrograms({
                 variant="default"
                 className="rounded-full px-6 bg-blue-600 text-white shadow-md"
               >
-                All Programs
+                All Programmes
               </Button>
             </div>
           </div>
@@ -141,7 +141,7 @@ export default function OurPrograms({
               size="sm"
               onClick={() => setSelectedCategory('All')}
             >
-              All Programs
+              All Programmes
             </Button>
 
             {categories.map((category) => (
@@ -337,7 +337,7 @@ export default function OurPrograms({
               Not Sure Which Course to Choose?
             </h2>
             <p className="mb-10 text-xl font-light text-slate-300 leading-relaxed">
-              Our expert advisors are here to help you find the perfect program
+              Our expert advisors are here to help you find the perfect programme
               for your career goals. Let's build your future together.
             </p>
 

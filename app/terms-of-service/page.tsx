@@ -112,9 +112,9 @@ export default function TermsOfService() {
                 that occur under your account.
               </p>
 
-              <h2 className="text-2xl font-bold text-slate-900 mb-4">4. Course Enrollment and Payment</h2>
+              <h2 className="text-2xl font-bold text-slate-900 mb-4">4. Course Enrolment and Payment</h2>
               <p className="text-slate-600 mb-4">
-                Course enrollment is subject to availability and payment of applicable fees. We reserve the right 
+                Course enrolment is subject to availability and payment of applicable fees. We reserve the right 
                 to modify course fees at any time. Payment plans may be available for certain courses at our discretion.
               </p>
 

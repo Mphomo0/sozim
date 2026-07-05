@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     'ETD courses South Africa',
     'LIS programmes Bloemfontein',
     'ETDP SETA accredited training',
-    'career development programs',
+    'career development programmes',
     'online courses South Africa',
     'accredited training college Bloemfontein',
     'skills development courses Free State',
@@ -210,7 +210,7 @@ export default async function CoursesPage() {
       <Breadcrumb />
       <PageHeader
         title="Our Programs"
-        details="Choose from our wide range of industry-recognized programs designed to advance your career."
+        details="Choose from our wide range of industry-recognised programmes designed to advance your career."
       />
       <OurPrograms initialCourses={initialCourses} initialCategories={initialCategories} />
     </>
