@@ -12,8 +12,10 @@ const ChatbotWidget = dynamic(
 
 export default function ClientLayoutWrapper({
   children,
+  courseSlugs,
 }: {
   children: React.ReactNode
+  courseSlugs?: Record<string, string>
 }) {
   const pathname = usePathname()
 
@@ -22,7 +24,7 @@ export default function ClientLayoutWrapper({
 
   return (
     <>
-      {!isDashboard && <Navbar />}
+      {!isDashboard && <Navbar courseSlugs={courseSlugs} />}
       <main>{children}</main>
       {!isDashboard && <Footer />}
       {!isDashboard && <ChatbotWidget />}

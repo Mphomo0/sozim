@@ -26,3 +26,19 @@ export const getCachedCourseBySlug = cache((slug: string) =>
 export const getCachedStaleSlugTarget = cache((slug: string) =>
   fetchQuery(api.courses.resolveStaleSlug, { slug })
 )
+
+// Convex ID → current slug, for resolving static menu links (lib/courseLinks.ts)
+// to live slugs server-side. Returns {} if Convex is unreachable so menus fall
+// back to their hardcoded slugs.
+export const getCourseSlugMap = cache(
+  async (): Promise<Record<string, string>> => {
+    try {
+      const courses = await getCachedCourses()
+      return Object.fromEntries(
+        courses.flatMap((c) => (c.slug ? [[c._id, c.slug] as const] : [])),
+      )
+    } catch {
+      return {}
+    }
+  },
+)

@@ -8,6 +8,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useQuery } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 import { Search, X } from 'lucide-react'
+import { MENU_COURSES, courseHref, type CourseSlugMap } from '@/lib/courseLinks'
 
 // '/portal' 307-redirects unauthenticated visitors to Clerk's hosted sign-in,
 // which crawlers flag as "links to redirect". Signed-out users (and crawlers)
@@ -19,7 +20,11 @@ const getTopMenuItems = (isSignedIn: boolean) => [
   { label: 'Contact Us', href: '/contact' },
 ]
 
-export default function Navbar() {
+export default function Navbar({
+  courseSlugs,
+}: {
+  courseSlugs?: CourseSlugMap
+}) {
   const [isOpen, setIsOpen] = useState(false)
   const [searchActive, setSearchActive] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -108,7 +113,7 @@ export default function Navbar() {
           links: [
             {
               label: 'Occupational Certificate in Library Assistant',
-              href: '/courses/library-assistant',
+              href: courseHref(MENU_COURSES.libraryAssistant, courseSlugs),
             },
           ],
         },
@@ -117,11 +122,11 @@ export default function Navbar() {
           links: [
             {
               label: 'Learning and Development Facilitator',
-              href: '/courses/learning-and-development-facilitator',
+              href: courseHref(MENU_COURSES.learningDevelopmentFacilitator, courseSlugs),
             },
             {
               label: 'Assessment Practitioner',
-              href: '/courses/assessment-practioner',
+              href: courseHref(MENU_COURSES.assessmentPractitioner, courseSlugs),
             },
           ],
         },
@@ -130,15 +135,15 @@ export default function Navbar() {
           links: [
             {
               label: 'Outcome-Based Assessment',
-              href: '/courses/conduct-outcomes-based-assesment',
+              href: courseHref(MENU_COURSES.conductOutcomesBasedAssessment, courseSlugs),
             },
             {
               label: 'Facilitation Using Given Methodologies',
-              href: '/courses/facilitate-learning-using-a-variety-of-given-methodologies',
+              href: courseHref(MENU_COURSES.facilitateLearning, courseSlugs),
             },
             {
               label: 'Conduct Outcome-Based Moderation',
-              href: '/courses/conduct-moderation-of-outcomes-based-assessment',
+              href: courseHref(MENU_COURSES.conductModeration, courseSlugs),
             },
           ],
         },
@@ -152,7 +157,7 @@ export default function Navbar() {
     ...(favoritesCount > 0
       ? [{ label: `Favorites (${favoritesCount})`, href: '/favorites' }]
       : []),
-  ], [favoritesCount])
+  ], [favoritesCount, courseSlugs])
 
   const toggleDropdown = (label: string) => {
     setOpenDropdowns((prev) => ({

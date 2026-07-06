@@ -6,6 +6,7 @@ import 'react-toastify/dist/ReactToastify.css'
 import { ClerkProvider } from '@clerk/nextjs'
 import ConvexClientProvider from '@/components/ConvexClientProvider'
 import ClientLayoutWrapper from '@/components/global/ClientLayoutWrapper'
+import { getCourseSlugMap } from '@/lib/queries'
 import SyncUserWithConvex from '@/components/global/SyncUserWithConvex'
 
 import {
@@ -155,11 +156,15 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  // Resolve static menu course links to their current slugs so renames in the
+  // admin dashboard reach the SSR HTML (crawlers never see stale 301ing links).
+  const courseSlugs = await getCourseSlugMap()
+
   return (
     <html lang="en-ZA" suppressHydrationWarning>
       <head>
@@ -193,7 +198,7 @@ export default function RootLayout({
 
         <ClerkProvider>
           <ConvexClientProvider>
-            <ClientLayoutWrapper>
+            <ClientLayoutWrapper courseSlugs={courseSlugs}>
               <SyncUserWithConvex />
               <ToastContainer />
               <main id="main-content">{children}</main>

@@ -6,6 +6,7 @@ import ContactLearningSection from '@/components/sections/contact-learning/Conta
 import PageHeader from '@/components/global/PageHeader'
 import Breadcrumb from '@/components/global/Breadcrumb'
 import { getFAQSchema, getBreadcrumbSchema, getWebPageSchema } from '@/lib/seo/schemas'
+import { getCourseSlugMap } from '@/lib/queries'
 
 const BASE_URL = 'https://www.sozim.co.za'
 
@@ -83,7 +84,8 @@ const enquiryFAQs = [
   },
 ]
 
-export default function ContactLearning() {
+export default async function ContactLearning() {
+  const courseSlugs = await getCourseSlugMap()
   const faqSchema = getFAQSchema(enquiryFAQs)
   const breadcrumbSchema = getBreadcrumbSchema([
     { name: 'Home', url: BASE_URL },
@@ -119,7 +121,7 @@ export default function ContactLearning() {
         title="Contact Learning"
         details="Choose from our wide range of industry-recognised programmes designed to advance your career."
       />
-      <ContactLearningSection />
+      <ContactLearningSection courseSlugs={courseSlugs} />
     </>
   )
 }

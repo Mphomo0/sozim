@@ -4,8 +4,13 @@ import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ChevronRight, GraduationCap, School, BookOpen } from 'lucide-react'
 import { motion } from 'motion/react'
+import { MENU_COURSES, courseHref, type CourseSlugMap } from '@/lib/courseLinks'
 
-export default function ContactLearningSection() {
+export default function ContactLearningSection({
+  courseSlugs,
+}: {
+  courseSlugs?: CourseSlugMap
+}) {
   return (
     <section className="py-24 bg-slate-50 relative overflow-hidden">
       {/* Background decoration */}
@@ -65,17 +70,17 @@ export default function ContactLearningSection() {
               {[
                 {
                   title: 'Library Assistant',
-                  href: '/courses/library-assistant',
+                  href: courseHref(MENU_COURSES.libraryAssistant, courseSlugs),
                   desc: 'Comprehensive training for modern library management.',
                 },
                 {
                   title: 'Learning and Development Facilitator',
-                  href: '/courses/learning-and-development-facilitator',
+                  href: courseHref(MENU_COURSES.learningDevelopmentFacilitator, courseSlugs),
                   desc: 'Master the art of educational facilitation.',
                 },
                 {
                   title: 'Assessment Practitioner',
-                  href: '/courses/assessment-practioner',
+                  href: courseHref(MENU_COURSES.assessmentPractitioner, courseSlugs),
                   desc: 'Become a certified assessor in your field.',
                 },
               ].map((item, idx) => (
@@ -115,17 +120,17 @@ export default function ContactLearningSection() {
               {[
                 {
                   title: 'Conduct Outcomes-Based Assessment',
-                  href: '/courses/conduct-outcomes-based-assesment',
+                  href: courseHref(MENU_COURSES.conductOutcomesBasedAssessment, courseSlugs),
                   desc: 'Essential skills for professional outcomes-based auditing.',
                 },
                 {
                   title: 'Facilitate Learning Methodologies',
-                  href: '/courses/facilitate-learning-using-a-variety-of-given-methodologies',
+                  href: courseHref(MENU_COURSES.facilitateLearning, courseSlugs),
                   desc: 'Advanced techniques for diverse learning groups.',
                 },
                 {
                   title: 'Conduct Moderation of Assessment',
-                  href: '/courses/conduct-moderation-of-outcomes-based-assessment',
+                  href: courseHref(MENU_COURSES.conductModeration, courseSlugs),
                   desc: 'Quality assurance for educational standards.',
                 },
               ].map((item, idx) => (
