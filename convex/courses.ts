@@ -59,6 +59,19 @@ export const getCourseBySlug = query({
   },
 })
 
+// Safety net for renamed slugs: returns the current slug of the course that
+// previously used the given slug, so the page can 301 instead of 404.
+// Current-slug lookups always run first, so a slug that was recycled onto
+// another course as its live slug can never be shadowed by history here.
+export const resolveStaleSlug = query({
+  args: { slug: v.string() },
+  handler: async (ctx, args) => {
+    const courses = await ctx.db.query('courses').collect()
+    const match = courses.find((c) => c.previousSlugs?.includes(args.slug))
+    return match?.slug ?? null
+  },
+})
+
 export const createCourse = mutation({
   args: {
     name: v.string(),
@@ -150,7 +163,18 @@ export const updateCourse = mutation({
         throw new ConvexError('Slug already in use')
       }
     }
-    await ctx.db.patch(id, rest)
+    // Record the outgoing slug so /courses/<old-slug> can 301 to the new one
+    let previousSlugs: string[] | undefined
+    if (rest.slug !== undefined) {
+      const course = await ctx.db.get(id)
+      if (course?.slug && course.slug !== rest.slug) {
+        const history = new Set(course.previousSlugs ?? [])
+        history.add(course.slug)
+        history.delete(rest.slug) // reverting to an old slug removes it from history
+        previousSlugs = [...history]
+      }
+    }
+    await ctx.db.patch(id, previousSlugs ? { ...rest, previousSlugs } : rest)
     const updated = await ctx.db.get(id)
     if (updated?.slug) {
       await ctx.scheduler.runAfter(0, internal.indexnow.pingUrls, {

@@ -82,6 +82,8 @@ export default defineSchema({
     qualification: v.optional(v.string()),
     level: v.optional(v.string()),
     slug: v.optional(v.string()),
+    // Retired slugs kept so old URLs can 301 to the current slug
+    previousSlugs: v.optional(v.array(v.string())),
     careerOutcomes: v.optional(v.array(v.string())),
 
     createdAt: v.optional(v.union(v.string(), v.number())),

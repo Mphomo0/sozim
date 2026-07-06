@@ -2,7 +2,11 @@ import type { Metadata } from 'next'
 import { permanentRedirect, notFound } from 'next/navigation'
 import CourseDetail from '@/components/sections/programs/CourseDetail'
 import { getBreadcrumbSchema, getCourseSchema } from '@/lib/seo/schemas'
-import { getCachedCourseById, getCachedCourseBySlug } from '@/lib/queries'
+import {
+  getCachedCourseById,
+  getCachedCourseBySlug,
+  getCachedStaleSlugTarget,
+} from '@/lib/queries'
 import { metaTitle, metaDescription } from '@/lib/seo/meta'
 import type { Id } from '@/convex/_generated/dataModel'
 
@@ -113,11 +117,16 @@ export default async function SingleCourse({
   }
 
   let initialCourse = null
+  let staleSlugTarget: string | null = null
   try {
     if (isConvexId) {
       initialCourse = await getCachedCourseById(id as Id<'courses'>)
     } else {
       initialCourse = await getCachedCourseBySlug(id)
+      // Slug not found — it may have been renamed in the admin dashboard.
+      if (!initialCourse) {
+        staleSlugTarget = await getCachedStaleSlugTarget(id)
+      }
     }
   } catch {
     // Convex unreachable — fall through, notFound() below handles null case
@@ -125,6 +134,9 @@ export default async function SingleCourse({
 
   // notFound() and permanentRedirect() must be called outside try/catch so
   // Next.js can intercept their thrown signals correctly.
+  if (staleSlugTarget) {
+    permanentRedirect(`/courses/${staleSlugTarget}`)
+  }
   if (!initialCourse) notFound()
 
   if (isConvexId && initialCourse.slug) {

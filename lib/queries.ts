@@ -22,3 +22,7 @@ export const getCachedCourseById = cache((id: Id<'courses'>) =>
 export const getCachedCourseBySlug = cache((slug: string) =>
   fetchQuery(api.courses.getCourseBySlug, { slug })
 )
+
+export const getCachedStaleSlugTarget = cache((slug: string) =>
+  fetchQuery(api.courses.resolveStaleSlug, { slug })
+)
