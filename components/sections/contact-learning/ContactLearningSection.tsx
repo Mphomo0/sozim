@@ -120,12 +120,12 @@ export default function ContactLearningSection() {
                 },
                 {
                   title: 'Facilitate Learning Methodologies',
-                  href: '/courses/learning-and-development-facilitator',
+                  href: '/courses/facilitate-learning-using-a-variety-of-given-methodologies',
                   desc: 'Advanced techniques for diverse learning groups.',
                 },
                 {
                   title: 'Conduct Moderation of Assessment',
-                  href: '/courses/assessment-practioner',
+                  href: '/courses/conduct-moderation-of-outcomes-based-assessment',
                   desc: 'Quality assurance for educational standards.',
                 },
               ].map((item, idx) => (
