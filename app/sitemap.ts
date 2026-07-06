@@ -76,12 +76,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     ...newsPages,
     ...newsTagPages,
-    {
-      url: `${baseUrl}/welcome-message`,
-      lastModified,
-      changeFrequency: 'yearly',
-      priority: 0.5,
-    },
+    // /welcome-message is noindexed — deliberately excluded from the sitemap.
     {
       url: `${baseUrl}/career-pathway`,
       lastModified,

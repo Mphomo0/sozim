@@ -45,25 +45,6 @@ export default function Navbar() {
   )
   const courses = coursesReq || []
 
-  // Map Convex IDs → slugs so navbar links resolve directly (no 301 redirect)
-  const allCourses = useQuery(api.courses.getCourses, {})
-  const idToSlug = useMemo(() => {
-    const map = new Map<string, string>()
-    ;(allCourses ?? []).forEach((c: { _id: string; slug?: string }) => {
-      if (c.slug) map.set(c._id, c.slug)
-    })
-    return map
-  }, [allCourses])
-  const resolveCourseHref = useCallback(
-    (href: string) => {
-      const m = href.match(/^\/courses\/([a-z0-9]{32})$/)
-      if (!m) return href
-      const slug = idToSlug.get(m[1])
-      return slug ? `/courses/${slug}` : href
-    },
-    [idToSlug],
-  )
-
   const convexUser = useQuery(
     api.users.getUserByClerkId,
     user?.id ? { clerkId: user.id } : 'skip',
@@ -127,7 +108,7 @@ export default function Navbar() {
           links: [
             {
               label: 'Occupational Certificate in Library Assistant',
-              href: '/courses/jd7aetgjc0qs1p2x65b4dz8nax82e1dp',
+              href: '/courses/library-assistant',
             },
           ],
         },
@@ -136,11 +117,11 @@ export default function Navbar() {
           links: [
             {
               label: 'Learning and Development Facilitator',
-              href: '/courses/jd73pdzr7by2fg8npqb4zvw5mh82fsw1',
+              href: '/courses/learning-and-development-facilitator',
             },
             {
               label: 'Assessment Practitioner',
-              href: '/courses/jd74ajdjhj01hdrg48whbak7fd82ezzm',
+              href: '/courses/assessment-practioner',
             },
           ],
         },
@@ -149,15 +130,15 @@ export default function Navbar() {
           links: [
             {
               label: 'Outcome-Based Assessment',
-              href: '/courses/jd7brhpjdrhzhnpb4kkyjpfnbs82fxmm',
+              href: '/courses/conduct-outcomes-based-assesment',
             },
             {
               label: 'Facilitation Using Given Methodologies',
-              href: '/courses/jd722pky3b0ykj0km73xnpkdd982frsa',
+              href: '/courses/facilitate-learning-using-a-variety-of-given-methodologies',
             },
             {
               label: 'Conduct Outcome-Based Moderation',
-              href: '/courses/jd76nnzgs03836p1z0fes73dh582fhz1',
+              href: '/courses/conduct-moderation-of-outcomes-based-assessment',
             },
           ],
         },
@@ -436,7 +417,7 @@ export default function Navbar() {
                               {sub.links.map((link, i) => (
                                 <li key={i}>
                                   <Link
-                                    href={resolveCourseHref(link.href)}
+                                    href={link.href}
                                     prefetch={false}
                                     className="block text-[13px] text-slate-500 hover:text-blue-700 transition"
                                   >
@@ -453,7 +434,7 @@ export default function Navbar() {
 
                   {/* Desktop/Mobile Link */}
                   <Link
-                    href={resolveCourseHref(item.dropdown?.[0]?.links?.[0]?.href || '#')}
+                    href={item.dropdown?.[0]?.links?.[0]?.href || '#'}
                     prefetch={false}
                     className="hidden lg:block text-[15px] font-medium text-slate-500 hover:text-blue-600"
                   >
@@ -504,7 +485,7 @@ export default function Navbar() {
                               {sub.links.map((link, i) => (
                                 <li key={i}>
                                   <Link
-                                    href={resolveCourseHref(link.href)}
+                                    href={link.href}
                                     prefetch={false}
                                     className="block text-[13px] text-slate-500 hover:text-blue-700 transition"
                                   >

@@ -1,28 +1,11 @@
 'use client'
 
 import Link from 'next/link'
-import { useQuery } from 'convex/react'
-import { useMemo } from 'react'
-import { api } from '@/convex/_generated/api'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ChevronRight, GraduationCap, School, BookOpen } from 'lucide-react'
 import { motion } from 'motion/react'
 
 export default function ContactLearningSection() {
-  const allCourses = useQuery(api.courses.getCourses, {})
-  const idToSlug = useMemo(() => {
-    const map = new Map<string, string>()
-    ;(allCourses ?? []).forEach((c: { _id: string; slug?: string }) => {
-      if (c.slug) map.set(c._id, c.slug)
-    })
-    return map
-  }, [allCourses])
-  const resolveHref = (href: string) => {
-    const m = href.match(/^\/courses\/([a-z0-9]{32})$/)
-    if (!m) return href
-    const slug = idToSlug.get(m[1])
-    return slug ? `/courses/${slug}` : href
-  }
   return (
     <section className="py-24 bg-slate-50 relative overflow-hidden">
       {/* Background decoration */}
@@ -82,21 +65,21 @@ export default function ContactLearningSection() {
               {[
                 {
                   title: 'Library Assistant',
-                  href: '/courses/jd7aetgjc0qs1p2x65b4dz8nax82e1dp',
+                  href: '/courses/library-assistant',
                   desc: 'Comprehensive training for modern library management.',
                 },
                 {
                   title: 'Learning and Development Facilitator',
-                  href: '/courses/jd73pdzr7by2fg8npqb4zvw5mh82fsw1',
+                  href: '/courses/learning-and-development-facilitator',
                   desc: 'Master the art of educational facilitation.',
                 },
                 {
                   title: 'Assessment Practitioner',
-                  href: '/courses/jd74ajdjhj01hdrg48whbak7fd82ezzm',
+                  href: '/courses/assessment-practioner',
                   desc: 'Become a certified assessor in your field.',
                 },
               ].map((item, idx) => (
-                <Link key={idx} href={resolveHref(item.href)} className="group">
+                <Link key={idx} href={item.href} className="group">
                   <Card className="h-full border-slate-200/60 bg-white hover:border-blue-500 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 rounded-3xl overflow-hidden">
                     <CardContent className="p-8">
                       <h4 className="text-xl font-bold text-slate-900 mb-3 group-hover:text-blue-600 transition-colors">
@@ -132,21 +115,21 @@ export default function ContactLearningSection() {
               {[
                 {
                   title: 'Conduct Outcomes-Based Assessment',
-                  href: '/courses/jd7brhpjdrhzhnpb4kkyjpfnbs82fxmm',
+                  href: '/courses/conduct-outcomes-based-assesment',
                   desc: 'Essential skills for professional outcomes-based auditing.',
                 },
                 {
                   title: 'Facilitate Learning Methodologies',
-                  href: '/courses/jd73pdzr7by2fg8npqb4zvw5mh82fsw1',
+                  href: '/courses/learning-and-development-facilitator',
                   desc: 'Advanced techniques for diverse learning groups.',
                 },
                 {
                   title: 'Conduct Moderation of Assessment',
-                  href: '/courses/jd74ajdjhj01hdrg48whbak7fd82ezzm',
+                  href: '/courses/assessment-practioner',
                   desc: 'Quality assurance for educational standards.',
                 },
               ].map((item, idx) => (
-                <Link key={idx} href={resolveHref(item.href)} className="group">
+                <Link key={idx} href={item.href} className="group">
                   <Card className="h-full border-slate-200/60 bg-white hover:border-slate-900 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 rounded-3xl overflow-hidden">
                     <CardContent className="p-8">
                       <h4 className="text-xl font-bold text-slate-900 mb-3 group-hover:text-slate-700 transition-colors">
