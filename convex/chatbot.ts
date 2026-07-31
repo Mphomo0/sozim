@@ -1,7 +1,17 @@
 import { v } from "convex/values";
 import { query, mutation, action, internalMutation, internalAction } from "./_generated/server";
 import { api, internal } from "./_generated/api";
-import { tokenize } from "../lib/text-utils";
+import { tokenize, detectSmallTalk, type SmallTalk } from "../lib/text-utils";
+
+const NOT_SURE_MESSAGE =
+  "I’m not sure based on the information available on the website. Please contact Sozim directly for confirmation.";
+
+const SMALL_TALK_REPLIES: Record<SmallTalk, string> = {
+  greeting:
+    "Hi, thanks for reaching out! I can help with our accredited programmes, entry requirements, how to apply, or how to get in touch with the college. What would you like to know?",
+  thanks:
+    "You’re welcome! If there’s anything else you’d like to know about our programmes or how to apply, just ask.",
+};
 
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 const MAX_MESSAGE_LENGTH = 500;
@@ -145,14 +155,27 @@ export const sendChatMessage = action({
       message: trimmed,
     });
 
+    const smallTalk = detectSmallTalk(trimmed);
+    if (smallTalk) {
+      const reply = SMALL_TALK_REPLIES[smallTalk];
+
+      await ctx.runMutation(internal.chatbot.saveMessage, {
+        sessionId: args.sessionId,
+        role: "assistant",
+        message: reply,
+      });
+
+      return { message: reply };
+    }
+
     const relevantChunks = await ctx.runQuery(api.chatbot.searchContentChunks, {
       query: trimmed,
     });
 
-    let answer: string = "I\u2019m not sure based on the information available on the website. Please contact Sozim directly for confirmation.";
+    let answer: string = NOT_SURE_MESSAGE;
 
     if (!relevantChunks || relevantChunks.length === 0) {
-      answer = "I\u2019m not sure based on the information available on the website. Please contact Sozim directly for confirmation.";
+      answer = NOT_SURE_MESSAGE;
     } else {
       const context = relevantChunks
         .map((c) => `[Source: ${c.title} (${c.url})]\n${c.content}`)
@@ -168,7 +191,7 @@ Do not claim Sozim offers something unless it is clearly supported by the provid
 
 If the answer is not found in the provided content, reply exactly:
 
-"I\u2019m not sure based on the information available on the website. Please contact Sozim directly for confirmation."
+"${NOT_SURE_MESSAGE}"
 
 Keep answers short, helpful, and professional.
 
@@ -188,8 +211,7 @@ ${trimmed}`;
         throw new Error("No free models configured. Set OPENROUTER_MODELS in your environment.");
       }
 
-      const FALLBACK_MESSAGE = "I\u2019m not sure based on the information available on the website. Please contact Sozim directly for confirmation.";
-      answer = FALLBACK_MESSAGE;
+      answer = NOT_SURE_MESSAGE;
       let served = false;
       let lastError = "";
 

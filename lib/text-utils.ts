@@ -107,3 +107,32 @@ export function tokenize(text: string): string[] {
     .split(/\s+/)
     .filter(w => w.length > 2 && !STOP_WORDS.has(w))
 }
+
+export type SmallTalk = 'greeting' | 'thanks'
+
+const GREETING_RE =
+  /^(hi|hie|hey|hello|hallo|yo|howzit|greetings|dumela|sawubona|molo|thobela|(hi|hey|hello)\s+there|good\s+(morning|afternoon|evening|day))$/
+
+const THANKS_RE =
+  /^(thanks?|thanks?\s+you|thank\s+you(\s+so\s+much|\s+very\s+much)?|thanks\s+a\s+lot|thanx|thx|much\s+appreciated|appreciate\s+it)$/
+
+/**
+ * Classifies conversational filler that carries no searchable intent.
+ *
+ * Greetings and thank-yous retrieve zero content chunks, which would otherwise
+ * dead-end the visitor on the "I'm not sure" fallback as their first reply.
+ * Returns null for anything with real intent — including a greeting that is
+ * followed by an actual question — so retrieval still runs for those.
+ */
+export function detectSmallTalk(text: string): SmallTalk | null {
+  const normalized = text
+    .toLowerCase()
+    .replace(/[^\w\s]/g, ' ')
+    .trim()
+    .replace(/\s+/g, ' ')
+
+  if (!normalized) return null
+  if (GREETING_RE.test(normalized)) return 'greeting'
+  if (THANKS_RE.test(normalized)) return 'thanks'
+  return null
+}
