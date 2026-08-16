@@ -14,6 +14,7 @@ import {
   SelectContent,
 } from '@/components/ui/select'
 import { careerPathways, CareerPathway, PathwayStep } from '@/lib/pathwayData'
+import { getPathwayAccent } from '@/lib/pathwayLayout'
 import { CheckCircle, Zap, BookOpen, Clock, Users, Globe, ChevronRight } from 'lucide-react'
 import { JSX } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
@@ -76,6 +77,7 @@ const StepCard = ({ step }: { step: PathwayStep }) => (
 
 // --- Pathway Details ---
 const PathwayDetail = ({ pathway }: { pathway: CareerPathway }) => {
+  const accent = getPathwayAccent(pathway.id)
   return (
     <div className="space-y-12 py-8">
       {/* Summary Card */}
@@ -84,22 +86,21 @@ const PathwayDetail = ({ pathway }: { pathway: CareerPathway }) => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <Card className="relative overflow-hidden border-slate-200/60 transition-all duration-500 shadow-xl group">
-          <div className="absolute top-0 left-0 w-1.5 h-full bg-blue-600" />
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          
-          <CardContent className="p-4 md:p-8 lg:p-12 relative z-10">
+        <Card className={`relative overflow-hidden border ${accent.border} transition-all duration-500 shadow-lg group`}>
+          <div className={`absolute top-0 left-0 w-1.5 h-full ${accent.iconText.replace('text-', 'bg-')}`} />
+
+          <CardContent className="p-6 md:p-10 lg:p-12 relative z-10">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-8 pb-8 border-b border-slate-100">
               <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-6">
-                <div className="flex h-12 w-12 md:h-16 md:w-16 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 shadow-sm border border-blue-100">
+                <div className={`flex h-12 w-12 md:h-16 md:w-16 items-center justify-center rounded-2xl ${accent.iconBg} ${accent.iconText} shadow-sm border ${accent.border}`}>
                   {iconMap[pathway.id]}
                 </div>
                 <div>
-                  <h2 className="text-2xl md:text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 leading-tight">
+                  <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-tight text-slate-900 leading-tight">
                     {pathway.title}
                   </h2>
                   <div className="flex flex-wrap gap-2 md:gap-4 mt-2 md:mt-3">
-                    <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200 px-4 py-1 rounded-full font-bold shadow-sm">
+                    <Badge className={`${accent.badgeBg} ${accent.badgeText} px-4 py-1 rounded-full font-bold shadow-sm`}>
                       <Zap className="w-3.5 h-3.5 mr-1.5" /> NQF LEVEL {pathway.n_q_f_level}
                     </Badge>
                     <Badge variant="outline" className="text-slate-600 border-slate-300 px-4 py-1 rounded-full font-semibold">
@@ -258,24 +259,27 @@ export default function CareerPathwayComp() {
 
           {/* Sticky Desktop Tabs */}
           <div className="hidden md:block sticky top-24 z-30 mb-12">
-            <div className="flex justify-center bg-white/70 backdrop-blur-xl p-2 rounded-[28px] shadow-2xl border border-white/50 max-w-4xl mx-auto">
+            <div className="flex justify-center bg-white p-2 rounded-2xl shadow-lg border border-slate-100 max-w-4xl mx-auto">
               <TabsList className="flex gap-2 p-1 bg-slate-100/50 rounded-2xl w-full">
-                {careerPathways.map((pathway) => (
-                  <TabsTrigger
-                    key={pathway.id}
-                    value={pathway.id}
-                    className="
-                      flex-1 py-4 px-6 font-bold transition-all duration-300 rounded-xl
-                      flex items-center justify-center gap-3
-                      data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-lg
-                      data-[state=active]:ring-1 data-[state=active]:ring-slate-100
-                      text-slate-500 hover:text-slate-800 hover:bg-slate-100/50
-                    "
-                  >
-                    {iconMap[pathway.id]}
-                    {pathway.title.split('(')[0].trim()}
-                  </TabsTrigger>
-                ))}
+                {careerPathways.map((pathway) => {
+                  const tabAccent = getPathwayAccent(pathway.id)
+                  return (
+                    <TabsTrigger
+                      key={pathway.id}
+                      value={pathway.id}
+                      className={`
+                        flex-1 py-4 px-6 font-bold transition-all duration-300 rounded-xl
+                        flex items-center justify-center gap-3
+                        data-[state=active]:bg-white ${tabAccent.activeTabText} data-[state=active]:shadow-md
+                        data-[state=active]:ring-1 data-[state=active]:ring-slate-100
+                        text-slate-500 hover:text-slate-800 hover:bg-slate-100/50
+                      `}
+                    >
+                      {iconMap[pathway.id]}
+                      {pathway.title.split('(')[0].trim()}
+                    </TabsTrigger>
+                  )
+                })}
               </TabsList>
             </div>
           </div>
