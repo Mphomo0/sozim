@@ -59,6 +59,7 @@ export function EditCourse() {
         isOpen: course.isOpen ?? true,
         qualification: course.qualification || '',
         level: course.level || '',
+        slug: course.slug || '',
         categoryId: typeof course.categoryId === 'string' ? course.categoryId : course.actualCategoryId || '',
         modules: {
           knowledgeModules: course.modules?.knowledgeModules || [],
@@ -95,6 +96,7 @@ export function EditCourse() {
         isOpen: data.isOpen,
         qualification: data.qualification,
         level: data.level,
+        slug: data.slug,
         categoryId: data.categoryId,
         modules: cleanedModules,
         creditTotals: data.creditTotals,
