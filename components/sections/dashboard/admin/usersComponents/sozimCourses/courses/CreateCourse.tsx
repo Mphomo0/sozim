@@ -54,7 +54,6 @@ export function CreateCourse() {
           [],
       }
 
-      const createCourse = useMutation(api.courses.createCourse)
       await createCourse({
         ...data,
         modules: cleanedModules,
