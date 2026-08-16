@@ -59,4 +59,5 @@ backup.zip
 /.agent/
 /.agents/
 /skills-lock.json
-/docs/.superpowers/
+/.claude/
+/.superpowers/
