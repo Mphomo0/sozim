@@ -38,7 +38,7 @@ export default function SozimPrograms({
           </p>
         </div>
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {initialCourses.map((program) => (
+          {initialCourses.slice(0, 6).map((program) => (
             <Card
               key={program._id}
               className="group relative overflow-hidden border border-slate-200/60 bg-white/80 backdrop-blur-sm transition-all duration-500 hover:shadow-2xl hover:shadow-blue-500/10 hover:-translate-y-2 flex flex-col"

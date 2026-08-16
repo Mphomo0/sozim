@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Clock, Users, CheckCircle, BookOpen, Award } from 'lucide-react'
+import { Clock, Users, BookOpen, Award } from 'lucide-react'
 import Link from 'next/link'
 import { useQuery } from 'convex/react'
 import { api } from '@/convex/_generated/api'
@@ -170,15 +170,6 @@ export default function OurPrograms({
           >
             <AnimatePresence>
               {filteredCourses.map((course) => {
-                // Flatten modules into a preview list of titles
-                const allModules = [
-                  ...(course.modules?.knowledgeModules || []),
-                  ...(course.modules?.practicalSkillModules || []),
-                  ...(course.modules?.workExperienceModules || []),
-                ]
-
-                const moduleTitles = allModules.map((m) => m.title)
-
                 return (
                   <motion.div
                     key={course._id}
@@ -222,75 +213,6 @@ export default function OurPrograms({
                             />
                             <span>{course.duration}</span>
                           </div>
-                        </div>
-
-                        {/* MODULE PREVIEW */}
-                        <div className="mb-6 flex-1">
-                          <h4 className="mb-3 font-bold text-sm tracking-wide text-slate-900 uppercase">
-                            Course Modules
-                          </h4>
-
-                          {moduleTitles.length === 0 ? (
-                            <p className="text-sm text-slate-500 italic">
-                              No modules added yet.
-                            </p>
-                          ) : (
-                            <ul className="space-y-2.5">
-                              {moduleTitles.slice(0, 3).map((title, index) => (
-                                <li
-                                  key={index}
-                                  className="flex items-start gap-3 text-sm text-slate-600 leading-relaxed"
-                                >
-                                  <CheckCircle
-                                    className="h-5 w-5 mt-0.5 shrink-0 text-green-500"
-                                    aria-hidden="true"
-                                  />
-                                  <span>{title}</span>
-                                </li>
-                              ))}
-
-                              {moduleTitles.length > 3 && (
-                                <li className="text-sm font-semibold text-blue-600 mt-2 pl-8">
-                                  +{moduleTitles.length - 3} more modules
-                                </li>
-                              )}
-                            </ul>
-                          )}
-                        </div>
-
-                        {/* ENTRY REQUIREMENTS */}
-                        <div className="mb-8">
-                          <h4 className="mb-3 font-bold text-sm tracking-wide text-slate-900 uppercase">
-                            Requirements
-                          </h4>
-
-                          {course.entryRequirements?.length ? (
-                            <ul className="space-y-2.5">
-                              {course.entryRequirements
-                                .slice(0, 2)
-                                .map((req, index) => (
-                                  <li
-                                    key={index}
-                                    className="flex items-start gap-3 text-sm text-slate-600 leading-relaxed"
-                                  >
-                                    <CheckCircle
-                                      className="h-5 w-5 mt-0.5 shrink-0 text-sky-500"
-                                      aria-hidden="true"
-                                    />
-                                    <span>{req}</span>
-                                  </li>
-                                ))}
-                              {course.entryRequirements.length > 2 && (
-                                <li className="text-sm text-sky-600 pl-8">
-                                  +{course.entryRequirements.length - 2} more
-                                </li>
-                              )}
-                            </ul>
-                          ) : (
-                            <p className="text-sm text-slate-500 italic">
-                              No entry requirements.
-                            </p>
-                          )}
                         </div>
 
                         {/* ACTION BUTTONS */}
