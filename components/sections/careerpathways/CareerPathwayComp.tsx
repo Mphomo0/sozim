@@ -14,7 +14,7 @@ import {
   SelectContent,
 } from '@/components/ui/select'
 import { careerPathways, CareerPathway, PathwayStep } from '@/lib/pathwayData'
-import { getPathwayAccent } from '@/lib/pathwayLayout'
+import { getPathwayAccent, getStepSpan, STEP_SPAN_CLASSES } from '@/lib/pathwayLayout'
 import { CheckCircle, Zap, BookOpen, Clock, Users, Globe, ChevronRight } from 'lucide-react'
 import { JSX } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
@@ -127,63 +127,67 @@ const PathwayDetail = ({ pathway }: { pathway: CareerPathway }) => {
           <div className="h-1 flex-1 bg-slate-100 rounded-full" />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-          {pathway.steps.map((step, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: index * 0.1 }}
-            >
-              <Card className="h-full group hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 border-slate-200/60 overflow-hidden relative">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-500 opacity-20 group-hover:opacity-100 transition-opacity duration-500" />
-                
-                <CardHeader className="pb-4">
-                   <div className="flex items-center justify-between mb-4">
-                     <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 text-white font-bold shadow-lg">
-                       {index + 1}
-                     </span>
-                     {step.n_q_f_level && (
-                       <Badge className="bg-emerald-100 text-emerald-800 border-emerald-200 px-3 py-1 rounded-full font-bold">
-                         NQF {step.n_q_f_level}
-                       </Badge>
-                     )}
-                   </div>
-                   <CardTitle className="text-xl font-bold tracking-tight text-slate-900 group-hover:text-blue-600 transition-colors">
-                     {step.title}
-                   </CardTitle>
-                </CardHeader>
+        <div className="grid grid-cols-1 md:grid-cols-3 md:grid-flow-dense gap-6 md:gap-8">
+          {pathway.steps.map((step, index) => {
+            const span = getStepSpan(step)
+            return (
+              <motion.div
+                key={index}
+                className={STEP_SPAN_CLASSES[span]}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: index * 0.1 }}
+              >
+                <Card className={`h-full group hover:shadow-xl hover:-translate-y-1 transition-all duration-500 border-slate-200/60 overflow-hidden relative`}>
+                  <div className={`absolute top-0 left-0 w-full h-1 ${accent.iconText.replace('text-', 'bg-')} opacity-20 group-hover:opacity-100 transition-opacity duration-500`} />
 
-                <CardContent className="space-y-4">
-                  {step.requirements && (
-                    <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                      <p className="text-sm font-bold text-slate-900 mb-1 flex items-center gap-2">
-                        <CheckCircle className="w-4 h-4 text-emerald-500" /> REQUIREMENTS
-                      </p>
-                      <p className="text-sm font-medium text-slate-600 leading-relaxed">
-                        {step.requirements}
-                      </p>
-                    </div>
-                  )}
+                  <CardHeader className="pb-4">
+                     <div className="flex items-center justify-between mb-4">
+                       <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 text-white font-bold shadow-md">
+                         {index + 1}
+                       </span>
+                       {step.n_q_f_level && (
+                         <Badge className={`${accent.badgeBg} ${accent.badgeText} px-3 py-1 rounded-full font-bold`}>
+                           NQF {step.n_q_f_level}
+                         </Badge>
+                       )}
+                     </div>
+                     <CardTitle className={`text-xl font-bold tracking-tight text-slate-900 group-hover:${accent.iconText} transition-colors`}>
+                       {step.title}
+                     </CardTitle>
+                  </CardHeader>
 
-                  <div className="text-sm font-medium text-slate-600 leading-relaxed pl-1">
-                    {Array.isArray(step.description) ? (
-                      <ul className="space-y-3">
-                        {step.description.map((item, idx) => (
-                          <li key={idx} className="flex gap-3 items-start">
-                            <ChevronRight className="w-4 h-4 mt-0.5 text-blue-400 shrink-0" />
-                            <span dangerouslySetInnerHTML={{ __html: item }} />
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p dangerouslySetInnerHTML={{ __html: step.description }} />
+                  <CardContent className="space-y-4">
+                    {step.requirements && (
+                      <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                        <p className="text-sm font-bold text-slate-900 mb-1 flex items-center gap-2">
+                          <CheckCircle className={`w-4 h-4 ${accent.iconText}`} /> REQUIREMENTS
+                        </p>
+                        <p className="text-sm font-medium text-slate-600 leading-relaxed">
+                          {step.requirements}
+                        </p>
+                      </div>
                     )}
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
+
+                    <div className="text-sm font-medium text-slate-600 leading-relaxed pl-1">
+                      {Array.isArray(step.description) ? (
+                        <ul className="space-y-3">
+                          {step.description.map((item, idx) => (
+                            <li key={idx} className="flex gap-3 items-start">
+                              <ChevronRight className={`w-4 h-4 mt-0.5 ${accent.iconText} shrink-0`} />
+                              <span dangerouslySetInnerHTML={{ __html: item }} />
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p dangerouslySetInnerHTML={{ __html: step.description }} />
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )
+          })}
         </div>
       </div>
 
