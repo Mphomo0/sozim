@@ -154,12 +154,6 @@ export default function Navbar({
         {
           title: 'Teaching Commons',
           href: '/teaching-commons',
-          links: [
-            { label: 'Staff', href: '/teaching-commons/staff' },
-            { label: 'Core Areas', href: '/teaching-commons/core-areas' },
-            { label: 'Flagship Programmes', href: '/teaching-commons/flagship-programmes' },
-            { label: 'Events', href: '/teaching-commons/events' },
-          ],
         },
       ],
     },
