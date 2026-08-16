@@ -213,7 +213,7 @@ const PathwayDetail = ({ pathway }: { pathway: CareerPathway }) => {
                 className="p-3 md:p-4 bg-white hover:bg-slate-50 text-slate-800 border-slate-200 shadow-sm transition-all text-sm md:text-base font-bold rounded-xl md:rounded-2xl flex gap-2 md:gap-3 items-start"
                 variant="outline"
               >
-                <div className="h-5 w-5 md:h-8 md:w-8 flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 shrink-0 mt-0.5">
+                <div className={`h-5 w-5 md:h-8 md:w-8 flex items-center justify-center rounded-lg ${accent.iconBg} ${accent.iconText} shrink-0 mt-0.5`}>
                   <Globe className="w-3 h-3 md:w-5 md:h-5" />
                 </div>
                 <span className="whitespace-pre-line">{reg}</span>
