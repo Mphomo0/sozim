@@ -51,15 +51,6 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/courses"
-                  className="hover:text-blue-400 transition-colors flex items-center gap-2 group"
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-600 scale-0 group-hover:scale-100 transition-transform" />
-                  Courses
-                </Link>
-              </li>
-              <li>
-                <Link
                   href="/about"
                   className="hover:text-blue-400 transition-colors flex items-center gap-2 group"
                 >
@@ -83,33 +74,6 @@ export default function Footer() {
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-blue-600 scale-0 group-hover:scale-100 transition-transform" />
                   News &amp; Insights
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/welcome-message"
-                  className="hover:text-blue-400 transition-colors flex items-center gap-2 group"
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-600 scale-0 group-hover:scale-100 transition-transform" />
-                  Welcome Message
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/career-pathway"
-                  className="hover:text-blue-400 transition-colors flex items-center gap-2 group"
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-600 scale-0 group-hover:scale-100 transition-transform" />
-                  Career Pathways
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/apply"
-                  className="hover:text-blue-400 transition-colors flex items-center gap-2 group"
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-600 scale-0 group-hover:scale-100 transition-transform" />
-                  Apply Now
                 </Link>
               </li>
               <li>
