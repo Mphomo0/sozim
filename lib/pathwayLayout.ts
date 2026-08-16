@@ -1,37 +1,3 @@
-import type { PathwayStep } from './pathwayData'
-
-/**
- * Rough content weight for a pathway step, used only to pick a bento grid
- * span tier. Not a measure of anything semantic — just character count of
- * the flattened description plus a fixed bump when requirements text is
- * present, since that renders as extra content in the card too.
- */
-export function getStepWeight(step: PathwayStep): number {
-  const descriptionText = Array.isArray(step.description)
-    ? step.description.join(' ')
-    : step.description
-  const requirementsBump = step.requirements ? 80 : 0
-  return descriptionText.length + requirementsBump
-}
-
-export type StepSpan = 'sm' | 'md' | 'lg'
-
-const LARGE_WEIGHT_THRESHOLD = 600
-const MEDIUM_WEIGHT_THRESHOLD = 250
-
-export function getStepSpan(step: PathwayStep): StepSpan {
-  const weight = getStepWeight(step)
-  if (weight >= LARGE_WEIGHT_THRESHOLD) return 'lg'
-  if (weight >= MEDIUM_WEIGHT_THRESHOLD) return 'md'
-  return 'sm'
-}
-
-export const STEP_SPAN_CLASSES: Record<StepSpan, string> = {
-  sm: '',
-  md: 'md:row-span-2',
-  lg: 'md:col-span-2 md:row-span-2',
-}
-
 export type PathwayAccent = {
   border: string
   badgeBg: string
@@ -73,6 +39,16 @@ const PATHWAY_ACCENTS: Record<string, PathwayAccent> = {
     iconText: 'text-emerald-600',
     titleHover: 'group-hover:text-emerald-600',
     bar: 'bg-emerald-600',
+  },
+  'career-info-officer': {
+    border: 'border-amber-200',
+    badgeBg: 'bg-amber-100',
+    badgeText: 'text-amber-800',
+    activeTabText: 'data-[state=active]:text-amber-700',
+    iconBg: 'bg-amber-50',
+    iconText: 'text-amber-600',
+    titleHover: 'group-hover:text-amber-600',
+    bar: 'bg-amber-600',
   },
 }
 

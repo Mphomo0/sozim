@@ -14,8 +14,8 @@ import {
   SelectContent,
 } from '@/components/ui/select'
 import { careerPathways, CareerPathway, PathwayStep } from '@/lib/pathwayData'
-import { getPathwayAccent, getStepSpan, STEP_SPAN_CLASSES } from '@/lib/pathwayLayout'
-import { CheckCircle, Zap, BookOpen, Clock, Users, Globe, ChevronRight } from 'lucide-react'
+import { getPathwayAccent } from '@/lib/pathwayLayout'
+import { CheckCircle, Zap, BookOpen, Clock, Users, Globe, ChevronRight, ClipboardList } from 'lucide-react'
 import { JSX } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 
@@ -24,6 +24,7 @@ const iconMap: Record<string, JSX.Element> = {
   assessor: <CheckCircle className="w-6 h-6 text-blue-500" />,
   facilitator: <Users className="w-6 h-6 text-indigo-500" />,
   library: <BookOpen className="w-6 h-6 text-emerald-500" />,
+  'career-info-officer': <ClipboardList className="w-6 h-6 text-amber-500" />,
 }
 
 // --- Step Card ---
@@ -127,13 +128,11 @@ const PathwayDetail = ({ pathway }: { pathway: CareerPathway }) => {
           <div className="h-1 flex-1 bg-slate-100 rounded-full" />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           {pathway.steps.map((step, index) => {
-            const span = getStepSpan(step)
             return (
               <motion.div
                 key={index}
-                className={STEP_SPAN_CLASSES[span]}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: index * 0.1 }}
@@ -241,7 +240,7 @@ export default function CareerPathwayComp() {
       <div className="container mx-auto py-16 px-4">
         <Tabs value={tabValue} onValueChange={setTabValue} className="w-full">
           {/* Mobile Selector */}
-          <div className="md:hidden mb-8">
+          <div className="xl:hidden mb-8">
             <Select value={tabValue} onValueChange={setTabValue}>
               <SelectTrigger className="w-full h-14 rounded-2xl bg-white border-slate-200 shadow-lg">
                 <SelectValue placeholder="Choose a pathway" />
@@ -262,9 +261,9 @@ export default function CareerPathwayComp() {
           </div>
 
           {/* Sticky Desktop Tabs */}
-          <div className="hidden md:block sticky top-24 z-30 mb-12">
-            <div className="flex justify-center bg-white p-2 rounded-2xl shadow-lg border border-slate-100 max-w-4xl mx-auto">
-              <TabsList className="flex gap-2 p-1 bg-slate-100/50 rounded-2xl w-full">
+          <div className="hidden xl:block sticky top-24 z-30 mb-12">
+            <div className="flex justify-center bg-white p-2 rounded-2xl shadow-lg border border-slate-100 max-w-7xl mx-auto">
+              <TabsList className="flex flex-nowrap justify-center gap-1 p-1 bg-slate-100/50 rounded-2xl w-full h-auto">
                 {careerPathways.map((pathway) => {
                   const tabAccent = getPathwayAccent(pathway.id)
                   return (
@@ -272,8 +271,9 @@ export default function CareerPathwayComp() {
                       key={pathway.id}
                       value={pathway.id}
                       className={`
-                        flex-1 py-4 px-6 font-bold transition-all duration-300 rounded-xl
-                        flex items-center justify-center gap-3
+                        flex-none whitespace-nowrap py-3 px-3 lg:px-4 text-sm font-bold transition-all duration-300 rounded-xl
+                        flex items-center justify-center gap-2
+                        [&_svg]:size-4
                         data-[state=active]:bg-white ${tabAccent.activeTabText} data-[state=active]:shadow-md
                         data-[state=active]:ring-1 data-[state=active]:ring-slate-100
                         text-slate-500 hover:text-slate-800 hover:bg-slate-100/50

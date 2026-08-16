@@ -328,4 +328,82 @@ export const careerPathways: CareerPathway[] = [
       'Professional bodies relevant to their subject field',
     ],
   },
+  // --- Career Development Information Officer Data ---
+  {
+    id: 'career-info-officer',
+    title: 'Career Development Information Officer (Qualification 96372)',
+    n_q_f_level: 5,
+    credits: 120,
+    description:
+      'A Career Development Information Officer is responsible for managing, organising, protecting and providing access to information within an organisation.',
+    steps: [
+      {
+        title: '1. Entry Level',
+        description: [
+          '<strong>Typical Roles:</strong>',
+          '• Administrative Assistant',
+          '• Records Clerk',
+          '• Data Capturer',
+          '• Information/Records Assistant',
+        ],
+      },
+      {
+        title: '2. Information Officer',
+        n_q_f_level: 5,
+        description: [
+          '<strong>Core Responsibilities:</strong>',
+          '• Manage organisational information and records',
+          '• Ensure information is accurate and accessible',
+          '• Handle information requests',
+          '• Maintain confidentiality and compliance',
+          '• Assist with information policies and procedures',
+        ],
+      },
+      {
+        title: '3. Intermediate Level',
+        description: [
+          '<strong>Possible Roles:</strong>',
+          '• Senior Information Officer',
+          '• Information Management Specialist',
+          '• Records Manager',
+          '• Information Governance Officer',
+        ],
+      },
+      {
+        title: '4. Advanced Level',
+        description: [
+          '<strong>Possible Roles:</strong>',
+          '• Information Manager',
+          '• Information Governance Manager',
+          '• Data/Information Compliance Manager',
+          '• Knowledge Management Manager',
+        ],
+      },
+      {
+        title: '5. Senior Management',
+        description: [
+          '<strong>Possible Roles:</strong>',
+          '• Head of Information Management',
+          '• Director: Information Management',
+          '• Chief Information Officer (CIO), depending on qualifications and organisation',
+        ],
+      },
+      {
+        title: '6. Occupational Development',
+        description: [
+          'To develop in this career, you can build skills in:',
+          '',
+          '<strong>Key Skill Areas:</strong>',
+          '• Information and records management',
+          '• Computer and database systems',
+          '• Data management and analysis',
+          '• POPIA and information privacy',
+          '• Research and report writing',
+          '• Communication and customer service',
+          '• Information governance and compliance',
+          '• Microsoft Office and other information-management systems',
+        ],
+      },
+    ],
+  },
 ]
