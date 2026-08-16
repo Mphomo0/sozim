@@ -28,7 +28,7 @@ export default function TeachingCommonsIntro() {
         {/* Welcome letter */}
         <section className="space-y-6">
           <div className="flex items-center gap-3 md:gap-4">
-            <h2 className="text-xl md:text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900">
+            <h2 className="text-xl md:text-2xl font-extrabold tracking-tight text-slate-900">
               Welcome to the Teaching Commons at Sozim
             </h2>
             <div className="h-1 flex-1 bg-slate-100 rounded-full" />
