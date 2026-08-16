@@ -39,6 +39,8 @@ export type PathwayAccent = {
   activeTabText: string
   iconBg: string
   iconText: string
+  titleHover: string
+  bar: string
 }
 
 const PATHWAY_ACCENTS: Record<string, PathwayAccent> = {
@@ -49,6 +51,8 @@ const PATHWAY_ACCENTS: Record<string, PathwayAccent> = {
     activeTabText: 'data-[state=active]:text-blue-700',
     iconBg: 'bg-blue-50',
     iconText: 'text-blue-600',
+    titleHover: 'group-hover:text-blue-600',
+    bar: 'bg-blue-600',
   },
   facilitator: {
     border: 'border-indigo-200',
@@ -57,6 +61,8 @@ const PATHWAY_ACCENTS: Record<string, PathwayAccent> = {
     activeTabText: 'data-[state=active]:text-indigo-700',
     iconBg: 'bg-indigo-50',
     iconText: 'text-indigo-600',
+    titleHover: 'group-hover:text-indigo-600',
+    bar: 'bg-indigo-600',
   },
   library: {
     border: 'border-emerald-200',
@@ -65,6 +71,8 @@ const PATHWAY_ACCENTS: Record<string, PathwayAccent> = {
     activeTabText: 'data-[state=active]:text-emerald-700',
     iconBg: 'bg-emerald-50',
     iconText: 'text-emerald-600',
+    titleHover: 'group-hover:text-emerald-600',
+    bar: 'bg-emerald-600',
   },
 }
 

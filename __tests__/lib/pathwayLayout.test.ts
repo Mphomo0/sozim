@@ -72,15 +72,32 @@ describe('getStepSpan', () => {
 
 describe('getPathwayAccent', () => {
   it('returns the assessor accent for id "assessor"', () => {
-    expect(getPathwayAccent('assessor').iconText).toContain('blue')
+    const accent = getPathwayAccent('assessor')
+    expect(accent.iconText).toContain('blue')
+    expect(accent.titleHover).toBe('group-hover:text-blue-600')
+    expect(accent.bar).toBe('bg-blue-600')
   })
 
   it('returns the facilitator accent for id "facilitator"', () => {
-    expect(getPathwayAccent('facilitator').iconText).toContain('indigo')
+    const accent = getPathwayAccent('facilitator')
+    expect(accent.iconText).toContain('indigo')
+    expect(accent.titleHover).toBe('group-hover:text-indigo-600')
+    expect(accent.bar).toBe('bg-indigo-600')
   })
 
   it('returns the library accent for id "library"', () => {
-    expect(getPathwayAccent('library').iconText).toContain('emerald')
+    const accent = getPathwayAccent('library')
+    expect(accent.iconText).toContain('emerald')
+    expect(accent.titleHover).toBe('group-hover:text-emerald-600')
+    expect(accent.bar).toBe('bg-emerald-600')
+  })
+
+  it('has complete literal titleHover and bar classes for every accent (Tailwind JIT requires literal strings)', () => {
+    const accents = ['assessor', 'facilitator', 'library'].map(getPathwayAccent)
+    for (const accent of accents) {
+      expect(accent.titleHover).toMatch(/^group-hover:text-\w+-600$/)
+      expect(accent.bar).toMatch(/^bg-\w+-600$/)
+    }
   })
 
   it('falls back to the assessor accent for an unknown id', () => {

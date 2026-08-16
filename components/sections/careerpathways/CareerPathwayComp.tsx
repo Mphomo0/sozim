@@ -87,7 +87,7 @@ const PathwayDetail = ({ pathway }: { pathway: CareerPathway }) => {
         transition={{ duration: 0.5 }}
       >
         <Card className={`relative overflow-hidden border ${accent.border} transition-all duration-500 shadow-lg group`}>
-          <div className={`absolute top-0 left-0 w-1.5 h-full ${accent.iconText.replace('text-', 'bg-')}`} />
+          <div className={`absolute top-0 left-0 w-1.5 h-full ${accent.bar}`} />
 
           <CardContent className="p-6 md:p-10 lg:p-12 relative z-10">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-8 pb-8 border-b border-slate-100">
@@ -127,7 +127,7 @@ const PathwayDetail = ({ pathway }: { pathway: CareerPathway }) => {
           <div className="h-1 flex-1 bg-slate-100 rounded-full" />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 md:grid-flow-dense gap-6 md:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
           {pathway.steps.map((step, index) => {
             const span = getStepSpan(step)
             return (
@@ -139,7 +139,7 @@ const PathwayDetail = ({ pathway }: { pathway: CareerPathway }) => {
                 transition={{ duration: 0.4, delay: index * 0.1 }}
               >
                 <Card className={`h-full group hover:shadow-xl hover:-translate-y-1 transition-all duration-500 border-slate-200/60 overflow-hidden relative`}>
-                  <div className={`absolute top-0 left-0 w-full h-1 ${accent.iconText.replace('text-', 'bg-')} opacity-20 group-hover:opacity-100 transition-opacity duration-500`} />
+                  <div className={`absolute top-0 left-0 w-full h-1 ${accent.bar} opacity-20 group-hover:opacity-100 transition-opacity duration-500`} />
 
                   <CardHeader className="pb-4">
                      <div className="flex items-center justify-between mb-4">
@@ -152,7 +152,7 @@ const PathwayDetail = ({ pathway }: { pathway: CareerPathway }) => {
                          </Badge>
                        )}
                      </div>
-                     <CardTitle className={`text-xl font-bold tracking-tight text-slate-900 group-hover:${accent.iconText} transition-colors`}>
+                     <CardTitle className={`text-xl font-bold tracking-tight text-slate-900 ${accent.titleHover} transition-colors`}>
                        {step.title}
                      </CardTitle>
                   </CardHeader>
