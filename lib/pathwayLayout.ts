@@ -16,8 +16,8 @@ export function getStepWeight(step: PathwayStep): number {
 
 export type StepSpan = 'sm' | 'md' | 'lg'
 
-const LARGE_WEIGHT_THRESHOLD = 400
-const MEDIUM_WEIGHT_THRESHOLD = 100
+const LARGE_WEIGHT_THRESHOLD = 600
+const MEDIUM_WEIGHT_THRESHOLD = 250
 
 export function getStepSpan(step: PathwayStep): StepSpan {
   const weight = getStepWeight(step)

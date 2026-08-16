@@ -15,8 +15,8 @@ const shortStep: PathwayStep = {
 const mediumStep: PathwayStep = {
   title: 'Medium step',
   description: [
-    'This step has a moderate amount of descriptive bullet content.',
-    'It spans a couple of bullet points to push the weight up.',
+    'This step has a moderate amount of descriptive bullet content that goes into some depth about what the role actually involves day to day.',
+    'It spans a couple of bullet points to push the weight solidly into the medium tier without tipping over into the largest bucket.',
   ],
 }
 
@@ -24,10 +24,10 @@ const longStepWithRequirements: PathwayStep = {
   title: 'Long step',
   requirements: 'Some non-trivial requirement text for this step.',
   description: [
-    'This step has a long list of bullet points describing many responsibilities.',
-    'It keeps going with more detail about the role and its expectations.',
-    'And even more detail here to push total content length well past the large threshold for this particular career step in the pathway.',
-    'One more bullet to be sure this clears six hundred characters once joined together with the other bullet point strings above it.',
+    'This step has a long list of bullet points describing many responsibilities that a practitioner takes on once they reach this stage of the pathway.',
+    'It keeps going with more detail about the role and its expectations, covering the kinds of tasks, environments, and stakeholders involved.',
+    'And even more detail here to push total content length well past the large threshold for this particular career step in the pathway description.',
+    'One more bullet to be sure this clears the six hundred character mark once joined together with the other bullet point strings listed above it here.',
   ],
 }
 
