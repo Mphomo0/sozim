@@ -151,6 +151,16 @@ export default function Navbar({
             },
           ],
         },
+        {
+          title: 'Teaching Commons',
+          href: '/teaching-commons',
+          links: [
+            { label: 'Staff', href: '/teaching-commons/staff' },
+            { label: 'Core Areas', href: '/teaching-commons/core-areas' },
+            { label: 'Flagship Programmes', href: '/teaching-commons/flagship-programmes' },
+            { label: 'Events', href: '/teaching-commons/events' },
+          ],
+        },
       ],
     },
     { label: 'Library', href: '/library' },
@@ -414,7 +424,7 @@ export default function Navbar({
                           className="pb-2 border-b border-gray-100 last:border-b-0"
                         >
                           <Link
-                            href={sub.title || sub.links?.[0]?.href || '#'}
+                            href={sub.href || sub.links?.[0]?.href || '#'}
                             prefetch={false}
                             className="block text-[14px] font-bold text-blue-900 hover:text-blue-700"
                           >
@@ -482,7 +492,7 @@ export default function Navbar({
                           className="border-b border-blue-100 last:border-b-0"
                         >
                           <Link
-                            href={sub.title || sub.links?.[0]?.href || '#'}
+                            href={sub.href || sub.links?.[0]?.href || '#'}
                             prefetch={false}
                             className="block text-[14px] font-bold text-blue-800 hover:text-blue-600 py-1"
                           >
