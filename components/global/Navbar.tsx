@@ -115,6 +115,10 @@ export default function Navbar({
               label: 'Occupational Certificate in Library Assistant',
               href: courseHref(MENU_COURSES.libraryAssistant, courseSlugs),
             },
+            {
+              label: 'Career Development Information Officer',
+              href: courseHref(MENU_COURSES.careerDevelopmentInformationOfficer, courseSlugs),
+            },
           ],
         },
         {

@@ -9,6 +9,10 @@ export const MENU_COURSES = {
     id: 'jd7aetgjc0qs1p2x65b4dz8nax82e1dp',
     slug: 'library-assistant',
   },
+  careerDevelopmentInformationOfficer: {
+    id: 'jd77cmmwk9phvexqkat929kzgn8ckzfr',
+    slug: 'career-development-information-officer',
+  },
   learningDevelopmentFacilitator: {
     id: 'jd73pdzr7by2fg8npqb4zvw5mh82fsw1',
     slug: 'learning-and-development-facilitator',

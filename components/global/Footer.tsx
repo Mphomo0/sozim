@@ -151,6 +151,14 @@ export default function Footer() {
                   href="/courses"
                   className="hover:text-blue-400 transition-colors"
                 >
+                  Career Development Information Officer
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/courses"
+                  className="hover:text-blue-400 transition-colors"
+                >
                   Learning &amp; Development Facilitator
                 </Link>
               </li>
