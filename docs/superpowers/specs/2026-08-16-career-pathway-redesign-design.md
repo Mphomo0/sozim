@@ -100,6 +100,15 @@ no business logic). No new automated tests planned — verification is
 visual: run the dev server, check `/career-pathway` at mobile / tablet /
 desktop breakpoints for all three pathway tabs.
 
+## Hard constraint
+
+No text content changes of any kind. Every string currently rendered from
+`pathwayData.ts` (pathway titles, descriptions, step titles, requirements,
+step descriptions, registration items) must appear in the redesigned
+component unchanged and in full — this is a layout/style-only change.
+Verification must include a manual text diff (old page vs. new page) per
+pathway tab, not just a visual check.
+
 ## Risks / open questions
 
 - The content-weight span calculation is a heuristic; it may need a quick
