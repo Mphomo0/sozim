@@ -85,6 +85,10 @@ export const createCourse = mutation({
     isPopular: v.optional(v.boolean()),
     image: v.optional(v.string()),
     modules: v.optional(v.any()), // Temporarily accept arbitrary shape to unblock TS
+    qualification: v.optional(v.string()),
+    level: v.optional(v.string()),
+    creditTotals: v.optional(v.any()),
+    entryRequirements: v.optional(v.array(v.string())),
     slug: v.optional(v.string()),
     careerOutcomes: v.optional(v.array(v.string())),
   },
