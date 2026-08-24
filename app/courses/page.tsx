@@ -138,7 +138,7 @@ export default async function CoursesPage() {
   const faqSchema = getFAQSchema(courseFAQs)
   const breadcrumbSchema = getBreadcrumbSchema([
     { name: 'Home', url: BASE_URL },
-    { name: 'Our Programs', url: `${BASE_URL}/courses` },
+    { name: 'Courses & Programmes', url: `${BASE_URL}/courses` },
   ])
   const webPageSchema = getWebPageSchema({
     name: 'Courses | Sozim - Accredited Education and Training College',
@@ -209,8 +209,8 @@ export default async function CoursesPage() {
       />
       <Breadcrumb />
       <PageHeader
-        title="Our Programs"
-        details="Choose from our wide range of industry-recognised programmes designed to advance your career."
+        title="Our Courses & Programmes"
+        details="Explore accredited courses in Bloemfontein — including our Library Assistant course, short skills courses, and ETD training programmes designed to advance your career."
       />
       <OurPrograms initialCourses={initialCourses} initialCategories={initialCategories} />
     </>
