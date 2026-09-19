@@ -179,7 +179,7 @@ export default function OurPrograms({
                     exit={{ opacity: 0, scale: 0.9 }}
                     transition={{ duration: 0.4 }}
                   >
-                    <Card className="group h-full flex flex-col overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-blue-500/10 hover:-translate-y-2 border border-slate-200/60 bg-white/80 backdrop-blur-sm relative">
+                    <Card className="group h-full flex flex-col overflow-hidden transition-all duration-200 hover:shadow-2xl hover:shadow-blue-500/10 hover:-translate-y-2 border border-slate-200/60 bg-white/80 backdrop-blur-sm relative">
                       <div className="absolute inset-0 bg-linear-to-br from-blue-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
                       <CardHeader className="relative z-10 pb-4">
@@ -265,20 +265,13 @@ export default function OurPrograms({
 
             <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
               <Link href="/contact">
-                <Button
-                  size="lg"
-                  className="h-14 px-8 rounded-full text-lg shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:-translate-y-1 transition-all duration-300 bg-linear-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 border-0 text-white w-full sm:w-auto"
-                >
+                <Button variant="cta" size="cta">
                   Contact an Advisor
                 </Button>
               </Link>
 
               <Link href="/student">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="h-14 px-8 rounded-full text-lg bg-white/10 text-white backdrop-blur-md border border-white/20 hover:bg-white/20 hover:-translate-y-1 transition-all duration-300 w-full sm:w-auto"
-                >
+                <Button variant="cta-outline" size="cta">
                   Start Application
                 </Button>
               </Link>

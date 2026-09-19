@@ -17,7 +17,7 @@ import { careerPathways, CareerPathway, PathwayStep } from '@/lib/pathwayData'
 import { getPathwayAccent } from '@/lib/pathwayLayout'
 import { CheckCircle, Zap, BookOpen, Clock, Users, Globe, ChevronRight, ClipboardList } from 'lucide-react'
 import { JSX } from 'react'
-import { motion, AnimatePresence } from 'motion/react'
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react'
 
 // Icon map for reuse
 const iconMap: Record<string, JSX.Element> = {
@@ -79,14 +79,54 @@ const StepCard = ({ step }: { step: PathwayStep }) => (
 // --- Pathway Details ---
 const PathwayDetail = ({ pathway }: { pathway: CareerPathway }) => {
   const accent = getPathwayAccent(pathway.id)
+  const shouldReduceMotion = useReducedMotion()
+
+  const summaryMotion = shouldReduceMotion
+    ? {
+        initial: { opacity: 0 },
+        animate: { opacity: 1 },
+        transition: { duration: 0.2 },
+      }
+    : {
+        initial: { opacity: 0, y: 20 },
+        animate: { opacity: 1, y: 0 },
+        transition: { type: 'spring' as const, bounce: 0, duration: 0.4 },
+      }
+
+  const getStepMotion = (index: number) =>
+    shouldReduceMotion
+      ? {
+          initial: { opacity: 0 },
+          animate: { opacity: 1 },
+          transition: { duration: 0.2, delay: index * 0.1 },
+        }
+      : {
+          initial: { opacity: 0, y: 20 },
+          animate: { opacity: 1, y: 0 },
+          transition: {
+            type: 'spring' as const,
+            bounce: 0,
+            duration: 0.4,
+            delay: index * 0.1,
+          },
+        }
+
+  const registrationMotion = shouldReduceMotion
+    ? {
+        initial: { opacity: 0 },
+        whileInView: { opacity: 1 },
+        transition: { duration: 0.2 },
+      }
+    : {
+        initial: { opacity: 0 },
+        whileInView: { opacity: 1 },
+        transition: { type: 'spring' as const, bounce: 0, duration: 0.4 },
+      }
+
   return (
     <div className="space-y-12 py-8">
       {/* Summary Card */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
+      <motion.div {...summaryMotion}>
         <Card className={`relative overflow-hidden border ${accent.border} transition-all duration-500 shadow-lg group`}>
           <div className={`absolute top-0 left-0 w-1.5 h-full ${accent.bar}`} />
 
@@ -131,12 +171,7 @@ const PathwayDetail = ({ pathway }: { pathway: CareerPathway }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           {pathway.steps.map((step, index) => {
             return (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: index * 0.1 }}
-              >
+              <motion.div key={index} {...getStepMotion(index)}>
                 <Card className={`h-full group hover:shadow-xl hover:-translate-y-1 transition-all duration-500 border-slate-200/60 overflow-hidden relative`}>
                   <div className={`absolute top-0 left-0 w-full h-1 ${accent.bar} opacity-20 group-hover:opacity-100 transition-opacity duration-500`} />
 
@@ -192,9 +227,8 @@ const PathwayDetail = ({ pathway }: { pathway: CareerPathway }) => {
 
       {/* Registration Section */}
       {pathway.registration && (
-        <motion.div 
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
+        <motion.div
+          {...registrationMotion}
           viewport={{ once: true }}
           className="space-y-8"
         >
@@ -261,7 +295,7 @@ export default function CareerPathwayComp() {
           </div>
 
           {/* Sticky Desktop Tabs */}
-          <div className="hidden xl:block sticky top-24 z-30 mb-12">
+          <div className="hidden xl:block sticky top-36 z-30 mb-12">
             <div className="flex justify-center bg-white p-2 rounded-2xl shadow-lg border border-slate-100 max-w-7xl mx-auto">
               <TabsList className="flex flex-nowrap justify-center gap-1 p-1 bg-slate-100/50 rounded-2xl w-full h-auto">
                 {careerPathways.map((pathway) => {

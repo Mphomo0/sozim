@@ -41,7 +41,7 @@ export default function SozimPrograms({
           {initialCourses.slice(0, 6).map((program) => (
             <Card
               key={program._id}
-              className="group relative overflow-hidden border border-slate-200/60 bg-white/80 backdrop-blur-sm transition-all duration-500 hover:shadow-2xl hover:shadow-blue-500/10 hover:-translate-y-2 flex flex-col"
+              className="group relative overflow-hidden border border-slate-200/60 bg-white/80 backdrop-blur-sm transition-all duration-200 hover:shadow-2xl hover:shadow-blue-500/10 hover:-translate-y-2 flex flex-col"
             >
               <CardContent className="p-8 flex-1 flex flex-col">
                 <div className="mb-6 flex items-center gap-3">
@@ -78,10 +78,7 @@ export default function SozimPrograms({
         </div>
         <div className="mt-16 text-center">
           <Link href="/courses">
-            <Button
-              size="lg"
-              className="h-14 px-8 rounded-full text-lg shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:-translate-y-1 transition-all duration-300 bg-linear-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 border-0 text-white"
-            >
+            <Button variant="cta" size="cta">
               View All Programs
             </Button>
           </Link>

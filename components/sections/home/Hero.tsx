@@ -90,30 +90,18 @@ export default function Hero() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               {SLIDES[current].ctaLink === '/register' ? (
                 <SignUpButton mode="modal">
-                  <Button
-                    size="lg"
-                    className="text-lg h-14 px-8 rounded-full shadow-xl shadow-blue-500/25 hover:shadow-blue-500/40 hover:-translate-y-1 transition-all duration-300"
-                  >
+                  <Button variant="cta" size="cta">
                     {SLIDES[current].ctaText}
                   </Button>
                 </SignUpButton>
               ) : (
-                <Button
-                  size="lg"
-                  asChild
-                  className="text-lg h-14 px-8 rounded-full shadow-xl shadow-blue-500/25 hover:shadow-blue-500/40 hover:-translate-y-1 transition-all duration-300"
-                >
+                <Button variant="cta" size="cta" asChild>
                   <Link href={SLIDES[current].ctaLink}>
                     {SLIDES[current].ctaText}
                   </Link>
                 </Button>
               )}
-              <Button
-                size="lg"
-                variant="secondary"
-                asChild
-                className="text-lg h-14 px-8 rounded-full bg-white/10 text-white backdrop-blur-md border border-white/20 hover:bg-white/20 hover:-translate-y-1 transition-all duration-300"
-              >
+              <Button variant="cta-outline" size="cta" asChild>
                 <Link href="/about">Learn More</Link>
               </Button>
             </div>

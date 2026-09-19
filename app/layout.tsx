@@ -201,7 +201,9 @@ export default async function RootLayout({
             <ClientLayoutWrapper courseSlugs={courseSlugs}>
               <SyncUserWithConvex />
               <ToastContainer />
-              <main id="main-content">{children}</main>
+              <main id="main-content" className="scroll-mt-36">
+                {children}
+              </main>
             </ClientLayoutWrapper>
           </ConvexClientProvider>
         </ClerkProvider>

@@ -180,20 +180,16 @@ export default function ApplyPage() {
                 (ETD). Study contact or online. Intakes run four times a year.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button
-                  size="lg"
-                  asChild
-                  className="text-lg h-14 px-8 rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/25"
-                >
+                <Button variant="cta" size="cta" asChild>
                   <Link href="/student">
                     Start Application <ArrowRight className="ml-2 w-5 h-5" />
                   </Link>
                 </Button>
                 <Button
-                  size="lg"
                   variant="outline"
+                  size="cta"
                   asChild
-                  className="text-lg h-14 px-8 rounded-full border-slate-300 hover:bg-slate-100"
+                  className="border-slate-300 hover:bg-slate-100"
                 >
                   <Link href="/courses">View Courses</Link>
                 </Button>
@@ -304,9 +300,9 @@ export default function ApplyPage() {
               Sozim's accredited LIS and ETD qualifications.
             </p>
             <Button
-              size="lg"
+              size="cta"
               asChild
-              className="text-lg h-14 px-10 rounded-full bg-white text-blue-900 hover:bg-blue-50 shadow-xl"
+              className="bg-white text-blue-900 hover:bg-blue-50 shadow-xl"
             >
               <Link href="/student">
                 Apply Now <ArrowRight className="ml-2 w-5 h-5" />

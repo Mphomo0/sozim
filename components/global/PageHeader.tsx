@@ -14,7 +14,7 @@ export default function PageHeader({ title, details }: PageHeaderProps) {
 
       <div className="relative z-10 container mx-auto px-4">
         <div className="flex flex-col items-center text-center">
-          <h1 className="mb-6 text-5xl font-extrabold tracking-tight md:text-6xl lg:text-7xl text-slate-900 drop-shadow-sm">
+          <h1 className="mb-6 text-5xl font-extrabold tracking-tight md:text-6xl md:tracking-[-0.03em] lg:text-7xl lg:tracking-[-0.035em] text-slate-900 drop-shadow-sm">
             {title}
           </h1>
           <p className="max-w-3xl text-xl text-slate-600 font-light leading-relaxed">

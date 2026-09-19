@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { useAction, useMutation, useQuery } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 import { MessageCircle, X, Send, Loader2, Sparkles } from 'lucide-react'
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react'
 
 interface Message {
   _id?: string
@@ -18,6 +19,7 @@ function generateSessionId(): string {
 }
 
 export default function ChatbotWidget() {
+  const shouldReduceMotion = useReducedMotion()
   const [isOpen, setIsOpen] = useState(false)
   const [input, setInput] = useState('')
   const [isSending, setIsSending] = useState(false)
@@ -121,18 +123,49 @@ export default function ChatbotWidget() {
   const messageCount = localMessages.filter((m) => m.role === 'user').length
   const atLimit = messageCount >= 15
 
+  const backdropMotion = {
+    initial: { opacity: 0 },
+    animate: { opacity: 1 },
+    exit: { opacity: 0 },
+    transition: { duration: shouldReduceMotion ? 0.15 : 0.2 },
+  }
+
+  const panelMotion = shouldReduceMotion
+    ? {
+        initial: { opacity: 0 },
+        animate: { opacity: 1 },
+        exit: { opacity: 0 },
+        transition: { duration: 0.15 },
+      }
+    : {
+        initial: { opacity: 0, scale: 0.9 },
+        animate: { opacity: 1, scale: 1 },
+        exit: { opacity: 0, scale: 0.9 },
+        transition: { type: 'spring' as const, bounce: 0.1, duration: 0.3 },
+      }
+
   return (
     <>
-      {isOpen && (
-        <div
-          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 md:hidden"
-          onClick={() => setIsOpen(false)}
-        />
-      )}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            key="chatbot-backdrop"
+            className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 md:hidden"
+            {...backdropMotion}
+            onClick={() => setIsOpen(false)}
+          />
+        )}
+      </AnimatePresence>
 
       <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-3">
-        {isOpen && (
-          <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 w-95 max-w-[calc(100vw-2rem)] h-140 max-h-[calc(100vh-8rem)] flex flex-col overflow-hidden animate-fade-in">
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              key="chatbot-panel"
+              className="bg-white rounded-2xl shadow-2xl border border-gray-200 w-95 max-w-[calc(100vw-2rem)] h-140 max-h-[calc(100vh-8rem)] flex flex-col overflow-hidden"
+              style={{ transformOrigin: 'bottom right' }}
+              {...panelMotion}
+            >
             <div className="flex items-center justify-between px-4 py-3 bg-blue-900 text-white shrink-0">
               <div className="flex items-center gap-2">
                 <Sparkles className="w-5 h-5" />
@@ -208,8 +241,9 @@ export default function ChatbotWidget() {
                 </button>
               </div>
             </div>
-          </div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <button
           onClick={() => {

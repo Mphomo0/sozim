@@ -29,21 +29,11 @@ export default function CTA() {
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button
-            size="lg"
-            variant="secondary"
-            asChild
-            className="text-base sm:text-lg"
-          >
+          <Button variant="cta" size="cta" asChild>
             <Link href="/apply">Apply Now</Link>
           </Button>
 
-          <Button
-            size="lg"
-            variant="outline"
-            asChild
-            className="text-base sm:text-lg border-white text-black hover:text-white hover:bg-white/10"
-          >
+          <Button variant="cta-outline" size="cta" asChild>
             <Link href="/contact">Contact Us</Link>
           </Button>
         </div>
