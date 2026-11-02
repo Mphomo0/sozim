@@ -42,6 +42,13 @@ const nextConfig: NextConfig = {
     ],
   },
 
+  async redirects() {
+    return [
+      // External links/bots request /home; send them to the homepage
+      { source: '/home', destination: '/', permanent: true },
+    ]
+  },
+
   async headers() {
     const securityHeaders = [
       { key: 'X-Content-Type-Options', value: 'nosniff' },
